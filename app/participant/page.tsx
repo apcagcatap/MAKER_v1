@@ -71,12 +71,12 @@ export default async function ParticipantDashboard() {
 
         <ParticipantNav />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ">
           <div className="mb-12 text-center">
             <div className="flex items-center justify-center gap-6 mb-8">
               <div className="relative">
-                <div className="w-32 h-32 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center shadow-2xl">
-                  <div className="text-6xl">🦉</div>
+                <div>
+                  <img src="hismarty.png" alt="Owl" className="w-60 h-60 object-contain" />
                 </div>
               </div>
               <h1 className="text-5xl font-bold text-white drop-shadow-lg">
@@ -119,49 +119,74 @@ export default async function ParticipantDashboard() {
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {featuredQuest && (
-          <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden mb-12">
-            <div className="p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                  {featuredQuest.skill?.name?.charAt(0) || "M"}
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 uppercase tracking-wide">
-                    Department of Science and Technology
-                  </div>
-                  <div className="font-semibold text-gray-900">{featuredQuest.skill?.name || "General"} Institute</div>
-                </div>
+<main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-[#004a98]">
+  {featuredQuest && (
+    <div className="max-w-5xl mx-auto bg-gradient-to-r from-blue-50 to-gray-100 rounded-3xl shadow-xl overflow-hidden mb-12 border border-gray-200">
+      <div className="p-8">
+        {/* Header Section */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-3xl px-6 py-4 inline-block mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-400 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xl">
+                  {featuredQuest.skill?.name?.charAt(0) || "S"}
+                </span>
               </div>
+            </div>
+            <div className="text-white">
+              <div className="text-xs uppercase tracking-wide font-medium opacity-90">
+                Department of Science and Technology
+              </div>
+              <div className="font-bold text-lg">
+                {featuredQuest.skill?.name || "Science and Technology"}
+              </div>
+              <div className="text-sm opacity-90 font-bold">Science and Technology Information Institute</div>
+            </div>
+          </div>
+        </div>
 
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
-                  <h3 className="text-2xl font-bold mb-4">{featuredQuest.title}</h3>
-                  <p className="text-blue-100 mb-4">{featuredQuest.description}</p>
-                  <div className="flex items-center gap-3">
-                    <span className="px-3 py-1 bg-red-500 text-white text-sm font-medium rounded-full">
-                      {featuredQuest.difficulty || "Beginner"}
-                    </span>
-                    <div className="flex-1 h-2 bg-blue-400 rounded-full overflow-hidden">
-                      <div className="h-full bg-white" style={{ width: "30%" }} />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-xl font-bold text-gray-900 mb-4">Goal Of This Quest</h4>
-                  <p className="text-gray-600 leading-relaxed">
-                    {featuredQuest.description ||
-                      "Complete this quest to earn XP and unlock new skills. Follow the instructions and complete all tasks to finish this quest successfully."}
-                  </p>
+        <div className="grid md:grid-cols-2 gap-8 items-start">
+          {/* Left Card - Quest Info */}
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl p-8 text-white shadow-lg">
+            <div className="flex items-center justify-center mb-6">
+              <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                <div className="w-16 h-16 bg-white bg-opacity-30 rounded-full flex items-center justify-center">
+                  <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                  </svg>
                 </div>
               </div>
             </div>
+            
+            <h3 className="text-2xl font-bold mb-4 text-center">{featuredQuest.title}</h3>
+            <p className="text-center text-sm mb-6 text-blue-50">
+              Will you be a keeper of the Tower Flame?
+            </p>
+            
+            <div className="flex items-center justify-center gap-3">
+              <span className="px-4 py-1.5 bg-red-500 text-white text-sm font-semibold rounded-full shadow-md">
+                {featuredQuest.difficulty || "Beginner"}
+              </span>
+              <div className="flex-1 max-w-[200px] h-2 bg-blue-400 bg-opacity-40 rounded-full overflow-hidden">
+                <div className="h-full bg-white rounded-full" style={{ width: "25%" }} />
+              </div>
+            </div>
           </div>
-        )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Right Section - Goal */}
+          <div className="pt-4">
+            <h4 className="text-3xl font-bold text-gray-900 mb-6">Goal Of This Quest</h4>
+            <p className="text-gray-700 leading-relaxed text-base">
+              {featuredQuest.description ||
+                "Design and build a functional sensor array using an Arduino that can detect motion or environmental changes, triggering a signal to light up a watchtower. This quest introduces the basics of physical computing, wiring, and sensor integration your mission is to bring the tower to life and guard the realm!"}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 ">
           <StatsCard
             title="Total XP"
             value={profile.xp}
