@@ -78,6 +78,35 @@ export async function updateSession(request: NextRequest) {
       }
     }
 
+    // Check if user is accessing a role-specific route
+    if (user && (request.nextUrl.pathname.startsWith("/admin") || 
+                  request.nextUrl.pathname.startsWith("/facilitator") || 
+                  request.nextUrl.pathname.startsWith("/participant"))) {
+      
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single()
+
+      if (profileError) {
+        console.error("❌ Error checking role access:", profileError.message)
+      } else if (profile?.role) {
+        // Extract the role from the path (e.g., "/admin/users" -> "admin")
+        const pathRole = request.nextUrl.pathname.split("/")[1]
+        
+        console.log(`🔐 Checking access: User role="${profile.role}", Path role="${pathRole}"`)
+        
+        // If user is trying to access a different role's area, redirect to their own
+        if (pathRole !== profile.role) {
+          console.log(`⛔ Access denied - redirecting from /${pathRole} to /${profile.role}`)
+          const url = request.nextUrl.clone()
+          url.pathname = `/${profile.role}`
+          return NextResponse.redirect(url)
+        }
+      }
+    }
+
     console.log("✅ Middleware finished successfully for:", request.nextUrl.pathname)
     return supabaseResponse
   } catch (e) {

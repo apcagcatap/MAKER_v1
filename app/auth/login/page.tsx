@@ -31,11 +31,25 @@ export default function LoginPage() {
       if (error) throw error
 
       if (data.user) {
-        const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single()
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", data.user.id)
+          .single()
+
+        if (profileError) {
+          console.error("Error fetching profile:", profileError)
+          throw new Error("Failed to load user profile")
+        }
+
+        console.log("Login - User role:", profile?.role)
 
         if (profile?.role) {
+          // Force a router refresh to ensure middleware runs
+          router.refresh()
           router.push(`/${profile.role}`)
         } else {
+          console.error("No role found in profile")
           router.push("/auth/select-role")
         }
       }

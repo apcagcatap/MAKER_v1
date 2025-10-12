@@ -36,13 +36,14 @@ export default function SignupPage() {
     setError(null)
 
     try {
-      // Sign up the user
+      // Sign up the user with role in metadata
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             display_name: displayName,
+            role: role, // Include role in user metadata
           },
         },
       })
@@ -50,7 +51,10 @@ export default function SignupPage() {
       if (error) throw error
 
       if (data.user) {
-        // Update profile with selected role
+        // Wait a moment for the trigger to complete
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Update profile with selected role (ensure it's set)
         const { error: profileError } = await supabase
           .from("profiles")
           .update({ role, display_name: displayName })
@@ -58,6 +62,11 @@ export default function SignupPage() {
 
         if (profileError) throw profileError
 
+        // Wait a moment to ensure the update is complete
+        await new Promise(resolve => setTimeout(resolve, 200))
+
+        // Force a router refresh to ensure middleware runs
+        router.refresh()
         // Redirect to appropriate dashboard
         router.push(`/${role}`)
       }
