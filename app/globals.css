@@ -6,7 +6,7 @@
 :root {
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
 
-  --background: oklch(1 0 0);
+  --background:  #004a98;
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -44,7 +44,7 @@
 @theme inline {
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
 
-  --color-background: #ffffff;
+  --color-background:  #004a98;
   --color-foreground: #0a0a0a;
 
   --color-card: #ffffff;
