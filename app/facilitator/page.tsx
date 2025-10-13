@@ -4,6 +4,7 @@ import { FacilitatorNav } from "@/components/layout/facilitator-nav"
 import { StatsCard } from "@/components/participant/stats-card"
 import { Users, Target, Award, TrendingUp } from "lucide-react"
 import { QuestManagementCard } from "@/components/facilitator/quest-management-card"
+import Image from "next/image"
 
 export default async function FacilitatorDashboard() {
   const supabase = await createClient()
@@ -56,15 +57,42 @@ export default async function FacilitatorDashboard() {
 
   return (
     <div className="min-h-screen">
-      <FacilitatorNav />
+      {/* Header Section with Greeting */}
+      <div
+        className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
+        style={{ borderBottomLeftRadius: "3rem", borderBottomRightRadius: "3rem" }}
+      >
+        <div className="absolute inset-0 opacity-100 z-0">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url('/navbarBg.png')`,
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              borderBottomLeftRadius: "3rem",
+              borderBottomRightRadius: "3rem",
+            }}
+          />
+        </div>
+        <div className="relative z-10">
+          <FacilitatorNav />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+            <div className="flex items-center justify-center gap-6 mb-8">
+              <div className="relative">
+                <Image src="/hismarty.png" alt="Owl" width={180} height={180} className="w-44 h-44 object-contain" />
+              </div>
+              <h1 className="text-5xl font-bold text-white drop-shadow-lg">
+                Hi there, {profile.display_name || "Facilitator"}!
+              </h1>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Facilitator Dashboard</h1>
-          <p className="text-gray-600">Manage quests and track participant progress</p>
-        </div>
-
+        {/* REMOVED the old greeting card/header here; everything else stays */}
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatsCard
@@ -96,7 +124,7 @@ export default async function FacilitatorDashboard() {
         {/* Recent Quests */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">Recent Quests</h2>
+            <h2 className="text-2xl font-bold text-cyan-100">Recent Quests</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recentQuests?.map((quest) => (
