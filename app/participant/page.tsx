@@ -225,7 +225,7 @@ export default async function ParticipantDashboard() {
         )}
 
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Explore New Quests</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">Explore New Quests</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {availableQuests?.map((quest) => (
               <QuestCard key={quest.id} quest={quest} />
@@ -234,7 +234,7 @@ export default async function ParticipantDashboard() {
         </div>
 
         <div className="text-center mt-12">
-          <p className="text-gray-500 text-sm">©Maker</p>
+          <p className="text-white text-sm">©Maker</p>
         </div>
       </main>
     </div>
