@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Users, Target, Award, MessageSquare, Settings, LogOut } from "lucide-react"
+import { Home, Users, Target, Award, MessageSquare, Settings, LogOut, User } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
@@ -26,13 +26,13 @@ export function AdminNav() {
   ]
 
   return (
-    <nav className="bg-white border-b border-gray-200">
+    <nav className="relative z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
             <Link
               href="/admin"
-              className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent"
+              className="text-2xl font-bold text-white"
             >
               MAKER
             </Link>
@@ -45,7 +45,7 @@ export function AdminNav() {
                     key={item.href}
                     href={item.href}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                      isActive ? "bg-purple-100 text-purple-700" : "text-gray-600 hover:bg-gray-100"
+                      isActive ? "bg-blue-600 text-white" : "text-blue-100 hover:bg-blue-700 hover:text-white"
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -55,13 +55,23 @@ export function AdminNav() {
               })}
             </div>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <LogOut className="w-5 h-5" />
-            <span>Logout</span>
-          </button>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/admin/account"
+              className="flex items-center gap-2 px-4 py-2 text-blue-100 hover:text-white transition-colors"
+            >
+              <span className="font-medium">Account</span>
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
+                <User className="w-5 h-5" />
+              </div>
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 text-blue-100 hover:text-white transition-colors"
+            >
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </div>
     </nav>

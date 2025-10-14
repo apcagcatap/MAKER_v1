@@ -66,20 +66,29 @@ export default async function AdminDashboard() {
     .limit(5)
 
   return (
-    <div className="min-h-screen bg-blue-900">
+    <div
+      className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
+      style={{
+        backgroundImage: `url("/navbarBg.png")`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <AdminNav />
-      <div className="relative h-48">
-        <Image
-          src="/navbarBg.png"
-          alt="Background"
-          layout="fill"
-          objectFit="cover"
-          quality={100}
-          className="absolute inset-0 z-0"
-        />
-        <div className="relative z-10 flex flex-col items-center justify-center h-full text-white">
-          <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-lg">Complete system overview and management</p>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ">
+        <div className="mb-12 text-center">
+          <div className="flex items-center justify-center gap-6 mb-8">
+            <div className="relative">
+              <div>
+                <Image src="/hismarty.png" alt="Owl" width={240} height={240} className="object-contain" />
+              </div>
+            </div>
+            <h1 className="text-5xl font-bold text-white drop-shadow-lg">
+              Admin Dashboard
+            </h1>
+          </div>
+          <p className="text-lg text-white">Complete system overview and management</p>
         </div>
       </div>
 
