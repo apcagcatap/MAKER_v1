@@ -38,10 +38,10 @@ export default async function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-page-bg">
+    <div className="min-h-screen bg-gradient-page-bg flex flex-col">
       <ParticipantNav />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 flex-grow">
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-card-foreground mb-2">Account Settings</h1>
@@ -87,6 +87,26 @@ export default async function AccountPage() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Footer */}
+      <footer className="mt-auto w-full bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="space-y-4 text-center">
+            <h3 className="font-bold text-white text-lg">About MAKER</h3>
+            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+              A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
+            </p>
+            <div className="flex justify-center gap-8 text-sm text-blue-100">
+              <a href="/participant/forums" className="hover:text-white transition-colors">Community Forums</a>
+              <a href="/participant/about" className="hover:text-white transition-colors">About</a>
+            </div>
+            <div className="text-sm text-blue-200 pt-4 border-t border-blue-700/30 mt-4">
+              <p className="font-semibold">Department of Science and Technology</p>
+              <p>Science and Technology Information Institute</p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

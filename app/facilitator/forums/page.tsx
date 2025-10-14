@@ -26,7 +26,7 @@ export default async function FacilitatorForumsPage() {
     .order("created_at", { ascending: false })
 
   return (
-    <div className="min-h-screen bg-blue-900">
+    <div className="min-h-screen bg-blue-900 flex flex-col">
       {/* Header Section with Greeting */}
       <div
         className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
@@ -59,7 +59,7 @@ export default async function FacilitatorForumsPage() {
         </div>
       </div>
 
-      <main className="relative -mt-16 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 bg-white rounded-lg shadow-lg">
+      <main className="relative -mt-16 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 bg-white rounded-lg shadow-lg flex-grow">
         <div className="space-y-4">
           {forums?.map((forum) => (
             <Link
@@ -98,6 +98,26 @@ export default async function FacilitatorForumsPage() {
           </div>
         )}
       </main>
+
+      {/* Footer */}
+      <footer className="mt-auto w-full bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="space-y-4 text-center">
+            <h3 className="font-bold text-white text-lg">About MAKER</h3>
+            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+              A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
+            </p>
+            <div className="flex justify-center gap-8 text-sm text-blue-100">
+              <a href="/facilitator/forums" className="hover:text-white transition-colors">Community Forums</a>
+              <a href="/facilitator" className="hover:text-white transition-colors">Documentation</a>
+            </div>
+            <div className="text-sm text-blue-200 pt-4 border-t border-blue-700/30 mt-4">
+              <p className="font-semibold">Department of Science and Technology</p>
+              <p>Science and Technology Information Institute</p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

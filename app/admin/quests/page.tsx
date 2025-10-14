@@ -30,10 +30,10 @@ export default async function AdminQuestsPage() {
   const inactiveQuests = allQuests?.filter((q) => !q.is_active) || []
 
   return (
-    <div className="min-h-screen bg-gradient-page-bg">
+    <div className="min-h-screen bg-gradient-page-bg flex flex-col">
       <AdminNav />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 flex-grow">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">Quest Management</h1>
@@ -87,25 +87,27 @@ export default async function AdminQuestsPage() {
             </div>
           </TabsContent>
         </Tabs>
+      </main>
 
         {/* Footer */}
-        <footer className="mt-12 pt-8 border-t border-blue-700/30 text-center">
-          <div className="space-y-4">
-            <h3 className="font-bold text-white text-lg">About MAKER</h3>
-            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
-              A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
-            </p>
-            <div className="flex justify-center gap-8 text-sm text-blue-100">
-              <a href="/admin/forums" className="hover:text-white transition-colors">Community Forums</a>
-              <a href="/admin/settings" className="hover:text-white transition-colors">Documentation</a>
-            </div>
-            <div className="text-sm text-blue-200 pt-4 border-t border-blue-700/30 mt-4">
-              <p className="font-semibold">Department of Science and Technology</p>
-              <p>Science and Technology Information Institute</p>
+        <footer className="mt-auto w-full bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="space-y-4 text-center">
+              <h3 className="font-bold text-white text-lg">About MAKER</h3>
+              <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+                A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
+              </p>
+              <div className="flex justify-center gap-8 text-sm text-blue-100">
+                <a href="/admin/forums" className="hover:text-white transition-colors">Community Forums</a>
+                <a href="/admin/settings" className="hover:text-white transition-colors">Documentation</a>
+              </div>
+              <div className="text-sm text-blue-200 pt-4 border-t border-blue-700/30 mt-4">
+                <p className="font-semibold">Department of Science and Technology</p>
+                <p>Science and Technology Information Institute</p>
+              </div>
             </div>
           </div>
         </footer>
-      </main>
     </div>
   )
 }

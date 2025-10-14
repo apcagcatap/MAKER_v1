@@ -67,7 +67,7 @@ export default async function AdminDashboard() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-page-bg relative"
+      className="min-h-screen bg-gradient-page-bg relative flex flex-col"
       style={{
         backgroundImage: `url("/navbarBg.png")`,
         backgroundRepeat: "no-repeat",
@@ -91,7 +91,7 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      <main className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <main className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex-grow pb-8">
         <div className="bg-card rounded-xl shadow-lg p-6">
           {/* User Stats */}
           <div className="mb-8">
@@ -254,25 +254,27 @@ export default async function AdminDashboard() {
             </div>
           </div>
         </div>
+      </main>
 
         {/* Footer */}
-        <footer className="mt-12 pt-8 border-t border-border text-center">
-          <div className="space-y-4">
-            <h3 className="font-bold text-white text-lg">About MAKER</h3>
-            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
-              A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
-            </p>
-            <div className="flex justify-center gap-8 text-sm text-blue-100">
-              <a href="/admin/forums" className="hover:text-white transition-colors">Community Forums</a>
-              <a href="/admin/settings" className="hover:text-white transition-colors">Documentation</a>
-            </div>
-            <div className="text-sm text-blue-200 pt-4 border-t border-blue-700/30 mt-4">
-              <p className="font-semibold">Department of Science and Technology</p>
-              <p>Science and Technology Information Institute</p>
+        <footer className="mt-auto w-full bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="space-y-4 text-center">
+              <h3 className="font-bold text-white text-lg">About MAKER</h3>
+              <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+                A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
+              </p>
+              <div className="flex justify-center gap-8 text-sm text-blue-100">
+                <a href="/admin/forums" className="hover:text-white transition-colors">Community Forums</a>
+                <a href="/admin/settings" className="hover:text-white transition-colors">Documentation</a>
+              </div>
+              <div className="text-sm text-blue-200 pt-4 border-t border-blue-700/30 mt-4">
+                <p className="font-semibold">Department of Science and Technology</p>
+                <p>Science and Technology Information Institute</p>
+              </div>
             </div>
           </div>
         </footer>
-      </main>
     </div>
   )
 }

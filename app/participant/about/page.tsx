@@ -29,7 +29,7 @@ export default async function AboutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-page-bg">
+    <div className="min-h-screen bg-gradient-page-bg flex flex-col">
       <div
         className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
         style={{ borderBottomLeftRadius: "3rem", borderBottomRightRadius: "3rem" }}
@@ -62,7 +62,7 @@ export default async function AboutPage() {
         </div>
       </div>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow">
         <div className="space-y-6">
           {/* Main Description Card */}
           <Card className="shadow-lg border-0 bg-card">

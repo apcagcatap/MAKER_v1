@@ -37,7 +37,7 @@ export default async function SkillsPage() {
   const overallProgress = totalSkills > 0 ? (learnedSkills / totalSkills) * 100 : 0
 
   return (
-    <div className="min-h-screen bg-gradient-page-bg">
+    <div className="min-h-screen bg-gradient-page-bg flex flex-col">
       {/* 🟦 Navbar + Background + Progress Section */}
       <div
         className="bg-solid-blue-accent relative overflow-hidden"
@@ -94,7 +94,7 @@ export default async function SkillsPage() {
       </div>
 
       {/* 🧭 Skills List Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow">
         <h1 className="text-5xl text-white font-bold drop-shadow-lg mb-4">Skills</h1>
         <p className="text-white/80 text-lg mb-10">
           Track your progress across different skills
@@ -106,6 +106,26 @@ export default async function SkillsPage() {
           ))}
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="mt-auto w-full bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="space-y-4 text-center">
+            <h3 className="font-bold text-white text-lg">About MAKER</h3>
+            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+              A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
+            </p>
+            <div className="flex justify-center gap-8 text-sm text-blue-100">
+              <a href="/participant/forums" className="hover:text-white transition-colors">Community Forums</a>
+              <a href="/participant/about" className="hover:text-white transition-colors">About</a>
+            </div>
+            <div className="text-sm text-blue-200 pt-4 border-t border-blue-700/30 mt-4">
+              <p className="font-semibold">Department of Science and Technology</p>
+              <p>Science and Technology Information Institute</p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
