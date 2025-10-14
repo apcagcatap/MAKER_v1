@@ -43,15 +43,18 @@ export default async function ForumsPage() {
         </div>
       </div>
 
-      <main className="relative -mt-16 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-8 flex-grow">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {forums?.map((forum) => (
-            <Link
+            <div
               key={forum.id}
-              href={`/participant/forums/${forum.id}`}
-              className="block bg-card rounded-xl shadow-lg p-6 hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col"
+              className="bg-card rounded-xl border p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col"
             >
-              <h3 className="text-xl font-bold text-card-foreground mb-2">{forum.title}</h3>
+              <Link href={`/participant/forums/${forum.id}`} className="block mb-3">
+                <h3 className="text-xl font-bold text-card-foreground hover:text-interactive-primary transition-colors">
+                  {forum.title}
+                </h3>
+              </Link>
               <p className="text-muted-foreground mb-4 flex-grow line-clamp-2">{forum.description}</p>
 
               <div className="flex items-center justify-between text-sm text-muted-foreground border-t pt-4">
@@ -63,7 +66,7 @@ export default async function ForumsPage() {
                   <MessageSquare className="w-5 h-5 text-brand-blue" />
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
 
@@ -82,14 +85,6 @@ export default async function ForumsPage() {
             <p className="text-sm text-on-blue max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/participant/forums" className="text-on-blue hover:text-white transition-colors text-sm">
-                Forums
-              </a>
-              <a href="#" className="text-on-blue hover:text-white transition-colors text-sm">
-                Documentation
-              </a>
-            </div>
             <p className="text-on-blue/70 text-xs pt-2">
               &copy; 2025 MAKER Platform
             </p>

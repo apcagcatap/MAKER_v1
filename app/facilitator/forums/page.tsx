@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { FacilitatorNav } from "@/components/layout/facilitator-nav"
-import { MessageSquare, Clock } from "lucide-react"
+import { MessageSquare } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
 import { CreateForumDialog } from "@/components/facilitator/create-forum-dialog"
 
 export default async function FacilitatorForumsPage() {
@@ -26,8 +25,8 @@ export default async function FacilitatorForumsPage() {
     .order("created_at", { ascending: false })
 
   return (
-    <div className="min-h-screen bg-brand-blue-dark flex flex-col">
-      {/* Header Section with Greeting */}
+    <div className="min-h-screen bg-gradient-page-bg flex flex-col">
+      {/* Header Section */}
       <div
         className="bg-gradient-to-br from-brand-blue-dark via-brand-blue-dark to-brand-blue-dark relative overflow-hidden"
         style={{ borderBottomLeftRadius: "3rem", borderBottomRightRadius: "3rem" }}
@@ -47,30 +46,30 @@ export default async function FacilitatorForumsPage() {
         </div>
         <div className="relative z-10">
           <FacilitatorNav />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-4xl font-bold text-white mb-2">Forums</h1>
-                <p className="text-gray-200">Manage community discussions</p>
-              </div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pb-24">
+            <div className="flex items-center justify-between">
+              <h1 className="text-5xl font-bold text-white">Forums Management</h1>
               <CreateForumDialog />
             </div>
           </div>
         </div>
       </div>
 
-      <main className="relative -mt-16 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 bg-white rounded-lg shadow-lg flex-grow">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {forums?.map((forum) => (
-            <Link
+            <div
               key={forum.id}
-              href={`/facilitator/forums/${forum.id}`}
-              className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col"
+              className="bg-card rounded-xl border p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col"
             >
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{forum.title}</h3>
-              <p className="text-gray-600 mb-4 flex-grow line-clamp-2">{forum.description}</p>
+              <Link href={`/facilitator/forums/${forum.id}`} className="block mb-3">
+                <h3 className="text-xl font-bold text-card-foreground hover:text-interactive-primary transition-colors">
+                  {forum.title}
+                </h3>
+              </Link>
+              <p className="text-muted-foreground mb-4 flex-grow line-clamp-2">{forum.description}</p>
 
-              <div className="flex items-center justify-between text-sm text-gray-500 border-t pt-4">
+              <div className="flex items-center justify-between text-sm text-muted-foreground border-t pt-4">
                 <div className="flex items-center gap-2">
                   <MessageSquare className="w-4 h-4" />
                   <span>{forum.posts?.[0]?.count || 0} posts</span>
@@ -79,13 +78,13 @@ export default async function FacilitatorForumsPage() {
                   <MessageSquare className="w-5 h-5 text-brand-blue" />
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
 
         {forums?.length === 0 && (
           <div className="col-span-full text-center py-12">
-            <p className="text-gray-500">No forums yet. Create your first forum to get started!</p>
+            <p className="text-on-blue">No forums yet. Create your first forum to get started!</p>
           </div>
         )}
       </main>
@@ -98,14 +97,6 @@ export default async function FacilitatorForumsPage() {
             <p className="text-sm text-on-blue max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/participant/forums" className="text-on-blue hover:text-white transition-colors text-sm">
-                Forums
-              </a>
-              <a href="#" className="text-on-blue hover:text-white transition-colors text-sm">
-                Documentation
-              </a>
-            </div>
             <p className="text-on-blue/70 text-xs pt-2">
               &copy; 2025 MAKER Platform
             </p>

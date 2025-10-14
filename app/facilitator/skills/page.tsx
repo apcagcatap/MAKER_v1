@@ -92,14 +92,6 @@ export default async function FacilitatorSkillsPage() {
             <p className="text-sm text-on-blue max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
-            <div className="flex justify-center gap-8 text-sm text-on-blue">
-              <a href="/participant/forums" className="text-on-blue hover:text-white transition-colors text-sm">
-                Forums
-              </a>
-              <a href="#" className="text-on-blue hover:text-white transition-colors text-sm">
-                Documentation
-              </a>
-            </div>
             <p className="text-on-blue/70 text-xs pt-2">
               &copy; 2025 MAKER Platform
             </p>

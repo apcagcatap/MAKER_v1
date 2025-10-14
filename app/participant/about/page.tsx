@@ -118,24 +118,14 @@ export default async function AboutPage() {
           </Card>
         </div>
 
-        {/* Footer Resources */}
-        <footer className="mt-12 pt-8 border-t border-border">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-bold text-card-foreground mb-3">Resources</h3>
-              <ul className="space-y-2 text-sm text-secondary">
-                <li><a href="/participant/forums" className="hover:text-interactive-primary transition-colors">Community Forums</a></li>
-                <li><a href="/participant/quests" className="hover:text-interactive-primary transition-colors">Browse Quests</a></li>
-                <li><a href="/participant/skills" className="hover:text-interactive-primary transition-colors">Skill Tracks</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-card-foreground mb-3">Contact & Support</h3>
-              <p className="text-sm text-secondary">
-                Need help? Reach out to our support team at{' '}
-                <a href="mailto:support@maker.app" className="text-interactive-primary hover:text-interactive-primary-hover font-semibold">support@maker.app</a>
-              </p>
-            </div>
+        {/* Footer */}
+        <footer className="mt-12 pt-8 border-t border-gray-200">
+          <div className="text-center">
+            <h3 className="font-bold text-gray-900 mb-3">Contact & Support</h3>
+            <p className="text-base text-gray-700">
+              Need help? Reach out to our support team at{' '}
+              <a href="mailto:support@maker.app" className="text-blue-600 hover:text-blue-700 font-semibold hover:underline">support@maker.app</a>
+            </p>
           </div>
         </footer>
       </main>

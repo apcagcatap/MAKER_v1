@@ -58,6 +58,8 @@ export default async function FacilitatorDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <FacilitatorNav />
+      
       {/* Header Section with Greeting */}
       <div
         className="bg-gradient-to-br from-brand-blue-dark via-brand-blue-dark to-brand-blue-dark relative overflow-hidden"
@@ -77,8 +79,7 @@ export default async function FacilitatorDashboard() {
           />
         </div>
         <div className="relative z-10">
-          <FacilitatorNav />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
             <div className="text-center">
               <div className="relative flex justify-center mb-8">
                 <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-4">
@@ -207,10 +208,6 @@ export default async function FacilitatorDashboard() {
             <p className="text-sm text-on-blue max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
-            <div className="flex justify-center gap-8 text-sm text-on-blue">
-              <a href="/facilitator/forums" className="hover:text-white transition-colors">Forums</a>
-              <a href="#" className="hover:text-white transition-colors">Documentation</a>
-            </div>
             <div className="text-sm text-on-blue pt-4 border-t border-brand-blue-hover/30 mt-4">
               <p className="font-semibold">Department of Science and Technology</p>
               <p>Science and Technology Information Institute</p>

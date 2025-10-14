@@ -66,6 +66,8 @@ export default async function ParticipantDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-page-bg flex flex-col">
+      <ParticipantNav />
+      
       <div className="bg-solid-blue-accent relative overflow-hidden"
         style={{ borderBottomLeftRadius: "3rem", borderBottomRightRadius: "3rem" }}>
         <div className="absolute inset-0 opacity-100">
@@ -82,9 +84,7 @@ export default async function ParticipantDashboard() {
           />
         </div>
 
-        <ParticipantNav />
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
           <div className="mb-12 text-center">
             <div className="relative flex justify-center mb-8">
               <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-4">
@@ -134,10 +134,10 @@ export default async function ParticipantDashboard() {
   {featuredQuest && (
     <div className="bg-white rounded-3xl shadow-xl overflow-hidden mb-12 p-8">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-brand-blue to-brand-blue-medium rounded-2xl px-6 py-4 inline-block mb-8">
+      <div className="bg-brand-blue rounded-2xl px-6 py-4 inline-block mb-8">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-            <div className="w-10 h-10 bg-gradient-to-br from-brand-blue to-brand-blue-medium rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-brand-blue rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xl">
                 {featuredQuest.skill?.name?.charAt(0) || "S"}
               </span>
@@ -251,10 +251,6 @@ export default async function ParticipantDashboard() {
             <p className="text-sm text-on-blue max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
-            <div className="flex justify-center gap-8 text-sm text-on-blue">
-              <a href="/participant/forums" className="hover:text-white transition-colors">Forums</a>
-              <a href="#" className="hover:text-white transition-colors">Documentation</a>
-            </div>
             <div className="text-sm text-on-blue pt-4 border-t border-brand-blue-hover/30 mt-4">
               <p className="font-semibold">Department of Science and Technology</p>
               <p>Science and Technology Information Institute</p>

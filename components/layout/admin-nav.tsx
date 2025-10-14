@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, Users, Target, Award, Settings, LogOut, User } from "lucide-react"
+import { Home, Users, Target, Award, Settings, LogOut, User, MessageSquare } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
@@ -21,6 +21,7 @@ export function AdminNav() {
     { href: "/admin/users", icon: Users, label: "Users" },
     { href: "/admin/quests", icon: Target, label: "Quests" },
     { href: "/admin/skills", icon: Award, label: "Skills" },
+    { href: "/admin/forums", icon: MessageSquare, label: "Forums" },
     { href: "/admin/settings", icon: Settings, label: "Settings" },
   ]
 

@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, Target, Award, User, Info } from "lucide-react"
+import { Home, Target, Award, User, Info, MessageSquare } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
@@ -20,6 +20,7 @@ export function ParticipantNav() {
   const navItems = [
     { href: "/participant/quests", icon: Target, label: "Quests" },
     { href: "/participant/skills", icon: Award, label: "Skills" },
+    { href: "/participant/forums", icon: MessageSquare, label: "Forums" },
     { href: "/participant/about", icon: Info, label: "About" },
   ]
 

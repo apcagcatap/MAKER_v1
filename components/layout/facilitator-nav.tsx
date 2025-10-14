@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Home, Target, Users, Award, LogOut } from "lucide-react"
+import { Home, Target, Users, Award, LogOut, MessageSquare } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
@@ -21,6 +21,7 @@ export function FacilitatorNav() {
     { href: "/facilitator/quests", icon: Target, label: "Quests" },
     { href: "/facilitator/participants", icon: Users, label: "Participants" },
     { href: "/facilitator/skills", icon: Award, label: "Skills" },
+    { href: "/facilitator/forums", icon: MessageSquare, label: "Forums" },
   ]
 
   return (

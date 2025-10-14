@@ -144,13 +144,8 @@ export default async function AdminSettingsPage() {
           <div className="space-y-4 text-center">
             <h3 className="font-bold text-white text-lg">About MAKER</h3>
             <p className="text-sm text-on-blue max-w-2xl mx-auto">
-                A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
-            <div className="flex justify-center gap-8 text-sm text-on-blue">
-              <a href="/admin/forums" className="text-on-blue hover:text-white transition-colors">Community Forums</a>
-              <a href="/admin/settings" className="text-on-blue hover:text-white transition-colors">Documentation</a>
-            </div>
             <div className="text-sm text-on-blue pt-4 border-t border-brand-blue-hover/30 mt-4">
               <p className="font-semibold">Department of Science and Technology</p>
               <p>Science and Technology Information Institute</p>
