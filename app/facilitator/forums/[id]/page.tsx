@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { FacilitatorNav } from "@/components/layout/facilitator-nav"
-import { ArrowLeft, Trash2 } from "lucide-react"
+import { MessageSquare, ArrowLeft } from "lucide-react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { ForumPostForm } from "@/components/facilitator/forum-post-form"
+import { ForumPostCard } from "@/components/facilitator/forum-post-card"
 
 export default async function FacilitatorForumDetailPage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
@@ -20,67 +21,77 @@ export default async function FacilitatorForumDetailPage({ params }: { params: {
   // Fetch forum details
   const { data: forum } = await supabase.from("forums").select("*").eq("id", id).single()
 
-  // Fetch forum posts with user profiles
-  const { data: posts } = await supabase
-    .from("forum_posts")
-    .select(`
-      *,
-      profile:profiles(*)
-    `)
-    .eq("forum_id", id)
-    .order("created_at", { ascending: false })
-
   if (!forum) {
     redirect("/facilitator/forums")
   }
 
+  // Fetch forum posts with user profiles and reply counts
+  const { data: posts } = await supabase
+    .from("forum_posts")
+    .select(`
+      *,
+      profile:profiles(id, display_name, avatar_url, role),
+      replies:forum_replies(count)
+    `)
+    .eq("forum_id", id)
+    .order("created_at", { ascending: false })
+
   return (
-    <div className="min-h-screen">
-      <FacilitatorNav />
-
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link
-          href="/facilitator/forums"
-          className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Forums
-        </Link>
-
-        <div className="bg-white rounded-xl border border-gray-200 p-8 mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{forum.title}</h1>
-          <p className="text-gray-600">{forum.description}</p>
+    <div className="min-h-screen bg-blue-900">
+      {/* Header Section */}
+      <div
+        className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
+        style={{ borderBottomLeftRadius: "3rem", borderBottomRightRadius: "3rem" }}
+      >
+        <div className="absolute inset-0 opacity-100 z-0">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url('/navbarBg.png')`,
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              borderBottomLeftRadius: "3rem",
+              borderBottomRightRadius: "3rem",
+            }}
+          />
         </div>
-
-        <div className="space-y-4">
-          {posts?.map((post) => (
-            <div key={post.id} className="bg-white rounded-xl border border-gray-200 p-6">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-                  {post.profile?.display_name?.[0] || "U"}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-gray-900">
-                        {post.profile?.display_name || "Unknown User"}
-                      </span>
-                      <span className="text-sm text-gray-500">{new Date(post.created_at).toLocaleDateString()}</span>
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <p className="text-gray-700">{post.content}</p>
-                </div>
+        <div className="relative z-10">
+          <FacilitatorNav />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+            <Link
+              href="/facilitator/forums"
+              className="inline-flex items-center text-white hover:text-blue-100 mb-6"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Forums
+            </Link>
+            <h1 className="text-4xl font-bold text-white mb-2">{forum.title}</h1>
+            <p className="text-gray-200">{forum.description}</p>
+            <div className="flex items-center gap-4 text-sm text-gray-200 mt-4">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4" />
+                <span>{posts?.length || 0} posts</span>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <main className="relative -mt-16 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Create Post Form */}
+        <ForumPostForm forumId={id} />
+
+        {/* Posts List */}
+        <div className="space-y-4 mt-6">
+          {posts?.map((post) => (
+            <ForumPostCard key={post.id} post={post} forumId={id} />
           ))}
         </div>
 
         {posts?.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
-            <p className="text-gray-500">No posts yet in this forum.</p>
+          <div className="text-center py-12 bg-white rounded-xl shadow-lg">
+            <p className="text-gray-500">No posts yet. Be the first to start a discussion!</p>
           </div>
         )}
       </main>

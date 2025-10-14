@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { AdminNav } from "@/components/layout/admin-nav"
-import { MessageSquare, Clock, Plus, Edit, Trash2 } from "lucide-react"
+import { MessageSquare, Clock, Edit, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { CreateForumDialog } from "@/components/admin/create-forum-dialog"
 
 export default async function AdminForumsPage() {
   const supabase = await createClient()
@@ -34,10 +35,7 @@ export default async function AdminForumsPage() {
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Forums Management</h1>
             <p className="text-gray-600">Manage all community forums</p>
           </div>
-          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-            <Plus className="w-4 h-4 mr-2" />
-            Create Forum
-          </Button>
+          <CreateForumDialog />
         </div>
 
         <div className="space-y-4">
