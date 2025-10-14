@@ -39,7 +39,7 @@ export default async function ForumsPage() {
         />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 text-white">
           <h1 className="text-4xl font-bold mb-2">Community Forums</h1>
-          <p className="text-blue-100">Connect with other makers and share your journey</p>
+          <p className="text-on-blue">Connect with other makers and share your journey</p>
         </div>
       </div>
 
@@ -59,8 +59,8 @@ export default async function ForumsPage() {
                   <MessageSquare className="w-4 h-4" />
                   <span>{forum.posts?.[0]?.count || 0} posts</span>
                 </div>
-                <div className="bg-blue-100 rounded-lg p-2">
-                  <MessageSquare className="w-5 h-5 text-blue-600" />
+                <div className="bg-brand-blue-light rounded-lg p-2">
+                  <MessageSquare className="w-5 h-5 text-brand-blue" />
                 </div>
               </div>
             </Link>
@@ -75,22 +75,22 @@ export default async function ForumsPage() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+      <footer className="mt-auto bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-4 text-center">
             <h3 className="font-semibold text-white text-base">About MAKER</h3>
-            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+            <p className="text-sm text-on-blue max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/participant/forums" className="text-blue-200 hover:text-white transition-colors text-sm">
+              <a href="/participant/forums" className="text-on-blue hover:text-white transition-colors text-sm">
                 Forums
               </a>
-              <a href="#" className="text-blue-200 hover:text-white transition-colors text-sm">
+              <a href="#" className="text-on-blue hover:text-white transition-colors text-sm">
                 Documentation
               </a>
             </div>
-            <p className="text-blue-300/70 text-xs pt-2">
+            <p className="text-on-blue/70 text-xs pt-2">
               &copy; 2025 MAKER Platform
             </p>
           </div>

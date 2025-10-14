@@ -196,7 +196,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
             variant="ghost"
             size="sm"
             onClick={() => setShowReplyForm(!showReplyForm)}
-            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+            className="text-brand-blue hover:text-brand-blue-hover hover:bg-brand-blue-light"
           >
             Reply
           </Button>
@@ -218,7 +218,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                 type="submit"
                 size="sm"
                 disabled={isSubmitting}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-brand-blue hover:bg-brand-blue-hover"
               >
                 {isSubmitting ? (
                   <>
@@ -256,7 +256,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
             <div className="space-y-4">
               {replies.map((reply) => (
                 <div key={reply.id} className="flex items-start gap-3 bg-white p-4 rounded-lg">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                  <div className="w-8 h-8 bg-gradient-to-br from-brand-blue-medium to-purple-400 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                     {reply.profile?.display_name?.[0]?.toUpperCase() || "U"}
                   </div>
                   <div className="flex-1 min-w-0">

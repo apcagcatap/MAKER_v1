@@ -29,7 +29,7 @@ export default async function AdminForumsPage() {
     <div className="min-h-screen bg-gradient-page-bg flex flex-col">
       {/* Header Section */}
       <div
-        className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
+        className="bg-gradient-to-br from-brand-blue-dark via-brand-blue-dark to-brand-blue-dark relative overflow-hidden"
         style={{ borderBottomLeftRadius: "3rem", borderBottomRightRadius: "3rem" }}
       >
         <div className="absolute inset-0 opacity-100 z-0">
@@ -94,28 +94,28 @@ export default async function AdminForumsPage() {
 
         {forums?.length === 0 && (
           <div className="col-span-full text-center py-12">
-            <p className="text-blue-100">No forums yet. Create your first forum to get started!</p>
+            <p className="text-on-blue">No forums yet. Create your first forum to get started!</p>
           </div>
         )}
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+      <footer className="mt-auto bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-4 text-center">
             <h3 className="font-semibold text-white text-base">About MAKER</h3>
-            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+            <p className="text-sm text-on-blue max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/participant/forums" className="text-blue-200 hover:text-white transition-colors text-sm">
+              <a href="/participant/forums" className="text-on-blue hover:text-white transition-colors text-sm">
                 Forums
               </a>
-              <a href="#" className="text-blue-200 hover:text-white transition-colors text-sm">
+              <a href="#" className="text-on-blue hover:text-white transition-colors text-sm">
                 Documentation
               </a>
             </div>
-            <p className="text-blue-300/70 text-xs pt-2">
+            <p className="text-on-blue/70 text-xs pt-2">
               &copy; 2025 MAKER Platform
             </p>
           </div>

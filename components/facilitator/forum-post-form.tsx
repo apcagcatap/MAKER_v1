@@ -59,7 +59,7 @@ export function ForumPostForm({ forumId }: ForumPostFormProps) {
       <div className="bg-white rounded-xl shadow-lg p-4 mb-6 relative z-30">
         <Button
           onClick={() => setIsExpanded(true)}
-          className="w-full bg-blue-600 hover:bg-blue-700 cursor-pointer"
+          className="w-full bg-brand-blue hover:bg-brand-blue-hover cursor-pointer"
           type="button"
         >
           <MessageSquare className="w-4 h-4 mr-2" />
@@ -83,7 +83,7 @@ export function ForumPostForm({ forumId }: ForumPostFormProps) {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="bg-blue-600 hover:bg-blue-700"
+          className="bg-brand-blue hover:bg-brand-blue-hover"
         >
           {isSubmitting ? (
             <>

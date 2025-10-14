@@ -8,14 +8,14 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, icon, gradient }: StatsCardProps) {
   return (
-    <div className={`rounded-xl p-6 text-white ${gradient} shadow-lg`}>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-white/90 text-sm font-semibold mb-2">{title}</p>
-          <p className="text-4xl font-bold">{value}</p>
+    <div className={`rounded-xl px-4 py-5 text-white ${gradient} shadow-lg`}>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-white/90 text-sm font-semibold">{title}</p>
+        <div className="bg-white/20 rounded-lg p-3 backdrop-blur-sm flex-shrink-0">
+          {icon}
         </div>
-        <div className="bg-white/20 rounded-xl p-4 backdrop-blur-sm">{icon}</div>
       </div>
+      <p className="text-4xl font-bold leading-none">{value}</p>
     </div>
   )
 }

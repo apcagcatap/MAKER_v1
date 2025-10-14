@@ -157,7 +157,7 @@ export function AccountForm({ user, profile }: AccountFormProps) {
       <Button
         type="submit"
         disabled={loading}
-        className="w-full bg-blue-600 hover:bg-blue-700"
+        className="w-full bg-brand-blue hover:bg-brand-blue-hover"
       >
         {loading ? "Saving..." : "Save Changes"}
       </Button>

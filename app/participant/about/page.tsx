@@ -31,7 +31,7 @@ export default async function AboutPage() {
   return (
     <div className="min-h-screen bg-gradient-page-bg flex flex-col">
       <div
-        className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
+        className="bg-gradient-to-br from-brand-blue-dark via-brand-blue-dark to-brand-blue-dark relative overflow-hidden"
         style={{ borderBottomLeftRadius: "3rem", borderBottomRightRadius: "3rem" }}
       >
         <div className="absolute inset-0 opacity-100 z-0">
@@ -54,7 +54,7 @@ export default async function AboutPage() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-10">
             <div className="text-center">
               <h1 className="text-5xl font-bold text-white mb-4 drop-shadow-lg">About MAKER</h1>
-              <p className="text-xl text-blue-100 max-w-2xl mx-auto">
+              <p className="text-xl text-on-blue max-w-2xl mx-auto">
                 A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
               </p>
             </div>
@@ -87,19 +87,19 @@ export default async function AboutPage() {
             <CardContent>
               <ul className="space-y-3 text-secondary text-base">
                 <li className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                  <span className="flex-shrink-0 w-6 h-6 bg-brand-blue text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
                   <span>Choose quests that interest you from various skill categories</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                  <span className="flex-shrink-0 w-6 h-6 bg-brand-blue text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
                   <span>Complete tasks and challenges to earn XP and level up</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                  <span className="flex-shrink-0 w-6 h-6 bg-brand-blue text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
                   <span>Track your progress and unlock new skills as you advance</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                  <span className="flex-shrink-0 w-6 h-6 bg-brand-blue text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
                   <span>Connect with other makers in the community forums to share knowledge</span>
                 </li>
               </ul>

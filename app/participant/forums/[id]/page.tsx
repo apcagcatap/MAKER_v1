@@ -38,7 +38,7 @@ export default async function ForumDetailPage({ params }: { params: { id: string
     .order("created_at", { ascending: false })
 
   return (
-    <div className="min-h-screen bg-blue-900">
+    <div className="min-h-screen bg-brand-blue-dark">
       <ParticipantNav />
 
       <div className="relative h-64">
@@ -53,14 +53,14 @@ export default async function ForumDetailPage({ params }: { params: { id: string
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 text-white">
           <Link
             href="/participant/forums"
-            className="inline-flex items-center text-white hover:text-blue-100 mb-4"
+            className="inline-flex items-center text-white hover:text-on-blue mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Forums
           </Link>
           <h1 className="text-4xl font-bold mb-2">{forum.title}</h1>
-          <p className="text-blue-100">{forum.description}</p>
-          <div className="flex items-center gap-4 text-sm text-blue-100 mt-4">
+          <p className="text-on-blue">{forum.description}</p>
+          <div className="flex items-center gap-4 text-sm text-on-blue mt-4">
             <div className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4" />
               <span>{posts?.length || 0} posts</span>

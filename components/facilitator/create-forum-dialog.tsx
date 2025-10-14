@@ -69,7 +69,7 @@ export function CreateForumDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button className="bg-brand-blue hover:bg-brand-blue-hover">
           <Plus className="w-4 h-4 mr-2" />
           Create Forum
         </Button>
@@ -116,7 +116,7 @@ export function CreateForumDialog() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-brand-blue hover:bg-brand-blue-hover"
             >
               {isSubmitting ? (
                 <>

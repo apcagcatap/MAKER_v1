@@ -60,7 +60,7 @@ export default async function FacilitatorDashboard() {
     <div className="min-h-screen flex flex-col">
       {/* Header Section with Greeting */}
       <div
-        className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
+        className="bg-gradient-to-br from-brand-blue-dark via-brand-blue-dark to-brand-blue-dark relative overflow-hidden"
         style={{ borderBottomLeftRadius: "3rem", borderBottomRightRadius: "3rem" }}
       >
         <div className="absolute inset-0 opacity-100 z-0">
@@ -99,14 +99,14 @@ export default async function FacilitatorDashboard() {
           {/* Left Side: Department Info and Quest Card */} 
           <div className="lg:w-1/2 flex flex-col gap-8">
             {/* Department Info - Top Left */} 
-            <div className="p-4 bg-blue-600 text-white rounded-xl max-w-xs">
+            <div className="p-4 bg-brand-blue text-white rounded-xl max-w-xs">
               <p className="text-xs opacity-80">DEPARTMENT OF SCIENCE AND TECHNOLOGY</p>
               <h3 className="text-lg font-bold">Science and Technology</h3>
               <p className="text-sm">Information Institute</p>
             </div>
 
             {/* Left Section: Light The Tower Card */} 
-            <div className="bg-blue-600 rounded-xl p-6 text-white flex flex-col justify-between flex-grow">
+            <div className="bg-brand-blue rounded-xl p-6 text-white flex flex-col justify-between flex-grow">
               <div>
                 <h2 className="text-3xl font-bold mb-4">Light The Tower</h2>
                 <div className="flex items-center mb-4">
@@ -122,7 +122,7 @@ export default async function FacilitatorDashboard() {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="text-blue-600"
+                      className="text-brand-blue"
                     >
                       <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z" />
                       <path d="M12 6v6l4 2" />
@@ -133,7 +133,7 @@ export default async function FacilitatorDashboard() {
                 <span className="bg-red-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">Beginner</span>
               </div>
               {/* Progress Bar Placeholder */} 
-              <div className="mt-4 h-2 bg-blue-400 rounded-full">
+              <div className="mt-4 h-2 bg-brand-blue-medium rounded-full">
                 <div className="h-full bg-white rounded-full w-1/2"></div>
               </div>
             </div>
@@ -164,25 +164,25 @@ export default async function FacilitatorDashboard() {
             title="Total Participants"
             value={totalParticipants || 0}
             icon={<Users className="w-6 h-6" />}
-            gradient="bg-blue-600"
+            gradient="bg-brand-blue"
           />
           <StatsCard
             title="Active Quests"
             value={totalQuests || 0}
             icon={<Target className="w-6 h-6" />}
-            gradient="bg-blue-500"
+            gradient="bg-brand-blue"
           />
           <StatsCard
             title="In Progress"
             value={activeQuests || 0}
             icon={<TrendingUp className="w-6 h-6" />}
-            gradient="bg-blue-600"
+            gradient="bg-brand-blue"
           />
           <StatsCard
             title="Completed"
             value={completedQuests || 0}
             icon={<Award className="w-6 h-6" />}
-            gradient="bg-blue-500"
+            gradient="bg-brand-blue"
           />
         </div>
 
@@ -200,22 +200,22 @@ export default async function FacilitatorDashboard() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+      <footer className="mt-auto bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-4 text-center">
             <h3 className="font-semibold text-white text-base">About MAKER</h3>
-            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+            <p className="text-sm text-on-blue max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/participant/forums" className="text-blue-200 hover:text-white transition-colors text-sm">
+              <a href="/participant/forums" className="text-on-blue hover:text-white transition-colors text-sm">
                 Forums
               </a>
-              <a href="#" className="text-blue-200 hover:text-white transition-colors text-sm">
+              <a href="#" className="text-on-blue hover:text-white transition-colors text-sm">
                 Documentation
               </a>
             </div>
-            <p className="text-blue-300/70 text-xs pt-2">
+            <p className="text-on-blue/70 text-xs pt-2">
               &copy; 2025 MAKER Platform
             </p>
           </div>

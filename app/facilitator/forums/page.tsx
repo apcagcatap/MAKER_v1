@@ -26,10 +26,10 @@ export default async function FacilitatorForumsPage() {
     .order("created_at", { ascending: false })
 
   return (
-    <div className="min-h-screen bg-blue-900 flex flex-col">
+    <div className="min-h-screen bg-brand-blue-dark flex flex-col">
       {/* Header Section with Greeting */}
       <div
-        className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
+        className="bg-gradient-to-br from-brand-blue-dark via-brand-blue-dark to-brand-blue-dark relative overflow-hidden"
         style={{ borderBottomLeftRadius: "3rem", borderBottomRightRadius: "3rem" }}
       >
         <div className="absolute inset-0 opacity-100 z-0">
@@ -75,8 +75,8 @@ export default async function FacilitatorForumsPage() {
                   <MessageSquare className="w-4 h-4" />
                   <span>{forum.posts?.[0]?.count || 0} posts</span>
                 </div>
-                <div className="bg-blue-100 rounded-lg p-2">
-                  <MessageSquare className="w-5 h-5 text-blue-600" />
+                <div className="bg-brand-blue-light rounded-lg p-2">
+                  <MessageSquare className="w-5 h-5 text-brand-blue" />
                 </div>
               </div>
             </Link>
@@ -91,22 +91,22 @@ export default async function FacilitatorForumsPage() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+      <footer className="mt-auto bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-4 text-center">
             <h3 className="font-semibold text-white text-base">About MAKER</h3>
-            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+            <p className="text-sm text-on-blue max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/participant/forums" className="text-blue-200 hover:text-white transition-colors text-sm">
+              <a href="/participant/forums" className="text-on-blue hover:text-white transition-colors text-sm">
                 Forums
               </a>
-              <a href="#" className="text-blue-200 hover:text-white transition-colors text-sm">
+              <a href="#" className="text-on-blue hover:text-white transition-colors text-sm">
                 Documentation
               </a>
             </div>
-            <p className="text-blue-300/70 text-xs pt-2">
+            <p className="text-on-blue/70 text-xs pt-2">
               &copy; 2025 MAKER Platform
             </p>
           </div>

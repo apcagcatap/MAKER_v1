@@ -37,10 +37,10 @@ export default async function FacilitatorForumDetailPage({ params }: { params: {
     .order("created_at", { ascending: false })
 
   return (
-    <div className="min-h-screen bg-blue-900">
+    <div className="min-h-screen bg-brand-blue-dark">
       {/* Header Section */}
       <div
-        className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
+        className="bg-gradient-to-br from-brand-blue-dark via-brand-blue-dark to-brand-blue-dark relative overflow-hidden"
         style={{ borderBottomLeftRadius: "3rem", borderBottomRightRadius: "3rem" }}
       >
         <div className="absolute inset-0 opacity-100 z-0">
@@ -61,7 +61,7 @@ export default async function FacilitatorForumDetailPage({ params }: { params: {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
             <Link
               href="/facilitator/forums"
-              className="inline-flex items-center text-white hover:text-blue-100 mb-6"
+              className="inline-flex items-center text-white hover:text-on-blue mb-6"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Forums
@@ -97,21 +97,21 @@ export default async function FacilitatorForumDetailPage({ params }: { params: {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+      <footer className="mt-auto bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-4 text-center">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/facilitator/forums" className="text-blue-200 hover:text-white transition-colors">
+              <a href="/facilitator/forums" className="text-on-blue hover:text-white transition-colors">
                 Forums
               </a>
-              <a href="/facilitator/participants" className="text-blue-200 hover:text-white transition-colors">
+              <a href="/facilitator/participants" className="text-on-blue hover:text-white transition-colors">
                 Participants
               </a>
-              <a href="#" className="text-blue-200 hover:text-white transition-colors">
+              <a href="#" className="text-on-blue hover:text-white transition-colors">
                 Documentation
               </a>
             </div>
-            <p className="text-blue-300/70 text-sm">
+            <p className="text-on-blue/70 text-sm">
               © 2025 MAKER Platform
             </p>
           </div>

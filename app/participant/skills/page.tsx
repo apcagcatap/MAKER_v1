@@ -74,7 +74,7 @@ export default async function SkillsPage() {
             </div>
 
             {/* 📊 Right: Overall Progress Card */}
-            <div className="w-full md:flex-1 bg-gradient-to-br from-[#80BEFF] to-blue-600 rounded-2xl p-8 text-white shadow-lg mx-auto md:mx-0">
+            <div className="w-full md:flex-1 bg-gradient-to-br from-[#80BEFF] to-brand-blue rounded-2xl p-8 text-white shadow-lg mx-auto md:mx-0">
               <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
                 <div>
                   <h2 className="text-3xl font-bold mb-2">Level {profile?.level || 1}</h2>
@@ -108,22 +108,22 @@ export default async function SkillsPage() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+      <footer className="mt-auto bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-4 text-center">
             <h3 className="font-semibold text-white text-base">About MAKER</h3>
-            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+            <p className="text-sm text-on-blue max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/participant/forums" className="text-blue-200 hover:text-white transition-colors text-sm">
+              <a href="/participant/forums" className="text-on-blue hover:text-white transition-colors text-sm">
                 Forums
               </a>
-              <a href="#" className="text-blue-200 hover:text-white transition-colors text-sm">
+              <a href="#" className="text-on-blue hover:text-white transition-colors text-sm">
                 Documentation
               </a>
             </div>
-            <p className="text-blue-300/70 text-xs pt-2">
+            <p className="text-on-blue/70 text-xs pt-2">
               &copy; 2025 MAKER Platform
             </p>
           </div>

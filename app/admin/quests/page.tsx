@@ -38,7 +38,7 @@ export default async function AdminQuestsPage() {
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">Quest Management</h1>
           </div>
-          <Button className="bg-blue-600 text-white hover:bg-blue-700 shadow-lg">
+          <Button className="bg-brand-blue text-white hover:bg-brand-blue-hover shadow-lg">
             <Plus className="w-4 h-4 mr-2" />
             Create Quest
           </Button>
@@ -90,18 +90,18 @@ export default async function AdminQuestsPage() {
       </main>
 
         {/* Footer */}
-        <footer className="mt-auto w-full bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+        <footer className="mt-auto w-full bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="space-y-4 text-center">
               <h3 className="font-bold text-white text-lg">About MAKER</h3>
-              <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+              <p className="text-sm text-on-blue max-w-2xl mx-auto">
                 A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
               </p>
-              <div className="flex justify-center gap-8 text-sm text-blue-100">
+              <div className="flex justify-center gap-8 text-sm text-on-blue">
                 <a href="/admin/forums" className="hover:text-white transition-colors">Community Forums</a>
                 <a href="/admin/settings" className="hover:text-white transition-colors">Documentation</a>
               </div>
-              <div className="text-sm text-blue-200 pt-4 border-t border-blue-700/30 mt-4">
+              <div className="text-sm text-on-blue pt-4 border-t border-brand-blue-hover/30 mt-4">
                 <p className="font-semibold">Department of Science and Technology</p>
                 <p>Science and Technology Information Institute</p>
               </div>

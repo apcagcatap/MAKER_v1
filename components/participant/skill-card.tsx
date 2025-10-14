@@ -15,7 +15,7 @@ export function SkillCard({ skill, userSkill }: SkillCardProps) {
   return (
     <div className="bg-card rounded-xl border p-6 hover:shadow-lg transition-shadow">
       <div className="flex items-center gap-6">
-        <div className="text-6xl flex-shrink-0 w-20 h-20 flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl">
+        <div className="text-6xl flex-shrink-0 w-20 h-20 flex items-center justify-center bg-gradient-to-br from-brand-blue-light to-purple-50 rounded-2xl">
           {skill.icon || "🎯"}
         </div>
         <div className="flex-1 min-w-0">

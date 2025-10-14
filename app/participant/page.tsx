@@ -85,7 +85,7 @@ export default async function ParticipantDashboard() {
             <div className="flex items-center justify-center gap-4 flex-wrap">
               <Link
                 href="/participant/quests"
-                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                className="flex items-center gap-2 px-6 py-3 bg-brand-blue hover:bg-brand-blue-hover text-white rounded-lg font-medium transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -94,7 +94,7 @@ export default async function ParticipantDashboard() {
               </Link>
               <Link
                 href="/participant/skills"
-                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                className="flex items-center gap-2 px-6 py-3 bg-brand-blue hover:bg-brand-blue-hover text-white rounded-lg font-medium transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -119,13 +119,13 @@ export default async function ParticipantDashboard() {
 
 <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24 flex-grow">
   {featuredQuest && (
-    <div className="bg-gradient-to-r from-blue-50 to-gray-100 rounded-3xl shadow-xl overflow-hidden mb-12 border border-gray-200">
+    <div className="bg-gradient-to-r from-brand-blue-light to-gray-100 rounded-3xl shadow-xl overflow-hidden mb-12 border border-gray-200">
       <div className="p-8">
         {/* Header Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-3xl px-6 py-4 inline-block mb-8">
+        <div className="bg-gradient-to-r from-brand-blue from-brand-blue rounded-3xl px-6 py-4 inline-block mb-8">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-400 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-brand-blue to-brand-blue-medium rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-xl">
                   {featuredQuest.skill?.name?.charAt(0) || "S"}
                 </span>
@@ -145,7 +145,7 @@ export default async function ParticipantDashboard() {
 
         <div className="grid md:grid-cols-2 gap-8 items-start">
           {/* Left Card - Quest Info */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl p-8 text-white shadow-lg">
+          <div className="bg-gradient-to-br from-brand-blue-light0 to-brand-blue rounded-3xl p-8 text-white shadow-lg">
             <div className="flex items-center justify-center mb-6">
               <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-blur-sm">
                 <div className="w-16 h-16 bg-white bg-opacity-30 rounded-full flex items-center justify-center">
@@ -157,7 +157,7 @@ export default async function ParticipantDashboard() {
             </div>
             
             <h3 className="text-2xl font-bold mb-4 text-center">{featuredQuest.title}</h3>
-            <p className="text-center text-sm mb-6 text-blue-50">
+            <p className="text-center text-sm mb-6 text-white/90">
               Will you be a keeper of the Tower Flame?
             </p>
             
@@ -165,7 +165,7 @@ export default async function ParticipantDashboard() {
               <span className="px-4 py-1.5 bg-red-500 text-white text-sm font-semibold rounded-full shadow-md">
                 {featuredQuest.difficulty || "Beginner"}
               </span>
-              <div className="flex-1 max-w-[200px] h-2 bg-blue-400 bg-opacity-40 rounded-full overflow-hidden">
+              <div className="flex-1 max-w-[200px] h-2 bg-brand-blue-medium bg-opacity-40 rounded-full overflow-hidden">
                 <div className="h-full bg-white rounded-full" style={{ width: "25%" }} />
               </div>
             </div>
@@ -189,25 +189,25 @@ export default async function ParticipantDashboard() {
             title="Total XP"
             value={profile.xp}
             icon={<Trophy className="w-6 h-6" />}
-            gradient="bg-blue-600"
+            gradient="bg-brand-blue"
           />
           <StatsCard
             title="Level"
             value={profile.level}
             icon={<TrendingUp className="w-6 h-6" />}
-            gradient="bg-blue-500"
+            gradient="bg-brand-blue"
           />
           <StatsCard
             title="Active Quests"
             value={inProgressQuests.length}
             icon={<Target className="w-6 h-6" />}
-            gradient="bg-blue-600"
+            gradient="bg-brand-blue"
           />
           <StatsCard
             title="Completed"
             value={completedQuests.length}
             icon={<Award className="w-6 h-6" />}
-            gradient="bg-blue-500"
+            gradient="bg-brand-blue"
           />
         </div>
 
@@ -237,22 +237,22 @@ export default async function ParticipantDashboard() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+      <footer className="mt-auto bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-4 text-center">
             <h3 className="font-semibold text-white text-base">About MAKER</h3>
-            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+            <p className="text-sm text-on-blue max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/participant/forums" className="text-blue-200 hover:text-white transition-colors text-sm">
+              <a href="/participant/forums" className="text-on-blue hover:text-white transition-colors text-sm">
                 Forums
               </a>
-              <a href="#" className="text-blue-200 hover:text-white transition-colors text-sm">
+              <a href="#" className="text-on-blue hover:text-white transition-colors text-sm">
                 Documentation
               </a>
             </div>
-            <p className="text-blue-300/70 text-xs pt-2">
+            <p className="text-on-blue/70 text-xs pt-2">
               &copy; 2025 MAKER Platform
             </p>
           </div>

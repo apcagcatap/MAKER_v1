@@ -78,21 +78,21 @@ export default async function AdminForumDetailPage({ params }: { params: { id: s
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+      <footer className="mt-auto bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-4 text-center">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/admin/forums" className="text-blue-200 hover:text-white transition-colors">
+              <a href="/admin/forums" className="text-on-blue hover:text-white transition-colors">
                 Forums
               </a>
-              <a href="/admin/settings" className="text-blue-200 hover:text-white transition-colors">
+              <a href="/admin/settings" className="text-on-blue hover:text-white transition-colors">
                 Settings
               </a>
-              <a href="#" className="text-blue-200 hover:text-white transition-colors">
+              <a href="#" className="text-on-blue hover:text-white transition-colors">
                 Documentation
               </a>
             </div>
-            <p className="text-blue-300/70 text-sm">
+            <p className="text-on-blue/70 text-sm">
               © 2025 MAKER Platform
             </p>
           </div>

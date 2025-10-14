@@ -67,20 +67,20 @@ export default async function AccountPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-3xl font-bold text-blue-600">{profile.level}</div>
+              <div className="text-center p-4 bg-brand-blue-light rounded-lg">
+                <div className="text-3xl font-bold text-brand-blue">{profile.level}</div>
                 <div className="text-sm text-muted-foreground mt-1">Level</div>
               </div>
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-3xl font-bold text-blue-600">{profile.xp}</div>
+              <div className="text-center p-4 bg-brand-blue-light rounded-lg">
+                <div className="text-3xl font-bold text-brand-blue">{profile.xp}</div>
                 <div className="text-sm text-muted-foreground mt-1">Total XP</div>
               </div>
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-3xl font-bold text-blue-600">0</div>
+              <div className="text-center p-4 bg-brand-blue-light rounded-lg">
+                <div className="text-3xl font-bold text-brand-blue">0</div>
                 <div className="text-sm text-muted-foreground mt-1">Quests</div>
               </div>
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-3xl font-bold text-blue-600">0</div>
+              <div className="text-center p-4 bg-brand-blue-light rounded-lg">
+                <div className="text-3xl font-bold text-brand-blue">0</div>
                 <div className="text-sm text-muted-foreground mt-1">Skills</div>
               </div>
             </div>
@@ -89,22 +89,22 @@ export default async function AccountPage() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+      <footer className="mt-auto bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-4 text-center">
             <h3 className="font-semibold text-white text-base">About MAKER</h3>
-            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+            <p className="text-sm text-on-blue max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/participant/forums" className="text-blue-200 hover:text-white transition-colors text-sm">
+              <a href="/participant/forums" className="text-on-blue hover:text-white transition-colors text-sm">
                 Forums
               </a>
-              <a href="#" className="text-blue-200 hover:text-white transition-colors text-sm">
+              <a href="#" className="text-on-blue hover:text-white transition-colors text-sm">
                 Documentation
               </a>
             </div>
-            <p className="text-blue-300/70 text-xs pt-2">
+            <p className="text-on-blue/70 text-xs pt-2">
               &copy; 2025 MAKER Platform
             </p>
           </div>

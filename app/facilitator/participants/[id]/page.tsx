@@ -63,7 +63,7 @@ export default async function ParticipantDetailPage({ params }: { params: { id: 
         </Link>
 
         {/* Profile Header */}
-        <div className="bg-blue-600 rounded-xl p-8 text-white mb-8">
+        <div className="bg-brand-blue rounded-xl p-8 text-white mb-8">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold">
               {participant.display_name?.[0] || "U"}
@@ -89,7 +89,7 @@ export default async function ParticipantDetailPage({ params }: { params: { id: 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="flex items-center gap-3 mb-2">
-              <Target className="w-5 h-5 text-blue-500" />
+              <Target className="w-5 h-5 text-brand-blue" />
               <h3 className="font-semibold text-gray-900">In Progress</h3>
             </div>
             <p className="text-3xl font-bold text-gray-900">{inProgressQuests.length}</p>
@@ -126,7 +126,7 @@ export default async function ParticipantDetailPage({ params }: { params: { id: 
                       userQuest.status === "completed"
                         ? "bg-green-100 text-green-700"
                         : userQuest.status === "in_progress"
-                          ? "bg-blue-100 text-blue-700"
+                          ? "bg-brand-blue-light text-brand-blue-hover"
                           : "bg-gray-100 text-gray-700"
                     }`}
                   >
@@ -171,21 +171,21 @@ export default async function ParticipantDetailPage({ params }: { params: { id: 
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+      <footer className="mt-auto bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-4 text-center">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/facilitator/forums" className="text-blue-200 hover:text-white transition-colors">
+              <a href="/facilitator/forums" className="text-on-blue hover:text-white transition-colors">
                 Forums
               </a>
-              <a href="/facilitator/participants" className="text-blue-200 hover:text-white transition-colors">
+              <a href="/facilitator/participants" className="text-on-blue hover:text-white transition-colors">
                 Participants
               </a>
-              <a href="#" className="text-blue-200 hover:text-white transition-colors">
+              <a href="#" className="text-on-blue hover:text-white transition-colors">
                 Documentation
               </a>
             </div>
-            <p className="text-blue-300/70 text-sm">
+            <p className="text-on-blue/70 text-sm">
               © 2025 MAKER Platform
             </p>
           </div>

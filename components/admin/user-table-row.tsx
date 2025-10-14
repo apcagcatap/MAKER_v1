@@ -17,7 +17,7 @@ export function UserTableRow({ user, onEdit, onDelete }: UserTableRowProps) {
       case "admin":
         return <Badge className="bg-red-100 text-red-700 hover:bg-red-100">Admin</Badge>
       case "facilitator":
-        return <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">Facilitator</Badge>
+        return <Badge className="bg-brand-blue-light text-brand-blue hover:bg-brand-blue-light">Facilitator</Badge>
       case "participant":
         return <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Participant</Badge>
       default:
@@ -44,7 +44,7 @@ export function UserTableRow({ user, onEdit, onDelete }: UserTableRowProps) {
       <td className="px-8 py-6 text-muted-foreground">{new Date(user.created_at).toLocaleDateString()}</td>
       <td className="px-8 py-6">
         <div className="flex items-center gap-2">
-          <Button onClick={onEdit} variant="ghost" size="sm" className="text-interactive-primary hover:text-interactive-primary-hover hover:bg-blue-50 h-9 px-3">
+          <Button onClick={onEdit} variant="ghost" size="sm" className="text-interactive-primary hover:text-interactive-primary-hover hover:bg-brand-blue-light h-9 px-3">
             <Edit className="w-4 h-4" />
           </Button>
           <Button onClick={onDelete} variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 h-9 px-3">

@@ -1,34 +1,46 @@
 @import "tailwindcss";
 
 @theme {
-  /* Theme based on MAKER UI - Blue background with light cards */
-  --color-background: oklch(0.45 0.10 250);
+  /* Core theme colors - matching existing visual design */
+  --color-background: oklch(0.45 0.10 250); /* bg-blue-900 equivalent */
   --color-foreground: oklch(0.99 0 0);
   --color-card: oklch(0.98 0.01 250);
   --color-card-foreground: oklch(0.25 0.04 250);
   --color-popover: oklch(0.98 0.01 250);
   --color-popover-foreground: oklch(0.20 0.02 250);
-  --color-primary: oklch(0.35 0.12 250);
+  --color-primary: oklch(0.52 0.20 264); /* bg-blue-600 equivalent */
   --color-primary-foreground: oklch(0.99 0 0);
   --color-secondary: oklch(0.55 0.10 250);
   --color-secondary-foreground: oklch(0.99 0 0);
   --color-muted: oklch(0.92 0.01 250);
   --color-muted-foreground: oklch(0.55 0.03 250);
-  --color-accent: oklch(0.75 0.15 85);
+  --color-accent: oklch(0.75 0.15 85); /* Yellow/gold accent */
   --color-accent-foreground: oklch(0.20 0.02 250);
   --color-destructive: oklch(0.65 0.25 25);
   --color-destructive-foreground: oklch(0.99 0 0);
   --color-border: oklch(0.85 0.01 250);
   --color-input: oklch(0.96 0.01 250);
   --color-ring: oklch(0.75 0.15 85);
-  --color-success: oklch(0.60 0.15 150);
-  --color-success-foreground: oklch(0.99 0 0);
-  --color-warning: oklch(0.75 0.15 60);
-  --color-warning-foreground: oklch(0.25 0.04 250);
-  --color-info: oklch(0.60 0.15 250);
-  --color-info-foreground: oklch(0.99 0 0);
   
-  /* Chart colors - Colorful like the badges */
+  /* Brand colors - matching hardcoded values */
+  --color-brand-blue-light: oklch(0.96 0.04 264); /* bg-blue-100 */
+  --color-brand-blue-medium: oklch(0.62 0.15 264); /* bg-blue-400 */
+  --color-brand-blue-primary: oklch(0.52 0.20 264); /* bg-blue-600 */
+  --color-brand-blue-hover: oklch(0.47 0.20 264); /* bg-blue-700 */
+  --color-brand-blue-dark: oklch(0.30 0.12 264); /* bg-blue-900 */
+  
+  /* Interactive colors */
+  --color-interactive-primary: oklch(0.52 0.20 264); /* Same as brand-blue-primary */
+  --color-interactive-primary-hover: oklch(0.47 0.20 264); /* Same as brand-blue-hover */
+  --color-interactive-secondary: oklch(0.55 0.10 250);
+  --color-interactive-secondary-hover: oklch(0.50 0.10 250);
+  
+  /* Text hierarchy */
+  --color-text-primary: oklch(0.25 0.04 250);
+  --color-text-secondary: oklch(0.45 0.03 250);
+  --color-text-on-blue: oklch(0.90 0.02 264); /* text-blue-100 */
+  
+  /* Chart colors */
   --color-chart-1: oklch(0.75 0.15 85);
   --color-chart-2: oklch(0.70 0.20 40);
   --color-chart-3: oklch(0.60 0.15 250);
@@ -45,30 +57,6 @@
   --color-sidebar-border: oklch(0.50 0.08 250);
   --color-sidebar-ring: oklch(0.75 0.15 85);
 
-  /* Brand gradients */
-  --gradient-blue-primary: linear-gradient(135deg, oklch(0.45 0.15 250) 0%, oklch(0.40 0.12 240) 100%);
-  --gradient-blue-header: linear-gradient(135deg, oklch(0.35 0.12 250) 0%, oklch(0.40 0.10 245) 50%, oklch(0.35 0.12 250) 100%);
-  --gradient-nav-dark: linear-gradient(135deg, oklch(0.30 0.12 250) 0%, oklch(0.25 0.10 245) 50%, oklch(0.28 0.12 250) 100%);
-  --gradient-page-bg: linear-gradient(135deg, oklch(0.48 0.12 250) 0%, oklch(0.42 0.10 245) 50%, oklch(0.45 0.11 248) 100%);
-  --gradient-accent-warm: linear-gradient(135deg, oklch(0.75 0.15 85) 0%, oklch(0.60 0.15 250) 100%);
-  --gradient-accent-cool: linear-gradient(135deg, oklch(0.60 0.15 250) 0%, oklch(0.50 0.12 220) 100%);
-  --gradient-avatar: linear-gradient(135deg, oklch(0.60 0.20 300) 0%, oklch(0.60 0.15 250) 100%);
-  
-  /* Solid colors */
-  --solid-blue-accent: oklch(0.40 0.12 250);
-  
-  /* Additional semantic colors */
-  --color-text-primary: oklch(0.25 0.04 250);
-  --color-text-secondary: oklch(0.45 0.03 250);
-  --color-text-tertiary: oklch(0.55 0.03 250);
-  --color-text-on-accent: oklch(0.99 0 0);
-  
-  /* Interactive colors */
-  --color-interactive-primary: oklch(0.50 0.15 250);
-  --color-interactive-primary-hover: oklch(0.45 0.15 250);
-  --color-interactive-secondary: oklch(0.60 0.15 250);
-  --color-interactive-secondary-hover: oklch(0.55 0.15 250);
-
   /* Font families */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -81,43 +69,11 @@
 
 @media (prefers-color-scheme: dark) {
   @theme {
-    /* Dark mode - Keep similar to light for consistency */
-    --color-background: oklch(0.40 0.10 250);
-    --color-foreground: oklch(0.98 0 0);
-    --color-card: oklch(0.96 0.01 250);
-    --color-card-foreground: oklch(0.22 0.02 250);
-    --color-popover: oklch(0.96 0.01 250);
-    --color-popover-foreground: oklch(0.22 0.02 250);
-    --color-primary: oklch(0.32 0.12 250);
-    --color-primary-foreground: oklch(1 0 0);
-    --color-secondary: oklch(0.50 0.10 250);
-    --color-secondary-foreground: oklch(1 0 0);
-    --color-muted: oklch(0.90 0.01 250);
-    --color-muted-foreground: oklch(0.48 0.02 250);
-    --color-accent: oklch(0.75 0.15 85);
-    --color-accent-foreground: oklch(0.20 0.02 250);
-    --color-destructive: oklch(0.65 0.25 25);
-    --color-destructive-foreground: oklch(1 0 0);
-    --color-border: oklch(0.82 0.01 250);
-    --color-input: oklch(0.94 0.01 250);
-    --color-ring: oklch(0.75 0.15 85);
-    
-    /* Chart colors */
-    --color-chart-1: oklch(0.75 0.15 85);
-    --color-chart-2: oklch(0.70 0.20 40);
-    --color-chart-3: oklch(0.60 0.15 250);
-    --color-chart-4: oklch(0.65 0.20 150);
-    --color-chart-5: oklch(0.68 0.22 300);
-    
-    /* Sidebar colors */
-    --color-sidebar-background: oklch(0.36 0.10 250);
-    --color-sidebar-foreground: oklch(0.98 0 0);
-    --color-sidebar-primary: oklch(0.32 0.12 250);
-    --color-sidebar-primary-foreground: oklch(1 0 0);
-    --color-sidebar-accent: oklch(0.75 0.15 85);
-    --color-sidebar-accent-foreground: oklch(0.20 0.02 250);
-    --color-sidebar-border: oklch(0.46 0.08 250);
-    --color-sidebar-ring: oklch(0.75 0.15 85);
+    /* Dark mode inherits light mode values for consistency */
+    --color-background: oklch(0.45 0.10 250);
+    --color-foreground: oklch(0.99 0 0);
+    --color-card: oklch(0.98 0.01 250);
+    --color-card-foreground: oklch(0.25 0.04 250);
   }
 }
 
@@ -159,71 +115,48 @@
 }
 
 @layer utilities {
-  /* Typography utilities */
-  .text-primary {
-    color: var(--color-text-primary);
+  /* Brand color utilities - replacing hardcoded Tailwind classes */
+  .bg-brand-blue {
+    background-color: var(--color-brand-blue-primary);
   }
   
-  .text-secondary {
-    color: var(--color-text-secondary);
+  .bg-brand-blue:hover {
+    background-color: var(--color-brand-blue-hover);
   }
   
-  .text-tertiary {
-    color: var(--color-text-tertiary);
+  .bg-brand-blue-light {
+    background-color: var(--color-brand-blue-light);
+  }
+  
+  .bg-brand-blue-dark {
+    background-color: var(--color-brand-blue-dark);
+  }
+  
+  .text-brand-blue {
+    color: var(--color-brand-blue-primary);
+  }
+  
+  .text-brand-blue:hover {
+    color: var(--color-brand-blue-hover);
+  }
+  
+  .text-on-blue {
+    color: var(--color-text-on-blue);
   }
 
-  .text-on-accent {
-    color: var(--color-text-on-accent);
-  }
-
-  /* Background gradients */
-  .bg-gradient-blue-primary {
-    background: var(--gradient-blue-primary);
-  }
-
-  .bg-gradient-blue-header {
-    background: var(--gradient-blue-header);
-  }
-
-  .bg-gradient-accent-warm {
-    background: var(--gradient-accent-warm);
-  }
-
-  .bg-gradient-accent-cool {
-    background: var(--gradient-accent-cool);
-  }
-
-  .bg-gradient-avatar {
-    background: var(--gradient-avatar);
-  }
-
+  /* Navigation bar gradient */
   .bg-gradient-nav-dark {
-    background: var(--gradient-nav-dark);
+    background: linear-gradient(135deg, var(--color-brand-blue-dark) 0%, var(--color-brand-blue-primary) 100%);
   }
 
-  .bg-gradient-page-bg {
-    background: var(--gradient-page-bg);
+  /* Avatar gradient (purple to keep visual variety) */
+  .bg-gradient-avatar {
+    background: linear-gradient(135deg, oklch(0.60 0.20 280) 0%, oklch(0.50 0.25 300) 100%);
   }
 
-  .bg-solid-blue-accent {
-    background: var(--solid-blue-accent);
-  }
-
-  /* Interactive colors */
-  .bg-interactive-primary {
-    background-color: var(--color-interactive-primary);
-  }
-
-  .bg-interactive-primary:hover {
-    background-color: var(--color-interactive-primary-hover);
-  }
-
-  .text-interactive-primary {
-    color: var(--color-interactive-primary);
-  }
-
-  .text-interactive-primary-hover {
-    color: var(--color-interactive-primary-hover);
+  /* Accent gradient */
+  .bg-gradient-accent {
+    background: linear-gradient(135deg, oklch(0.75 0.15 85) 0%, oklch(0.60 0.15 250) 100%);
   }
 
   /* Difficulty badges */
@@ -280,26 +213,5 @@
     border-radius: 0.5rem;
     font-weight: 600;
     font-size: 0.875rem;
-  }
-
-  /* Button variants */
-  .btn-interactive-primary {
-    background-color: var(--color-interactive-primary);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    font-weight: 600;
-    transition: background-color 0.2s;
-  }
-
-  .btn-interactive-primary:hover {
-    background-color: var(--color-interactive-primary-hover);
-  }
-
-  /* Utility effects */
-  .glass-effect {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
   }
 }

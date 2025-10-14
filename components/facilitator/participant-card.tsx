@@ -23,11 +23,11 @@ export function ParticipantCard({ participant, questsCompleted = 0 }: Participan
 
           <div className="flex items-center gap-6 text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <TrendingUp className="w-5 h-5 text-blue-500" />
+              <TrendingUp className="w-5 h-5 text-brand-blue" />
               <span className="font-medium">Level {participant.level}</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Trophy className="w-5 h-5 text-blue-600" />
+              <Trophy className="w-5 h-5 text-brand-blue" />
               <span className="font-medium">{participant.xp} XP</span>
             </div>
             <div className="text-gray-600 font-medium">

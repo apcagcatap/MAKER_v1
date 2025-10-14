@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { AdminNav } from "@/components/layout/admin-nav"
 import { Button } from "@/components/ui/button"
 import { Plus, Edit, Trash2, Users } from "lucide-react"
+import Image from "next/image"
 
 export default async function AdminSkillsPage() {
   const supabase = await createClient()
@@ -24,45 +25,63 @@ export default async function AdminSkillsPage() {
     .order("name")
 
   return (
-    <div className="min-h-screen bg-gradient-page-bg flex flex-col">
+    <div
+      className="min-h-screen bg-gradient-page-bg relative flex flex-col"
+      style={{
+        backgroundImage: `url("/navbarBg.png")`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <AdminNav />
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 flex-grow">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Skills Management</h1>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
+        <div className="mb-12 text-center">
+          <div className="relative flex justify-center mb-8">
+            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-4">
+              <Image src="/hismarty.png" alt="Owl" width={200} height={200} className="object-contain" />
+            </div>
+            <h1 className="text-5xl font-bold text-white drop-shadow-lg pt-48">
+              Skills Management
+            </h1>
           </div>
-          <Button className="bg-blue-600 text-white hover:bg-blue-700 shadow-lg">
+        </div>
+      </div>
+
+      <main className="relative z-20 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex-grow pb-8">
+        <div className="flex items-center justify-end mb-8">
+          <Button className="bg-brand-blue text-white hover:bg-brand-blue-hover shadow-lg">
             <Plus className="w-4 h-4 mr-2" />
             Add Skill
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {skills?.map((skill) => (
             <div
               key={skill.id}
-              className="bg-card rounded-xl border p-6 hover:shadow-lg transition-shadow"
+              className="bg-card rounded-xl border p-8 hover:shadow-lg transition-shadow"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="text-4xl">{skill.icon || "🎯"}</div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-card-foreground mb-1">{skill.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-3">{skill.description}</p>
+              {/* Horizontal layout on desktop */}
+              <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+                <div className="text-6xl lg:text-5xl flex-shrink-0">{skill.icon || "🎯"}</div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl font-bold text-card-foreground mb-2">{skill.name}</h3>
+                  <p className="text-base text-muted-foreground mb-4">{skill.description}</p>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="w-4 h-4" />
-                    <span>{skill.user_skills?.[0]?.count || 0} users learning</span>
+                    <Users className="w-5 h-5" />
+                    <span className="font-medium">{skill.user_skills?.[0]?.count || 0} users learning</span>
                   </div>
                 </div>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" className="flex-1 text-interactive-primary hover:text-interactive-primary-hover">
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit
-                </Button>
-                <Button variant="outline" className="text-red-600 hover:text-red-700 hover:bg-red-50 bg-transparent">
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                <div className="lg:w-48 flex-shrink-0 flex gap-2">
+                  <Button variant="outline" className="flex-1 text-interactive-primary hover:text-interactive-primary-hover h-11">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit
+                  </Button>
+                  <Button variant="outline" className="text-red-600 hover:text-red-700 hover:bg-red-50 bg-transparent h-11 px-4">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
@@ -70,30 +89,27 @@ export default async function AdminSkillsPage() {
 
         {skills?.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-blue-100">No skills yet. Add your first skill to get started!</p>
+            <p className="text-on-blue">No skills yet. Add your first skill to get started!</p>
           </div>
         )}
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+      <footer className="mt-auto w-full bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-4 text-center">
-            <h3 className="font-semibold text-white text-base">About MAKER</h3>
-            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+            <h3 className="font-bold text-white text-lg">About MAKER</h3>
+            <p className="text-sm text-on-blue max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/participant/forums" className="text-blue-200 hover:text-white transition-colors text-sm">
-                Forums
-              </a>
-              <a href="#" className="text-blue-200 hover:text-white transition-colors text-sm">
-                Documentation
-              </a>
+            <div className="flex justify-center gap-8 text-sm text-on-blue">
+              <a href="/admin/forums" className="text-on-blue hover:text-white transition-colors">Community Forums</a>
+              <a href="/admin/settings" className="text-on-blue hover:text-white transition-colors">Documentation</a>
             </div>
-            <p className="text-blue-300/70 text-xs pt-2">
-              &copy; 2025 MAKER Platform
-            </p>
+            <div className="text-sm text-on-blue pt-4 border-t border-brand-blue-hover/30 mt-4">
+              <p className="font-semibold">Department of Science and Technology</p>
+              <p>Science and Technology Information Institute</p>
+            </div>
           </div>
         </div>
       </footer>

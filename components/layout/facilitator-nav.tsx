@@ -41,7 +41,7 @@ export function FacilitatorNav() {
                     key={item.href}
                     href={item.href}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                      isActive ? "bg-blue-600 text-white" : "text-blue-100 hover:bg-blue-700 hover:text-white"
+                      isActive ? "bg-brand-blue text-white" : "text-on-blue hover:bg-brand-blue-hover hover:text-white"
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -53,7 +53,7 @@ export function FacilitatorNav() {
           </div>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 text-blue-100 hover:text-white transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-on-blue hover:text-white transition-colors"
           >
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
