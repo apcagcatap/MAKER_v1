@@ -78,13 +78,11 @@ export default async function AdminDashboard() {
       <AdminNav />
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
         <div className="mb-12 text-center">
-          <div className="flex items-center justify-center gap-6 mb-8">
-            <div className="relative">
-              <div>
-                <Image src="/hismarty.png" alt="Owl" width={240} height={240} className="object-contain" />
-              </div>
+          <div className="relative flex justify-center mb-8">
+            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-4">
+              <Image src="/hismarty.png" alt="Owl" width={200} height={200} className="object-contain" />
             </div>
-            <h1 className="text-5xl font-bold text-white drop-shadow-lg">
+            <h1 className="text-5xl font-bold text-white drop-shadow-lg pt-48">
               Admin Dashboard
             </h1>
           </div>

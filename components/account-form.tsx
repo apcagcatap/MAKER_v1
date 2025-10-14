@@ -97,6 +97,7 @@ export function AccountForm({ user, profile }: AccountFormProps) {
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
           placeholder="Enter your display name"
+          className="bg-white text-gray-900 placeholder:text-gray-400"
           required
         />
       </div>
@@ -104,7 +105,7 @@ export function AccountForm({ user, profile }: AccountFormProps) {
       {/* Email Field (Read-only) */}
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" type="email" value={user.email} disabled className="bg-gray-100" />
+        <Input id="email" type="email" value={user.email} disabled className="bg-gray-100 text-gray-900" />
         <p className="text-sm text-gray-500">Email cannot be changed</p>
       </div>
 
@@ -121,6 +122,7 @@ export function AccountForm({ user, profile }: AccountFormProps) {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Enter new password (optional)"
+              className="bg-white text-gray-900 placeholder:text-gray-400"
             />
           </div>
 
@@ -132,6 +134,7 @@ export function AccountForm({ user, profile }: AccountFormProps) {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm new password"
+              className="bg-white text-gray-900 placeholder:text-gray-400"
             />
           </div>
         </div>

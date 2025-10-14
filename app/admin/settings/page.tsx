@@ -27,7 +27,7 @@ export default async function AdminSettingsPage() {
           <p className="text-blue-100">Configure system-wide settings and preferences</p>
         </div>
 
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* General Settings */}
           <div className="bg-card rounded-xl border border-border p-6">
             <div className="flex items-center gap-3 mb-6">
@@ -37,11 +37,11 @@ export default async function AdminSettingsPage() {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="siteName" className="text-card-foreground">Site Name</Label>
-                <Input id="siteName" defaultValue="MAKER" className="mt-2" />
+                <Input id="siteName" defaultValue="MAKER" className="mt-2 bg-white text-gray-900 placeholder:text-gray-400" />
               </div>
               <div>
                 <Label htmlFor="siteDescription" className="text-card-foreground">Site Description</Label>
-                <Textarea id="siteDescription" defaultValue="Level up your skills" className="mt-2" rows={3} />
+                <Textarea id="siteDescription" defaultValue="Level up your skills" className="mt-2 bg-white text-gray-900 placeholder:text-gray-400" rows={3} />
               </div>
             </div>
           </div>
@@ -60,7 +60,7 @@ export default async function AdminSettingsPage() {
                 </div>
                 <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">Active</span>
               </div>
-              <Button variant="outline" className="bg-transparent">
+              <Button variant="outline" className="bg-white text-gray-900 hover:bg-blue-600 hover:text-white border-gray-300 hover:border-blue-600 transition-colors">
                 Run Database Migrations
               </Button>
             </div>
@@ -75,11 +75,11 @@ export default async function AdminSettingsPage() {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="emailFrom" className="text-card-foreground">From Email</Label>
-                <Input id="emailFrom" type="email" placeholder="noreply@maker.app" className="mt-2" />
+                <Input id="emailFrom" type="email" placeholder="noreply@maker.app" className="mt-2 bg-white text-gray-900 placeholder:text-gray-400" />
               </div>
               <div>
                 <Label htmlFor="emailReply" className="text-card-foreground">Reply-To Email</Label>
-                <Input id="emailReply" type="email" placeholder="support@maker.app" className="mt-2" />
+                <Input id="emailReply" type="email" placeholder="support@maker.app" className="mt-2 bg-white text-gray-900 placeholder:text-gray-400" />
               </div>
             </div>
           </div>
@@ -112,8 +112,8 @@ export default async function AdminSettingsPage() {
             </div>
           </div>
 
-          {/* Save Button */}
-          <div className="flex justify-end">
+          {/* Save Button - Full Width */}
+          <div className="lg:col-span-2 flex justify-end">
             <Button className="bg-blue-600 hover:bg-blue-700">
               Save Changes
             </Button>

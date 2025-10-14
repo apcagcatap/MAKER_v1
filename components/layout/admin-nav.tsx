@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Home, Users, Target, Award, Settings, LogOut, User } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
@@ -30,8 +31,9 @@ export function AdminNav() {
           <div className="flex items-center gap-8">
             <Link
               href="/admin"
-              className="text-2xl font-bold text-white"
+              className="flex items-center gap-2 text-2xl font-bold text-white"
             >
+              <Image src="/hismarty.png" alt="MAKER Owl" width={40} height={40} className="object-contain" />
               MAKER
             </Link>
             <div className="flex gap-1">

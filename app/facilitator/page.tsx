@@ -79,13 +79,15 @@ export default async function FacilitatorDashboard() {
         <div className="relative z-10">
           <FacilitatorNav />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
-            <div className="flex items-center justify-center gap-6 mb-8">
-              <div className="relative">
-                <Image src="/hismarty.png" alt="Owl" width={180} height={180} className="w-44 h-44 object-contain" />
+            <div className="text-center">
+              <div className="relative flex justify-center mb-8">
+                <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-4">
+                  <Image src="/hismarty.png" alt="Owl" width={200} height={200} className="object-contain" />
+                </div>
+                <h1 className="text-5xl font-bold text-white drop-shadow-lg pt-48">
+                  Hi there, {profile.display_name || "Facilitator"}!
+                </h1>
               </div>
-              <h1 className="text-5xl font-bold text-white drop-shadow-lg">
-                Hi there, {profile.display_name || "Facilitator"}!
-              </h1>
             </div>
           </div>
         </div>
