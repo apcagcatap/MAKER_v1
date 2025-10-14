@@ -119,7 +119,7 @@ export default async function ParticipantDashboard() {
         </div>
       </div>
 
-<main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+<main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
   {featuredQuest && (
     <div className="max-w-5xl mx-auto bg-gradient-to-r from-blue-50 to-gray-100 rounded-3xl shadow-xl overflow-hidden mb-12 border border-gray-200">
       <div className="p-8">

@@ -29,7 +29,7 @@ export default async function AboutPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-page-bg">
       <div
         className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
         style={{ borderBottomLeftRadius: "3rem", borderBottomRightRadius: "3rem" }}
@@ -50,74 +50,94 @@ export default async function AboutPage() {
 
         <div className="relative z-10">
           <ParticipantNav />
-          {/* Hero Card */}
+          {/* Hero Section */}
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-10">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl px-8 py-10 flex items-center gap-6 shadow-xl">
-              <div className="flex-shrink-0">
-                <Image src="/placeholder-logo.png" alt="Maker Logo" width={80} height={80} className="rounded-2xl bg-white p-2 shadow" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-extrabold text-white mb-2 drop-shadow-lg">About Maker</h1>
-                <p className="text-lg font-medium text-white/80 mb-1">Gamified learning, made for makers.</p>
-                <p className="text-white/70">Discover our story, our mission, and how you can level up your skills!</p>
-              </div>
+            <div className="text-center">
+              <h1 className="text-5xl font-bold text-white mb-4 drop-shadow-lg">About MAKER</h1>
+              <p className="text-xl text-blue-100 max-w-2xl mx-auto">
+                A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
+              </p>
             </div>
           </div>
         </div>
       </div>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="space-y-7">
-          {/* What is Maker */}
-          <Card className="shadow-md border-0 bg-white/90">
-            <CardHeader className="flex flex-row items-center gap-3 pb-2">
-              <div className="bg-blue-100 text-blue-700 rounded-xl p-3">
-                <Info className="w-6 h-6" />
-              </div>
-              <CardTitle className="text-xl font-bold">What is Maker?</CardTitle>
+        <div className="space-y-6">
+          {/* Main Description Card */}
+          <Card className="shadow-lg border-0 bg-card">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold text-card-foreground">What is MAKER?</CardTitle>
             </CardHeader>
-            <CardContent className="pl-16 pt-0 pb-6">
-              <p className="text-gray-700 text-base leading-relaxed">
-                Maker is a gamified learning platform designed to help you develop new skills through engaging quests and challenges.<br/>
-                <span className="block mt-1">Our mission is to make learning fun, interactive, and rewarding for everyone.</span>
+            <CardContent>
+              <p className="text-secondary text-lg leading-relaxed mb-4">
+                MAKER is an innovative gamified learning platform designed to transform how you develop new skills through engaging quests and hands-on challenges.
+              </p>
+              <p className="text-secondary text-lg leading-relaxed">
+                Our mission is to make learning interactive, fun, and rewarding for everyone—empowering makers to explore technology, build projects, and unlock their creative potential.
               </p>
             </CardContent>
           </Card>
 
           {/* How it Works */}
-          <Card className="shadow-md border-0 bg-white/90">
-            <CardHeader className="flex flex-row items-center gap-3 pb-2">
-              <div className="bg-yellow-100 text-yellow-700 rounded-xl p-3">
-                <Lightbulb className="w-6 h-6" />
-              </div>
-              <CardTitle className="text-xl font-bold">How It Works</CardTitle>
+          <Card className="shadow-lg border-0 bg-card">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold text-card-foreground">How It Works</CardTitle>
             </CardHeader>
-            <CardContent className="pl-16 pt-0 pb-6">
-              <ul className="space-y-2 text-gray-700 text-base">
-                <li className="flex items-start gap-2"><span className="font-bold text-purple-600">1.</span>Choose quests that interest you from various skill categories</li>
-                <li className="flex items-start gap-2"><span className="font-bold text-purple-600">2.</span>Complete tasks and challenges to earn XP and level up</li>
-                <li className="flex items-start gap-2"><span className="font-bold text-purple-600">3.</span>Track your progress and unlock new skills as you advance</li>
-                <li className="flex items-start gap-2"><span className="font-bold text-purple-600">4.</span>Connect with other learners in the forums to share knowledge</li>
+            <CardContent>
+              <ul className="space-y-3 text-secondary text-base">
+                <li className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                  <span>Choose quests that interest you from various skill categories</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                  <span>Complete tasks and challenges to earn XP and level up</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                  <span>Track your progress and unlock new skills as you advance</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                  <span>Connect with other makers in the community forums to share knowledge</span>
+                </li>
               </ul>
             </CardContent>
           </Card>
 
-          {/* Contact & Support */}
-          <Card className="shadow-md border-0 bg-white/90">
-            <CardHeader className="flex flex-row items-center gap-3 pb-2">
-              <div className="bg-purple-100 text-purple-700 rounded-xl p-3">
-                <HelpCircle className="w-6 h-6" />
+          {/* Institution Info */}
+          <Card className="shadow-lg border-0 bg-card">
+            <CardContent className="pt-6">
+              <div className="text-center space-y-2">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Powered by</p>
+                <h3 className="font-bold text-card-foreground">Department of Science and Technology</h3>
+                <p className="text-secondary">Science and Technology Information Institute</p>
               </div>
-              <CardTitle className="text-xl font-bold">Contact & Support</CardTitle>
-            </CardHeader>
-            <CardContent className="pl-16 pt-0 pb-6">
-              <p className="text-gray-700">
-                Need help? Have questions? Reach out to our support team at{' '}
-                <a href="mailto:support@maker.com" className="text-purple-600 font-semibold hover:underline">support@maker.com</a>
-              </p>
             </CardContent>
           </Card>
         </div>
+
+        {/* Footer Resources */}
+        <footer className="mt-12 pt-8 border-t border-border">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-bold text-card-foreground mb-3">Resources</h3>
+              <ul className="space-y-2 text-sm text-secondary">
+                <li><a href="/participant/forums" className="hover:text-interactive-primary transition-colors">Community Forums</a></li>
+                <li><a href="/participant/quests" className="hover:text-interactive-primary transition-colors">Browse Quests</a></li>
+                <li><a href="/participant/skills" className="hover:text-interactive-primary transition-colors">Skill Tracks</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-bold text-card-foreground mb-3">Contact & Support</h3>
+              <p className="text-sm text-secondary">
+                Need help? Reach out to our support team at{' '}
+                <a href="mailto:support@maker.app" className="text-interactive-primary hover:text-interactive-primary-hover font-semibold">support@maker.app</a>
+              </p>
+            </div>
+          </div>
+        </footer>
       </main>
     </div>
   )

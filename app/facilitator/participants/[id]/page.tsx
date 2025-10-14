@@ -53,7 +53,7 @@ export default async function ParticipantDetailPage({ params }: { params: { id: 
     <div className="min-h-screen">
       <FacilitatorNav />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         <Link
           href="/facilitator/participants"
           className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-6"

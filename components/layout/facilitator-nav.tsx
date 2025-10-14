@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Target, Users, Award, MessageSquare, LogOut } from "lucide-react"
+import { Home, Target, Users, Award, LogOut } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
@@ -20,11 +20,10 @@ export function FacilitatorNav() {
     { href: "/facilitator/quests", icon: Target, label: "Active Quests" },
     { href: "/facilitator/participants", icon: Users, label: "Participants" },
     { href: "/facilitator/skills", icon: Award, label: "Skills" },
-    { href: "/facilitator/forums", icon: MessageSquare, label: "Forums" },
   ]
 
   return (
-    <nav className="relative z-10 bg-gradient-nav-dark">
+    <nav className="sticky top-0 z-50 bg-gradient-nav-dark shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">

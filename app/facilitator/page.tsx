@@ -91,7 +91,7 @@ export default async function FacilitatorDashboard() {
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         {/* Combined Card Section */} 
         <div className="bg-white rounded-xl shadow-lg p-8 mb-8 flex flex-col lg:flex-row gap-8">
           {/* Left Side: Department Info and Quest Card */} 

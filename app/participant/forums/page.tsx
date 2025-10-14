@@ -25,7 +25,7 @@ export default async function ForumsPage() {
     .order("created_at", { ascending: false })
 
   return (
-    <div className="min-h-screen bg-blue-900">
+    <div className="min-h-screen bg-gradient-page-bg">
       <ParticipantNav />
 
       <div className="relative h-48">
@@ -38,7 +38,7 @@ export default async function ForumsPage() {
           className="absolute inset-0 z-0"
         />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 text-white">
-          <h1 className="text-4xl font-bold mb-2">Forums</h1>
+          <h1 className="text-4xl font-bold mb-2">Community Forums</h1>
           <p className="text-blue-100">Connect with other makers and share your journey</p>
         </div>
       </div>
@@ -49,14 +49,14 @@ export default async function ForumsPage() {
             <Link
               key={forum.id}
               href={`/participant/forums/${forum.id}`}
-              className="block bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow"
+              className="block bg-card rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{forum.title}</h3>
-                  <p className="text-gray-600 mb-4">{forum.description}</p>
+                  <h3 className="text-xl font-bold text-card-foreground mb-2">{forum.title}</h3>
+                  <p className="text-muted-foreground mb-4">{forum.description}</p>
 
-                  <div className="flex items-center gap-6 text-sm text-gray-500">
+                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <MessageSquare className="w-4 h-4" />
                       <span>{forum.posts?.[0]?.count || 0} posts</span>
@@ -68,8 +68,8 @@ export default async function ForumsPage() {
                   </div>
                 </div>
 
-                <div className="bg-purple-100 rounded-lg p-3">
-                  <MessageSquare className="w-6 h-6 text-purple-600" />
+                <div className="bg-blue-100 rounded-lg p-3">
+                  <MessageSquare className="w-6 h-6 text-blue-600" />
                 </div>
               </div>
             </Link>
@@ -77,10 +77,24 @@ export default async function ForumsPage() {
         </div>
 
         {forums?.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-xl shadow-lg">
-            <p className="text-gray-500">No forums available yet. Check back soon!</p>
+          <div className="text-center py-12 bg-card rounded-xl shadow-lg">
+            <p className="text-muted-foreground">No forums available yet. Check back soon!</p>
           </div>
         )}
+
+        {/* Footer */}
+        <footer className="mt-12 pt-8 border-t border-border text-center">
+          <div className="space-y-2">
+            <h3 className="font-bold text-card-foreground">About MAKER</h3>
+            <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+              A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
+            </p>
+            <div className="text-sm text-muted-foreground pt-4">
+              <p>Department of Science and Technology</p>
+              <p>Science and Technology Information Institute</p>
+            </div>
+          </div>
+        </footer>
       </main>
     </div>
   )

@@ -21,7 +21,7 @@ export default async function FacilitatorSkillsPage() {
     <div className="min-h-screen bg-gradient-page-bg">
       <FacilitatorNav />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-card rounded-lg shadow-lg">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 bg-card rounded-lg shadow-lg">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-4xl font-bold text-card-foreground mb-2">Skills</h1>

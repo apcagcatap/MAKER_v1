@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Users, Target, Award, MessageSquare, Settings, LogOut, User } from "lucide-react"
+import { Home, Users, Target, Award, Settings, LogOut, User } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
@@ -20,12 +20,11 @@ export function AdminNav() {
     { href: "/admin/users", icon: Users, label: "Users" },
     { href: "/admin/quests", icon: Target, label: "Quests" },
     { href: "/admin/skills", icon: Award, label: "Skills" },
-    { href: "/admin/forums", icon: MessageSquare, label: "Forums" },
     { href: "/admin/settings", icon: Settings, label: "Settings" },
   ]
 
   return (
-    <nav className="relative z-10 bg-gradient-nav-dark">
+    <nav className="sticky top-0 z-50 bg-gradient-nav-dark shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">

@@ -67,7 +67,7 @@ export default async function AdminDashboard() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-page-bg relative overflow-hidden"
+      className="min-h-screen bg-gradient-page-bg relative"
       style={{
         backgroundImage: `url("/navbarBg.png")`,
         backgroundRepeat: "no-repeat",
@@ -76,7 +76,7 @@ export default async function AdminDashboard() {
       }}
     >
       <AdminNav />
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
         <div className="mb-12 text-center">
           <div className="flex items-center justify-center gap-6 mb-8">
             <div className="relative">
@@ -91,7 +91,7 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      <main className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24">
+      <main className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className="bg-card rounded-xl shadow-lg p-6">
           {/* User Stats */}
           <div className="mb-8">
@@ -254,6 +254,24 @@ export default async function AdminDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="mt-12 pt-8 border-t border-border text-center">
+          <div className="space-y-4">
+            <h3 className="font-bold text-white text-lg">About MAKER</h3>
+            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+              A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
+            </p>
+            <div className="flex justify-center gap-8 text-sm text-blue-100">
+              <a href="/admin/forums" className="hover:text-white transition-colors">Community Forums</a>
+              <a href="/admin/settings" className="hover:text-white transition-colors">Documentation</a>
+            </div>
+            <div className="text-sm text-blue-200 pt-4 border-t border-blue-700/30 mt-4">
+              <p className="font-semibold">Department of Science and Technology</p>
+              <p>Science and Technology Information Institute</p>
+            </div>
+          </div>
+        </footer>
       </main>
     </div>
   )

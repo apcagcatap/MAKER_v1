@@ -78,7 +78,7 @@ export default async function FacilitatorForumDetailPage({ params }: { params: {
         </div>
       </div>
 
-      <main className="relative -mt-16 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="relative -mt-16 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         {/* Create Post Form */}
         <ForumPostForm forumId={id} />
 

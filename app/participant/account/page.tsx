@@ -38,14 +38,14 @@ export default async function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-page-bg">
       <ParticipantNav />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Account Settings</h1>
-          <p className="text-gray-600">Manage your profile and account preferences</p>
+          <h1 className="text-4xl font-bold text-card-foreground mb-2">Account Settings</h1>
+          <p className="text-muted-foreground">Manage your profile and account preferences</p>
         </div>
 
         {/* Account Information Card */}

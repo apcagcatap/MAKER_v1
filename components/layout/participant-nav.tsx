@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Target, Award, MessageSquare, User } from "lucide-react"
+import { Home, Target, Award, User } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
@@ -19,12 +19,11 @@ export function ParticipantNav() {
   const navItems = [
     { href: "/participant/quests", icon: Target, label: "Quests" },
     { href: "/participant/skills", icon: Award, label: "Skills" },
-    { href: "/participant/forums", icon: MessageSquare, label: "Forums" },
     { href: "/participant/about", icon: null, label: "About" },
   ]
 
   return (
-    <nav className="relative z-10 bg-gradient-nav-dark">
+    <nav className="sticky top-0 z-50 bg-gradient-nav-dark shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">

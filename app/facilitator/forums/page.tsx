@@ -59,7 +59,7 @@ export default async function FacilitatorForumsPage() {
         </div>
       </div>
 
-      <main className="relative -mt-16 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-white rounded-lg shadow-lg">
+      <main className="relative -mt-16 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 bg-white rounded-lg shadow-lg">
         <div className="space-y-4">
           {forums?.map((forum) => (
             <Link
