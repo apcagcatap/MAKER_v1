@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { ParticipantNav } from "@/components/layout/participant-nav"
 import { MessageSquare, Clock } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 export default async function ForumsPage() {
   const supabase = await createClient()
@@ -24,21 +25,31 @@ export default async function ForumsPage() {
     .order("created_at", { ascending: false })
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-blue-900">
       <ParticipantNav />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Forums</h1>
-          <p className="text-gray-600">Connect with other makers and share your journey</p>
+      <div className="relative h-48">
+        <Image
+          src="/navbarBg.png"
+          alt="Background"
+          layout="fill"
+          objectFit="cover"
+          quality={100}
+          className="absolute inset-0 z-0"
+        />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 text-white">
+          <h1 className="text-4xl font-bold mb-2">Forums</h1>
+          <p className="text-blue-100">Connect with other makers and share your journey</p>
         </div>
+      </div>
 
+      <main className="relative -mt-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         <div className="space-y-4">
           {forums?.map((forum) => (
             <Link
               key={forum.id}
               href={`/participant/forums/${forum.id}`}
-              className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+              className="block bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -66,7 +77,7 @@ export default async function ForumsPage() {
         </div>
 
         {forums?.length === 0 && (
-          <div className="text-center py-12">
+          <div className="text-center py-12 bg-white rounded-xl shadow-lg">
             <p className="text-gray-500">No forums available yet. Check back soon!</p>
           </div>
         )}
