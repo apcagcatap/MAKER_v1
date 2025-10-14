@@ -123,6 +123,48 @@ export interface UserQuest {
 }
 
 // ============================================
+// QUEST PAGE FLOW TYPES (Modular Participant Flow)
+// ============================================
+
+/**
+ * Quest Page
+ *
+ * Represents a single modular page in the quest flow
+ * shown to participants (e.g., intro, objective, materials).
+ * The schema stores a numeric page_number scoped globally; in
+ * practice we always filter by quest_id and order by page_number.
+ */
+export interface QuestPage {
+  id: number
+  quest_id: string | null
+  page_number: number
+  content: string | null
+  page_type?: string | null
+}
+
+/**
+ * Task linked to a quest page.
+ *
+ * The schema references a quest page by its page_number.
+ */
+export interface Task {
+  id: number
+  task_number: number | null
+  description: string | null
+  page_number: number | null
+}
+
+/**
+ * Supplemental learning content tied to a quest.
+ */
+export interface LearningResource {
+  id: number
+  quest_id: string | null
+  title: string | null
+  content: string | null
+}
+
+// ============================================
 // FORUM SYSTEM TYPES
 // ============================================
 

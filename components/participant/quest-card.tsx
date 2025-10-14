@@ -2,6 +2,7 @@
 
 import type { Quest, UserQuest } from "@/lib/types"
 import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 import { Progress } from "@/components/ui/progress"
 import { Trophy, Star } from "lucide-react"
 
@@ -13,6 +14,7 @@ interface QuestCardProps {
 }
 
 export function QuestCard({ quest, userQuest, onStart, onContinue }: QuestCardProps) {
+  const router = useRouter()
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "beginner":
@@ -71,14 +73,14 @@ export function QuestCard({ quest, userQuest, onStart, onContinue }: QuestCardPr
         </div>
       ) : status === "in_progress" ? (
         <Button
-          onClick={onContinue}
+          onClick={onContinue ?? (() => router.push(`/participant/quests/${quest.id}`))}
           className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
         >
           Continue Quest
         </Button>
       ) : (
         <Button
-          onClick={onStart}
+          onClick={onStart ?? (() => router.push(`/participant/quests/${quest.id}`))}
           variant="outline"
           className="w-full border-purple-600 text-purple-600 hover:bg-purple-50 bg-transparent"
         >
