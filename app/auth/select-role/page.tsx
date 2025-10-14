@@ -21,21 +21,21 @@ export default function SelectRolePage() {
       title: "Participant",
       description: "Learn new skills, complete quests, and engage with the community",
       icon: Users,
-      color: "from-brand-blue-light0 to-brand-blue",
+      color: "from-brand-blue to-brand-blue-hover",
     },
     {
       id: "facilitator" as const,
       title: "Facilitator",
       description: "Create and manage quests, monitor participant progress",
       icon: UserCog,
-      color: "from-brand-blue to-blue-700",
+      color: "from-role-facilitator to-role-facilitator-dark",
     },
     {
       id: "admin" as const,
       title: "Admin",
       description: "Full system access, manage users, content, and settings",
       icon: Shield,
-      color: "from-blue-700 to-blue-800",
+      color: "from-role-admin to-role-admin-dark",
     },
   ]
 

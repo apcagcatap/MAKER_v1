@@ -29,6 +29,12 @@
   --color-brand-blue-hover: oklch(0.47 0.20 264); /* bg-blue-700 */
   --color-brand-blue-dark: oklch(0.30 0.12 264); /* bg-blue-900 */
   
+  /* Role colors */
+  --color-role-facilitator: oklch(0.65 0.20 85); /* Deep yellow/gold */
+  --color-role-facilitator-dark: oklch(0.55 0.22 70); /* Darker yellow */
+  --color-role-admin: oklch(0.55 0.25 25); /* Deep red */
+  --color-role-admin-dark: oklch(0.45 0.25 20); /* Darker red */
+  
   /* Interactive colors */
   --color-interactive-primary: oklch(0.52 0.20 264); /* Same as brand-blue-primary */
   --color-interactive-primary-hover: oklch(0.47 0.20 264); /* Same as brand-blue-hover */
@@ -144,6 +150,15 @@
     color: var(--color-text-on-blue);
   }
 
+  /* Role color utilities */
+  .bg-role-facilitator {
+    background-color: var(--color-role-facilitator);
+  }
+  
+  .bg-role-admin {
+    background-color: var(--color-role-admin);
+  }
+
   /* Navigation bar gradient */
   .bg-gradient-nav-dark {
     background: linear-gradient(135deg, var(--color-brand-blue-dark) 0%, var(--color-brand-blue-primary) 100%);
@@ -161,7 +176,7 @@
 
   /* Difficulty badges */
   .difficulty-beginner {
-    background: linear-gradient(135deg, oklch(0.65 0.20 150) 0%, oklch(0.75 0.15 85) 100%);
+    background-color: #22c55e; /* green-500 */
     color: white;
     padding: 0.25rem 0.75rem;
     border-radius: 0.5rem;
@@ -170,7 +185,7 @@
   }
 
   .difficulty-intermediate {
-    background: linear-gradient(135deg, oklch(0.75 0.15 85) 0%, oklch(0.70 0.20 40) 100%);
+    background-color: #f97316; /* orange-500 */
     color: white;
     padding: 0.25rem 0.75rem;
     border-radius: 0.5rem;
@@ -179,7 +194,7 @@
   }
 
   .difficulty-advanced {
-    background: linear-gradient(135deg, oklch(0.70 0.20 40) 0%, oklch(0.65 0.25 25) 100%);
+    background-color: #dc2626; /* red-600 */
     color: white;
     padding: 0.25rem 0.75rem;
     border-radius: 0.5rem;

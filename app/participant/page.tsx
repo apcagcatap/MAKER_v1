@@ -23,6 +23,19 @@ export default async function ParticipantDashboard() {
     redirect("/auth/login")
   }
 
+  // Helper function for difficulty badges
+  const getDifficultyClass = (difficulty: string) => {
+    const difficultyLower = difficulty?.toLowerCase() || "beginner"
+    switch (difficultyLower) {
+      case "advanced":
+        return "difficulty-advanced"
+      case "intermediate":
+        return "difficulty-intermediate"
+      default:
+        return "difficulty-beginner"
+    }
+  }
+
   // Fetch user quests with quest details
   const { data: userQuests } = await supabase
     .from("user_quests")
@@ -119,66 +132,64 @@ export default async function ParticipantDashboard() {
 
 <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24 flex-grow">
   {featuredQuest && (
-    <div className="bg-gradient-to-r from-brand-blue-light to-gray-100 rounded-3xl shadow-xl overflow-hidden mb-12 border border-gray-200">
-      <div className="p-8">
-        {/* Header Section */}
-        <div className="bg-gradient-to-r from-brand-blue from-brand-blue rounded-3xl px-6 py-4 inline-block mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-              <div className="w-10 h-10 bg-gradient-to-br from-brand-blue to-brand-blue-medium rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">
-                  {featuredQuest.skill?.name?.charAt(0) || "S"}
-                </span>
+    <div className="bg-white rounded-3xl shadow-xl overflow-hidden mb-12 p-8">
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-brand-blue to-brand-blue-medium rounded-2xl px-6 py-4 inline-block mb-8">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-brand-blue to-brand-blue-medium rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-xl">
+                {featuredQuest.skill?.name?.charAt(0) || "S"}
+              </span>
+            </div>
+          </div>
+          <div className="text-white">
+            <div className="text-xs uppercase tracking-wide font-medium opacity-90">
+              Department of Science and Technology
+            </div>
+            <div className="font-bold text-lg">
+              {featuredQuest.skill?.name || "Science and Technology"}
+            </div>
+            <div className="text-sm opacity-90 font-semibold">Science and Technology Information Institute</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-8 items-start">
+        {/* Left Card - Quest Info */}
+        <div className="bg-brand-blue rounded-3xl p-8 text-white shadow-lg">
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-blur-sm">
+              <div className="w-16 h-16 bg-white bg-opacity-30 rounded-full flex items-center justify-center">
+                <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                </svg>
               </div>
             </div>
-            <div className="text-white">
-              <div className="text-xs uppercase tracking-wide font-medium opacity-90">
-                Department of Science and Technology
-              </div>
-              <div className="font-bold text-lg">
-                {featuredQuest.skill?.name || "Science and Technology"}
-              </div>
-              <div className="text-sm opacity-90 font-bold">Science and Technology Information Institute</div>
+          </div>
+          
+          <h3 className="text-2xl font-bold mb-4 text-center">{featuredQuest.title}</h3>
+          <p className="text-center text-sm mb-6 text-white/90">
+            Will you be a keeper of the Tower Flame?
+          </p>
+          
+          <div className="flex items-center justify-center gap-3">
+            <span className={getDifficultyClass(featuredQuest.difficulty)}>
+              {featuredQuest.difficulty || "Beginner"}
+            </span>
+            <div className="flex-1 max-w-[200px] h-2 bg-brand-blue-dark bg-opacity-40 rounded-full overflow-hidden">
+              <div className="h-full bg-white rounded-full" style={{ width: "25%" }} />
             </div>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 items-start">
-          {/* Left Card - Quest Info */}
-          <div className="bg-gradient-to-br from-brand-blue-light0 to-brand-blue rounded-3xl p-8 text-white shadow-lg">
-            <div className="flex items-center justify-center mb-6">
-              <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                <div className="w-16 h-16 bg-white bg-opacity-30 rounded-full flex items-center justify-center">
-                  <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
-            
-            <h3 className="text-2xl font-bold mb-4 text-center">{featuredQuest.title}</h3>
-            <p className="text-center text-sm mb-6 text-white/90">
-              Will you be a keeper of the Tower Flame?
-            </p>
-            
-            <div className="flex items-center justify-center gap-3">
-              <span className="px-4 py-1.5 bg-red-500 text-white text-sm font-semibold rounded-full shadow-md">
-                {featuredQuest.difficulty || "Beginner"}
-              </span>
-              <div className="flex-1 max-w-[200px] h-2 bg-brand-blue-medium bg-opacity-40 rounded-full overflow-hidden">
-                <div className="h-full bg-white rounded-full" style={{ width: "25%" }} />
-              </div>
-            </div>
-          </div>
-
-          {/* Right Section - Goal */}
-          <div className="pt-4">
-            <h4 className="text-3xl font-bold text-gray-900 mb-6">Goal Of This Quest</h4>
-            <p className="text-gray-700 leading-relaxed text-base">
-              {featuredQuest.description ||
-                "Design and build a functional sensor array using an Arduino that can detect motion or environmental changes, triggering a signal to light up a watchtower. This quest introduces the basics of physical computing, wiring, and sensor integration your mission is to bring the tower to life and guard the realm!"}
-            </p>
-          </div>
+        {/* Right Section - Goal */}
+        <div className="flex flex-col justify-center">
+          <h4 className="text-3xl font-bold text-gray-900 mb-6">Goal Of This Quest</h4>
+          <p className="text-gray-700 leading-relaxed text-base">
+            {featuredQuest.description ||
+              "Design and build a functional sensor array using an Arduino that can detect motion or environmental changes, triggering a signal to light up a watchtower. This quest introduces the basics of physical computing, wiring, and sensor integration your mission is to bring the tower to life and guard the realm!"}
+          </p>
         </div>
       </div>
     </div>
@@ -230,31 +241,24 @@ export default async function ParticipantDashboard() {
             ))}
           </div>
         </div>
-
-        <div className="text-center mt-12">
-          <p className="text-white text-sm">©Maker</p>
-        </div>
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
+      <footer className="mt-auto w-full bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-4 text-center">
-            <h3 className="font-semibold text-white text-base">About MAKER</h3>
+            <h3 className="font-bold text-white text-lg">About MAKER</h3>
             <p className="text-sm text-on-blue max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/participant/forums" className="text-on-blue hover:text-white transition-colors text-sm">
-                Forums
-              </a>
-              <a href="#" className="text-on-blue hover:text-white transition-colors text-sm">
-                Documentation
-              </a>
+            <div className="flex justify-center gap-8 text-sm text-on-blue">
+              <a href="/participant/forums" className="hover:text-white transition-colors">Forums</a>
+              <a href="#" className="hover:text-white transition-colors">Documentation</a>
             </div>
-            <p className="text-on-blue/70 text-xs pt-2">
-              &copy; 2025 MAKER Platform
-            </p>
+            <div className="text-sm text-on-blue pt-4 border-t border-brand-blue-hover/30 mt-4">
+              <p className="font-semibold">Department of Science and Technology</p>
+              <p>Science and Technology Information Institute</p>
+            </div>
           </div>
         </div>
       </footer>

@@ -200,24 +200,21 @@ export default async function FacilitatorDashboard() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
+      <footer className="mt-auto w-full bg-brand-blue-dark/30 backdrop-blur-sm border-t border-brand-blue-hover/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-4 text-center">
-            <h3 className="font-semibold text-white text-base">About MAKER</h3>
+            <h3 className="font-bold text-white text-lg">About MAKER</h3>
             <p className="text-sm text-on-blue max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/participant/forums" className="text-on-blue hover:text-white transition-colors text-sm">
-                Forums
-              </a>
-              <a href="#" className="text-on-blue hover:text-white transition-colors text-sm">
-                Documentation
-              </a>
+            <div className="flex justify-center gap-8 text-sm text-on-blue">
+              <a href="/facilitator/forums" className="hover:text-white transition-colors">Forums</a>
+              <a href="#" className="hover:text-white transition-colors">Documentation</a>
             </div>
-            <p className="text-on-blue/70 text-xs pt-2">
-              &copy; 2025 MAKER Platform
-            </p>
+            <div className="text-sm text-on-blue pt-4 border-t border-brand-blue-hover/30 mt-4">
+              <p className="font-semibold">Department of Science and Technology</p>
+              <p>Science and Technology Information Institute</p>
+            </div>
           </div>
         </div>
       </footer>

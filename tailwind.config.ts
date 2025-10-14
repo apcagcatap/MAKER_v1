@@ -15,6 +15,14 @@ export default {
           hover: 'var(--color-brand-blue-hover)',
           dark: 'var(--color-brand-blue-dark)',
         },
+        'role-facilitator': {
+          DEFAULT: 'var(--color-role-facilitator)',
+          dark: 'var(--color-role-facilitator-dark)',
+        },
+        'role-admin': {
+          DEFAULT: 'var(--color-role-admin)',
+          dark: 'var(--color-role-admin-dark)',
+        },
         'text-on-blue': 'var(--color-text-on-blue)',
         'interactive-primary': 'var(--color-interactive-primary)',
         'interactive-primary-hover': 'var(--color-interactive-primary-hover)',
