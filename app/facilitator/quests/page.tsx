@@ -27,16 +27,15 @@ export default async function FacilitatorQuestsPage() {
     .order("created_at", { ascending: false })
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-page-bg">
       <FacilitatorNav />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Active Quests</h1>
-            <p className="text-gray-600">Manage and monitor all active quests</p>
+            <h1 className="text-4xl font-bold text-on-accent mb-2">Active Quests</h1>
           </div>
-          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+          <Button className="bg-gradient-accent-warm hover:opacity-90">
             <Plus className="w-4 h-4 mr-2" />
             Create Quest
           </Button>

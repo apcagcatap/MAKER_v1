@@ -34,12 +34,11 @@ export default async function QuestsPage() {
   const completed = allQuests?.filter((q) => userQuestsMap.get(q.id)?.status === "completed") || []
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-page-bg">
       <ParticipantNav />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Quests</h1>
-          <p className="text-white">Complete quests to earn XP and level up your skills</p>
+          <h1 className="text-4xl font-bold text-on-accent mb-2">Quests</h1>
         </div>
 
         <Tabs defaultValue="all" className="w-full">

@@ -37,10 +37,10 @@ export default async function SkillsPage() {
   const overallProgress = totalSkills > 0 ? (learnedSkills / totalSkills) * 100 : 0
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-page-bg">
       {/* 🟦 Navbar + Background + Progress Section */}
       <div
-        className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
+        className="bg-solid-blue-accent relative overflow-hidden"
         style={{ borderBottomLeftRadius: "3rem", borderBottomRightRadius: "3rem" }}
       >
         {/* Background Image Overlay */}

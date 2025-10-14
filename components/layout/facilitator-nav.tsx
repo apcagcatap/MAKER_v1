@@ -17,7 +17,6 @@ export function FacilitatorNav() {
   }
 
   const navItems = [
-    { href: "/facilitator", icon: Home, label: "Home" },
     { href: "/facilitator/quests", icon: Target, label: "Active Quests" },
     { href: "/facilitator/participants", icon: Users, label: "Participants" },
     { href: "/facilitator/skills", icon: Award, label: "Skills" },
@@ -25,7 +24,7 @@ export function FacilitatorNav() {
   ]
 
   return (
-    <nav className="relative z-10">
+    <nav className="relative z-10 bg-gradient-nav-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">

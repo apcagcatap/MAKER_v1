@@ -16,13 +16,13 @@ export function QuestCard({ quest, userQuest, onStart, onContinue }: QuestCardPr
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "beginner":
-        return "bg-green-100 text-green-700"
+        return "difficulty-beginner"
       case "intermediate":
-        return "bg-yellow-100 text-yellow-700"
+        return "difficulty-intermediate"
       case "advanced":
-        return "bg-red-100 text-red-700"
+        return "difficulty-advanced"
       default:
-        return "bg-gray-100 text-gray-700"
+        return "status-not-started"
     }
   }
 
@@ -30,25 +30,25 @@ export function QuestCard({ quest, userQuest, onStart, onContinue }: QuestCardPr
   const progress = userQuest?.progress || 0
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+    <div className="bg-card rounded-xl border p-6 hover:shadow-lg transition-shadow">
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-900 mb-2">{quest.title}</h3>
-          <p className="text-gray-600 text-sm">{quest.description}</p>
+          <h3 className="text-xl font-bold text-card-foreground mb-2">{quest.title}</h3>
+          <p className="text-muted-foreground text-sm">{quest.description}</p>
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getDifficultyColor(quest.difficulty)}`}>
+        <span className={getDifficultyColor(quest.difficulty)}>
           {quest.difficulty}
         </span>
       </div>
 
-      <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
+      <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-1">
           <Trophy className="w-4 h-4 text-yellow-500" />
           <span>{quest.xp_reward} XP</span>
         </div>
         {quest.skill && (
           <div className="flex items-center gap-1">
-            <Star className="w-4 h-4 text-purple-500" />
+            <Star className="w-4 h-4 text-interactive-primary" />
             <span>{quest.skill.name}</span>
           </div>
         )}
@@ -57,8 +57,8 @@ export function QuestCard({ quest, userQuest, onStart, onContinue }: QuestCardPr
       {status === "in_progress" && (
         <div className="mb-4">
           <div className="flex items-center justify-between text-sm mb-2">
-            <span className="text-gray-600">Progress</span>
-            <span className="font-semibold text-purple-600">{progress}%</span>
+            <span className="text-muted-foreground">Progress</span>
+            <span className="font-semibold text-interactive-primary">{progress}%</span>
           </div>
           <Progress value={progress} className="h-2" />
         </div>

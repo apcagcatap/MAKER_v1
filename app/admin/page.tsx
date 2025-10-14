@@ -67,7 +67,7 @@ export default async function AdminDashboard() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
+      className="min-h-screen bg-gradient-page-bg relative overflow-hidden"
       style={{
         backgroundImage: `url("/navbarBg.png")`,
         backgroundRepeat: "no-repeat",
@@ -88,7 +88,6 @@ export default async function AdminDashboard() {
               Admin Dashboard
             </h1>
           </div>
-          <p className="text-lg text-white">Complete system overview and management</p>
         </div>
       </div>
 

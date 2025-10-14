@@ -52,8 +52,8 @@ export default async function ParticipantDashboard() {
   const featuredQuest = inProgressQuests[0] || availableQuests?.[0]
 
   return (
-    <div className="min-h-screen">
-      <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
+    <div className="min-h-screen bg-gradient-page-bg">
+      <div className="bg-solid-blue-accent relative overflow-hidden"
         style={{ borderBottomLeftRadius: "3rem", borderBottomRightRadius: "3rem" }}>
         <div className="absolute inset-0 opacity-100">
           <div

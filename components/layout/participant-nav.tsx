@@ -17,7 +17,6 @@ export function ParticipantNav() {
   }
 
   const navItems = [
-    { href: "/participant", icon: Home, label: "Home" },
     { href: "/participant/quests", icon: Target, label: "Quests" },
     { href: "/participant/skills", icon: Award, label: "Skills" },
     { href: "/participant/forums", icon: MessageSquare, label: "Forums" },
@@ -25,7 +24,7 @@ export function ParticipantNav() {
   ]
 
   return (
-    <nav className="relative z-10">
+    <nav className="relative z-10 bg-gradient-nav-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">

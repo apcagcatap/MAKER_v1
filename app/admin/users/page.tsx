@@ -20,16 +20,15 @@ export default async function AdminUsersPage() {
   const { data: users } = await supabase.from("profiles").select("*").order("created_at", { ascending: false })
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-page-bg">
       <AdminNav />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">User Management</h1>
-            <p className="text-gray-600">Manage all users and their permissions</p>
+            <h1 className="text-4xl font-bold text-on-accent mb-2">User Management</h1>
           </div>
-          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+          <Button className="bg-card text-card-foreground hover:bg-card/90 shadow-lg">
             <Plus className="w-4 h-4 mr-2" />
             Add User
           </Button>
@@ -37,16 +36,16 @@ export default async function AdminUsersPage() {
 
         <div className="flex items-center gap-4 mb-6">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <Input placeholder="Search users..." className="pl-10" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input placeholder="Search users..." className="pl-10 bg-card" />
           </div>
-          <Button variant="outline" className="bg-transparent">
+          <Button variant="outline">
             <Filter className="w-4 h-4 mr-2" />
             Filter
           </Button>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="bg-card rounded-xl border shadow-lg overflow-hidden">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>

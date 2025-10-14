@@ -44,7 +44,7 @@ export function UserTableRow({ user, onEdit, onDelete }: UserTableRowProps) {
       <td className="px-6 py-4 text-gray-500 text-sm">{new Date(user.created_at).toLocaleDateString()}</td>
       <td className="px-6 py-4">
         <div className="flex items-center gap-2">
-          <Button onClick={onEdit} variant="ghost" size="sm">
+          <Button onClick={onEdit} variant="ghost" size="sm" className="text-interactive-primary hover:text-interactive-primary-hover">
             <Edit className="w-4 h-4" />
           </Button>
           <Button onClick={onDelete} variant="ghost" size="sm" className="text-red-600 hover:text-red-700">

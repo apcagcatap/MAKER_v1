@@ -18,16 +18,15 @@ export default async function FacilitatorSkillsPage() {
   const { data: skills } = await supabase.from("skills").select("*").order("name")
 
   return (
-    <div className="min-h-screen bg-blue-900">
+    <div className="min-h-screen bg-gradient-page-bg">
       <FacilitatorNav />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-white rounded-lg shadow-lg">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-card rounded-lg shadow-lg">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Skills</h1>
-            <p className="text-gray-600">Manage available skills for participants</p>
+            <h1 className="text-4xl font-bold text-card-foreground mb-2">Skills</h1>
           </div>
-          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+          <Button className="bg-gradient-accent-warm hover:opacity-90">
             <Plus className="w-4 h-4 mr-2" />
             Add Skill
           </Button>
@@ -37,17 +36,17 @@ export default async function FacilitatorSkillsPage() {
           {skills?.map((skill) => (
             <div
               key={skill.id}
-              className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+              className="bg-card rounded-xl border p-6 hover:shadow-lg transition-shadow"
             >
               <div className="flex items-start gap-4 mb-4">
                 <div className="text-4xl">{skill.icon || "🎯"}</div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">{skill.name}</h3>
-                  <p className="text-sm text-gray-600">{skill.description}</p>
+                  <h3 className="text-lg font-bold text-card-foreground mb-1">{skill.name}</h3>
+                  <p className="text-sm text-muted-foreground">{skill.description}</p>
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" className="flex-1 bg-transparent">
+                <Button variant="outline" className="flex-1 text-interactive-primary hover:text-interactive-primary-hover">
                   <Edit className="w-4 h-4 mr-2" />
                   Edit
                 </Button>

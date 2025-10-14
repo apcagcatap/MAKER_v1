@@ -30,16 +30,15 @@ export default async function AdminQuestsPage() {
   const inactiveQuests = allQuests?.filter((q) => !q.is_active) || []
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-page-bg">
       <AdminNav />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Quest Management</h1>
-            <p className="text-gray-600">Manage all quests in the system</p>
+            <h1 className="text-4xl font-bold text-on-accent mb-2">Quest Management</h1>
           </div>
-          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+          <Button className="bg-card text-card-foreground hover:bg-card/90 shadow-lg">
             <Plus className="w-4 h-4 mr-2" />
             Create Quest
           </Button>

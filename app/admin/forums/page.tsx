@@ -26,14 +26,13 @@ export default async function AdminForumsPage() {
     .order("created_at", { ascending: false })
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-page-bg">
       <AdminNav />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Forums Management</h1>
-            <p className="text-gray-600">Manage all community forums</p>
+            <h1 className="text-4xl font-bold text-on-accent mb-2">Forums Management</h1>
           </div>
           <CreateForumDialog />
         </div>
@@ -42,18 +41,18 @@ export default async function AdminForumsPage() {
           {forums?.map((forum) => (
             <div
               key={forum.id}
-              className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+              className="bg-card rounded-xl border p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <Link href={`/admin/forums/${forum.id}`} className="block mb-2">
-                    <h3 className="text-xl font-bold text-gray-900 hover:text-purple-600 transition-colors">
+                    <h3 className="text-xl font-bold text-card-foreground hover:text-interactive-primary transition-colors">
                       {forum.title}
                     </h3>
                   </Link>
-                  <p className="text-gray-600 mb-4">{forum.description}</p>
+                  <p className="text-muted-foreground mb-4">{forum.description}</p>
 
-                  <div className="flex items-center gap-6 text-sm text-gray-500">
+                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <MessageSquare className="w-4 h-4" />
                       <span>{forum.posts?.[0]?.count || 0} posts</span>
@@ -66,13 +65,13 @@ export default async function AdminForumsPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="bg-transparent">
+                  <Button variant="outline" size="sm" className="text-interactive-primary hover:text-interactive-primary-hover">
                     <Edit className="w-4 h-4" />
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 bg-transparent"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>

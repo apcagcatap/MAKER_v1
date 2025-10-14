@@ -17,7 +17,6 @@ export function AdminNav() {
   }
 
   const navItems = [
-    { href: "/admin", icon: Home, label: "Dashboard" },
     { href: "/admin/users", icon: Users, label: "Users" },
     { href: "/admin/quests", icon: Target, label: "Quests" },
     { href: "/admin/skills", icon: Award, label: "Skills" },
@@ -26,7 +25,7 @@ export function AdminNav() {
   ]
 
   return (
-    <nav className="relative z-10">
+    <nav className="relative z-10 bg-gradient-nav-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">

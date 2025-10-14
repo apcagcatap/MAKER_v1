@@ -24,16 +24,15 @@ export default async function AdminSkillsPage() {
     .order("name")
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-page-bg">
       <AdminNav />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Skills Management</h1>
-            <p className="text-gray-600">Manage all available skills</p>
+            <h1 className="text-4xl font-bold text-on-accent mb-2">Skills Management</h1>
           </div>
-          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+          <Button className="bg-card text-card-foreground hover:bg-card/90 shadow-lg">
             <Plus className="w-4 h-4 mr-2" />
             Add Skill
           </Button>
@@ -43,21 +42,21 @@ export default async function AdminSkillsPage() {
           {skills?.map((skill) => (
             <div
               key={skill.id}
-              className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+              className="bg-card rounded-xl border p-6 hover:shadow-lg transition-shadow"
             >
               <div className="flex items-start gap-4 mb-4">
                 <div className="text-4xl">{skill.icon || "🎯"}</div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">{skill.name}</h3>
-                  <p className="text-sm text-gray-600 mb-3">{skill.description}</p>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <h3 className="text-lg font-bold text-card-foreground mb-1">{skill.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-3">{skill.description}</p>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Users className="w-4 h-4" />
                     <span>{skill.user_skills?.[0]?.count || 0} users learning</span>
                   </div>
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" className="flex-1 bg-transparent">
+                <Button variant="outline" className="flex-1 text-interactive-primary hover:text-interactive-primary-hover">
                   <Edit className="w-4 h-4 mr-2" />
                   Edit
                 </Button>
