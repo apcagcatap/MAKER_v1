@@ -191,31 +191,31 @@ export default async function ParticipantDashboard() {
             title="Total XP"
             value={profile.xp}
             icon={<Trophy className="w-6 h-6" />}
-            gradient="bg-gradient-to-br from-yellow-400 to-orange-500"
+            gradient="bg-blue-600"
           />
           <StatsCard
             title="Level"
             value={profile.level}
             icon={<TrendingUp className="w-6 h-6" />}
-            gradient="bg-gradient-to-br from-purple-500 to-pink-500"
+            gradient="bg-blue-500"
           />
           <StatsCard
             title="Active Quests"
             value={inProgressQuests.length}
             icon={<Target className="w-6 h-6" />}
-            gradient="bg-gradient-to-br from-blue-500 to-cyan-500"
+            gradient="bg-blue-600"
           />
           <StatsCard
             title="Completed"
             value={completedQuests.length}
             icon={<Award className="w-6 h-6" />}
-            gradient="bg-gradient-to-br from-green-500 to-emerald-500"
+            gradient="bg-blue-500"
           />
         </div>
 
         {inProgressQuests.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Continue Learning</h2>
+            <h2 className="text-2xl font-bold text-card-foreground mb-4">Continue Learning</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {inProgressQuests.map((userQuest) => (
                 <QuestCard key={userQuest.id} quest={userQuest.quest} userQuest={userQuest} />

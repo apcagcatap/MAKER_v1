@@ -154,7 +154,7 @@ export function AccountForm({ user, profile }: AccountFormProps) {
       <Button
         type="submit"
         disabled={loading}
-        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+        className="w-full bg-blue-600 hover:bg-blue-700"
       >
         {loading ? "Saving..." : "Save Changes"}
       </Button>

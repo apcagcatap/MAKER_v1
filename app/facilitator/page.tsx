@@ -162,25 +162,25 @@ export default async function FacilitatorDashboard() {
             title="Total Participants"
             value={totalParticipants || 0}
             icon={<Users className="w-6 h-6" />}
-            gradient="bg-gradient-to-br from-blue-500 to-cyan-500"
+            gradient="bg-blue-600"
           />
           <StatsCard
             title="Active Quests"
             value={totalQuests || 0}
             icon={<Target className="w-6 h-6" />}
-            gradient="bg-gradient-to-br from-purple-500 to-pink-500"
+            gradient="bg-blue-500"
           />
           <StatsCard
             title="In Progress"
             value={activeQuests || 0}
             icon={<TrendingUp className="w-6 h-6" />}
-            gradient="bg-gradient-to-br from-orange-500 to-red-500"
+            gradient="bg-blue-600"
           />
           <StatsCard
             title="Completed"
             value={completedQuests || 0}
             icon={<Award className="w-6 h-6" />}
-            gradient="bg-gradient-to-br from-green-500 to-emerald-500"
+            gradient="bg-blue-500"
           />
         </div>
 

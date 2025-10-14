@@ -114,7 +114,7 @@ export default async function AdminSettingsPage() {
 
           {/* Save Button */}
           <div className="flex justify-end">
-            <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+            <Button className="bg-blue-600 hover:bg-blue-700">
               Save Changes
             </Button>
           </div>

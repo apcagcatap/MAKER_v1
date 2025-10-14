@@ -26,22 +26,22 @@ export function UserTableRow({ user, onEdit, onDelete }: UserTableRowProps) {
   }
 
   return (
-    <tr className="border-b border-gray-200 hover:bg-gray-50">
+    <tr className="border-b border-border hover:bg-muted">
       <td className="px-6 py-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+          <div className="w-10 h-10 bg-gradient-avatar rounded-full flex items-center justify-center text-white font-bold">
             {user.display_name?.[0] || "U"}
           </div>
           <div>
-            <div className="font-semibold text-gray-900">{user.display_name || "Unknown"}</div>
-            <div className="text-sm text-gray-500">{user.email}</div>
+            <div className="font-semibold text-card-foreground">{user.display_name || "Unknown"}</div>
+            <div className="text-sm text-muted-foreground">{user.email}</div>
           </div>
         </div>
       </td>
       <td className="px-6 py-4">{getRoleBadge(user.role)}</td>
-      <td className="px-6 py-4 text-gray-900">Level {user.level}</td>
-      <td className="px-6 py-4 text-gray-900">{user.xp} XP</td>
-      <td className="px-6 py-4 text-gray-500 text-sm">{new Date(user.created_at).toLocaleDateString()}</td>
+      <td className="px-6 py-4 text-card-foreground">Level {user.level}</td>
+      <td className="px-6 py-4 text-card-foreground">{user.xp} XP</td>
+      <td className="px-6 py-4 text-muted-foreground text-sm">{new Date(user.created_at).toLocaleDateString()}</td>
       <td className="px-6 py-4">
         <div className="flex items-center gap-2">
           <Button onClick={onEdit} variant="ghost" size="sm" className="text-interactive-primary hover:text-interactive-primary-hover">

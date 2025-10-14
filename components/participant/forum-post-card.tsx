@@ -130,22 +130,22 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
   const replyCount = post.replies?.[0]?.count || 0
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+    <div className="bg-card rounded-xl shadow-lg overflow-hidden">
       <div className="p-6">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+          <div className="w-12 h-12 bg-gradient-avatar rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
             {post.profile?.display_name?.[0]?.toUpperCase() || "U"}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <span className="font-semibold text-gray-900">
+              <span className="font-semibold text-card-foreground">
                 {post.profile?.display_name || "Unknown User"}
               </span>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-muted-foreground">
                 {new Date(post.created_at).toLocaleDateString()}
               </span>
             </div>
-            <p className="text-gray-700 whitespace-pre-wrap break-words">{post.content}</p>
+            <p className="text-secondary whitespace-pre-wrap break-words">{post.content}</p>
           </div>
         </div>
 
@@ -154,7 +154,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
             variant="ghost"
             size="sm"
             onClick={handleToggleReplies}
-            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+            className="text-interactive-primary hover:text-interactive-primary-hover hover:bg-muted"
           >
             <MessageSquare className="w-4 h-4 mr-2" />
             {replyCount} {replyCount === 1 ? "Reply" : "Replies"}
@@ -168,7 +168,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
             variant="ghost"
             size="sm"
             onClick={() => setShowReplyForm(!showReplyForm)}
-            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+            className="text-interactive-primary hover:text-interactive-primary-hover hover:bg-muted"
           >
             Reply
           </Button>
@@ -177,12 +177,12 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
 
       {showReplyForm && (
         <div className="px-6 pb-6">
-          <form onSubmit={handleSubmitReply} className="bg-gray-50 rounded-lg p-4">
+          <form onSubmit={handleSubmitReply} className="bg-muted rounded-lg p-4">
             <Textarea
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}
               placeholder="Write your reply..."
-              className="mb-3 bg-white"
+              className="mb-3 bg-card"
               disabled={isSubmitting}
             />
             <div className="flex items-center gap-2">
@@ -190,7 +190,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                 type="submit"
                 size="sm"
                 disabled={isSubmitting}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                className="bg-blue-600 hover:bg-blue-700"
               >
                 {isSubmitting ? (
                   <>

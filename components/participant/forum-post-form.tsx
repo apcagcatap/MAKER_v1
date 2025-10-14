@@ -56,10 +56,10 @@ export function ForumPostForm({ forumId }: ForumPostFormProps) {
 
   if (!isExpanded) {
     return (
-      <div className="bg-white rounded-xl shadow-lg p-4 mb-6 relative z-30">
+      <div className="bg-card rounded-xl shadow-lg p-4 mb-6 relative z-30">
         <Button
           onClick={() => setIsExpanded(true)}
-          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 cursor-pointer"
+          className="w-full bg-blue-600 hover:bg-blue-700 cursor-pointer"
           type="button"
         >
           <MessageSquare className="w-4 h-4 mr-2" />
@@ -70,8 +70,8 @@ export function ForumPostForm({ forumId }: ForumPostFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-6 mb-6 relative z-30">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Create a New Post</h3>
+    <form onSubmit={handleSubmit} className="bg-card rounded-xl shadow-lg p-6 mb-6 relative z-30">
+      <h3 className="text-lg font-semibold text-card-foreground mb-4">Create a New Post</h3>
       <Textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
@@ -83,7 +83,7 @@ export function ForumPostForm({ forumId }: ForumPostFormProps) {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+          className="bg-blue-600 hover:bg-blue-700"
         >
           {isSubmitting ? (
             <>

@@ -92,72 +92,72 @@ export default async function AdminDashboard() {
       </div>
 
       <main className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24">
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-card rounded-xl shadow-lg p-6">
           {/* User Stats */}
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">User Statistics</h2>
+            <h2 className="text-xl font-bold text-card-foreground mb-4">User Statistics</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <StatsCard
                 title="Total Users"
                 value={totalUsers || 0}
                 icon={<Users className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-purple-500 to-pink-500"
+                gradient="bg-blue-600"
               />
               <StatsCard
                 title="Participants"
                 value={totalParticipants || 0}
                 icon={<Users className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-blue-500 to-cyan-500"
+                gradient="bg-blue-500"
               />
               <StatsCard
                 title="Facilitators"
                 value={totalFacilitators || 0}
                 icon={<Users className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-green-500 to-emerald-500"
+                gradient="bg-blue-500"
               />
               <StatsCard
                 title="Active Quests"
                 value={inProgressQuests || 0}
                 icon={<Activity className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-orange-500 to-red-500"
+                gradient="bg-blue-600"
               />
             </div>
           </div>
 
           {/* Content Stats */}
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Content Statistics</h2>
+            <h2 className="text-xl font-bold text-card-foreground mb-4">Content Statistics</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <StatsCard
                 title="Total Quests"
                 value={totalQuests || 0}
                 icon={<Target className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-indigo-500 to-purple-500"
+                gradient="bg-blue-600"
               />
               <StatsCard
                 title="Skills"
                 value={totalSkills || 0}
                 icon={<Award className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-yellow-500 to-orange-500"
+                gradient="bg-blue-500"
               />
               <StatsCard
                 title="Forums"
                 value={totalForums || 0}
                 icon={<MessageSquare className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-teal-500 to-cyan-500"
+                gradient="bg-blue-600"
               />
               <StatsCard
                 title="Forum Posts"
                 value={totalPosts || 0}
                 icon={<MessageSquare className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-pink-500 to-rose-500"
+                gradient="bg-blue-500"
               />
             </div>
           </div>
 
           {/* Engagement Stats */}
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Engagement Metrics</h2>
+            <h2 className="text-xl font-bold text-card-foreground mb-4">Engagement Metrics</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white rounded-xl border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -226,15 +226,15 @@ export default async function AdminDashboard() {
                 </thead>
                 <tbody>
                   {recentUsers?.map((user) => (
-                    <tr key={user.id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <tr key={user.id} className="border-b border-border hover:bg-muted">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                          <div className="w-10 h-10 bg-gradient-avatar rounded-full flex items-center justify-center text-white font-bold">
                             {user.display_name?.[0] || "U"}
                           </div>
                           <div>
-                            <div className="font-semibold text-gray-900">{user.display_name || "Unknown"}</div>
-                            <div className="text-sm text-gray-500">{user.email}</div>
+                            <div className="font-semibold text-card-foreground">{user.display_name || "Unknown"}</div>
+                            <div className="text-sm text-muted-foreground">{user.email}</div>
                           </div>
                         </div>
                       </td>

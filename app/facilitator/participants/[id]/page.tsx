@@ -63,7 +63,7 @@ export default async function ParticipantDetailPage({ params }: { params: { id: 
         </Link>
 
         {/* Profile Header */}
-        <div className="bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl p-8 text-white mb-8">
+        <div className="bg-blue-600 rounded-xl p-8 text-white mb-8">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold">
               {participant.display_name?.[0] || "U"}

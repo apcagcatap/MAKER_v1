@@ -67,21 +67,21 @@ export default async function AccountPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg">
-                <div className="text-3xl font-bold text-purple-600">{profile.level}</div>
-                <div className="text-sm text-gray-600 mt-1">Level</div>
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-3xl font-bold text-blue-600">{profile.level}</div>
+                <div className="text-sm text-muted-foreground mt-1">Level</div>
               </div>
-              <div className="text-center p-4 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg">
-                <div className="text-3xl font-bold text-orange-600">{profile.xp}</div>
-                <div className="text-sm text-gray-600 mt-1">Total XP</div>
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-3xl font-bold text-blue-600">{profile.xp}</div>
+                <div className="text-sm text-muted-foreground mt-1">Total XP</div>
               </div>
-              <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
-                <div className="text-3xl font-bold text-green-600">0</div>
-                <div className="text-sm text-gray-600 mt-1">Quests</div>
-              </div>
-              <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg">
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <div className="text-3xl font-bold text-blue-600">0</div>
-                <div className="text-sm text-gray-600 mt-1">Skills</div>
+                <div className="text-sm text-muted-foreground mt-1">Quests</div>
+              </div>
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-3xl font-bold text-blue-600">0</div>
+                <div className="text-sm text-muted-foreground mt-1">Skills</div>
               </div>
             </div>
           </CardContent>

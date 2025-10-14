@@ -72,7 +72,7 @@ export function QuestCard({ quest, userQuest, onStart, onContinue }: QuestCardPr
       ) : status === "in_progress" ? (
         <Button
           onClick={onContinue}
-          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+          className="w-full bg-blue-600 hover:bg-blue-700"
         >
           Continue Quest
         </Button>
