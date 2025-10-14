@@ -89,12 +89,12 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      <main className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex-grow pb-8">
+      <main className="relative z-20 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex-grow pb-8">
         <div className="bg-card rounded-xl shadow-lg p-6">
           {/* User Stats */}
           <div className="mb-8">
             <h2 className="text-xl font-bold text-card-foreground mb-4">User Statistics</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
               <StatsCard
                 title="Total Users"
                 value={totalUsers || 0}
@@ -125,7 +125,7 @@ export default async function AdminDashboard() {
           {/* Content Stats */}
           <div className="mb-8">
             <h2 className="text-xl font-bold text-card-foreground mb-4">Content Statistics</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
               <StatsCard
                 title="Total Quests"
                 value={totalQuests || 0}
@@ -156,7 +156,7 @@ export default async function AdminDashboard() {
           {/* Engagement Stats */}
           <div className="mb-8">
             <h2 className="text-xl font-bold text-card-foreground mb-4">Engagement Metrics</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
               <div className="bg-white rounded-xl border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold text-gray-900">Quest Completion Rate</h3>
@@ -254,28 +254,25 @@ export default async function AdminDashboard() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="space-y-4 text-center">
-            <h3 className="font-semibold text-white text-base">About MAKER</h3>
-            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
-              A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/participant/forums" className="text-blue-200 hover:text-white transition-colors text-sm">
-                Forums
-              </a>
-              <a href="#" className="text-blue-200 hover:text-white transition-colors text-sm">
-                Documentation
-              </a>
+        {/* Footer */}
+        <footer className="mt-auto w-full bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="space-y-4 text-center">
+              <h3 className="font-bold text-white text-lg">About MAKER</h3>
+              <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+                A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
+              </p>
+              <div className="flex justify-center gap-8 text-sm text-blue-100">
+                <a href="/admin/forums" className="hover:text-white transition-colors">Community Forums</a>
+                <a href="/admin/settings" className="hover:text-white transition-colors">Documentation</a>
+              </div>
+              <div className="text-sm text-blue-200 pt-4 border-t border-blue-700/30 mt-4">
+                <p className="font-semibold">Department of Science and Technology</p>
+                <p>Science and Technology Information Institute</p>
+              </div>
             </div>
-            <p className="text-blue-300/70 text-xs pt-2">
-              &copy; 2025 MAKER Platform
-            </p>
           </div>
-        </div>
-      </footer>
+        </footer>
     </div>
   )
 }

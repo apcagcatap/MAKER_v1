@@ -30,7 +30,7 @@ export default async function FacilitatorQuestsPage() {
     <div className="min-h-screen bg-gradient-page-bg flex flex-col">
       <FacilitatorNav />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 flex-grow">
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 flex-grow">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-4xl font-bold text-on-accent mb-2">Active Quests</h1>
@@ -41,7 +41,7 @@ export default async function FacilitatorQuestsPage() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
           {quests?.map((quest) => (
             <QuestManagementCard key={quest.id} quest={quest} participantCount={quest.user_quests?.[0]?.count || 0} />
           ))}

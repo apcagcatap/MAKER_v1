@@ -43,8 +43,8 @@ export default async function ForumsPage() {
         </div>
       </div>
 
-      <main className="relative -mt-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 flex-grow">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <main className="relative -mt-16 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-8 flex-grow">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
           {forums?.map((forum) => (
             <Link
               key={forum.id}

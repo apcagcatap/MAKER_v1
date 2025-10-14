@@ -62,8 +62,8 @@ export default async function SkillsPage() {
         <ParticipantNav />
 
         {/* Header + Progress inside banner */}
-        <div className="relative w-full px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-10">
+        <div className="relative max-w-[1600px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-10">
             {/* 🖼️ Left: Image */}
             <div className="flex justify-center md:justify-start w-full md:w-auto">
               <img
@@ -94,13 +94,13 @@ export default async function SkillsPage() {
       </div>
 
       {/* 🧭 Skills List Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow">
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow">
         <h1 className="text-5xl text-white font-bold drop-shadow-lg mb-4">Skills</h1>
         <p className="text-white/80 text-lg mb-10">
           Track your progress across different skills
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {allSkills?.map((skill) => (
             <SkillCard key={skill.id} skill={skill} userSkill={userSkillsMap.get(skill.id)} />
           ))}

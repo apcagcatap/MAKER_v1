@@ -117,9 +117,9 @@ export default async function ParticipantDashboard() {
         </div>
       </div>
 
-<main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24 flex-grow">
+<main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24 flex-grow">
   {featuredQuest && (
-    <div className="max-w-5xl mx-auto bg-gradient-to-r from-blue-50 to-gray-100 rounded-3xl shadow-xl overflow-hidden mb-12 border border-gray-200">
+    <div className="bg-gradient-to-r from-blue-50 to-gray-100 rounded-3xl shadow-xl overflow-hidden mb-12 border border-gray-200">
       <div className="p-8">
         {/* Header Section */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-3xl px-6 py-4 inline-block mb-8">
@@ -184,7 +184,7 @@ export default async function ParticipantDashboard() {
     </div>
   )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 ">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
           <StatsCard
             title="Total XP"
             value={profile.xp}
@@ -214,7 +214,7 @@ export default async function ParticipantDashboard() {
         {inProgressQuests.length > 0 && (
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-card-foreground mb-4">Continue Learning</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
               {inProgressQuests.map((userQuest) => (
                 <QuestCard key={userQuest.id} quest={userQuest.quest} userQuest={userQuest} />
               ))}
@@ -224,7 +224,7 @@ export default async function ParticipantDashboard() {
 
         <div>
           <h2 className="text-2xl font-bold text-white mb-4">Explore New Quests</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
             {availableQuests?.map((quest) => (
               <QuestCard key={quest.id} quest={quest} />
             ))}

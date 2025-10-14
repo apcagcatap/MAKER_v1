@@ -33,7 +33,7 @@ export default async function AdminQuestsPage() {
     <div className="min-h-screen bg-gradient-page-bg flex flex-col">
       <AdminNav />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 flex-grow">
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 flex-grow">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">Quest Management</h1>
@@ -52,7 +52,7 @@ export default async function AdminQuestsPage() {
           </TabsList>
 
           <TabsContent value="active">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
               {activeQuests.map((quest) => (
                 <QuestManagementCard
                   key={quest.id}
@@ -64,7 +64,7 @@ export default async function AdminQuestsPage() {
           </TabsContent>
 
           <TabsContent value="inactive">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
               {inactiveQuests.map((quest) => (
                 <QuestManagementCard
                   key={quest.id}
@@ -76,7 +76,7 @@ export default async function AdminQuestsPage() {
           </TabsContent>
 
           <TabsContent value="all">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
               {allQuests?.map((quest) => (
                 <QuestManagementCard
                   key={quest.id}
@@ -89,28 +89,25 @@ export default async function AdminQuestsPage() {
         </Tabs>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="space-y-4 text-center">
-            <h3 className="font-semibold text-white text-base">About MAKER</h3>
-            <p className="text-sm text-blue-100 max-w-2xl mx-auto">
-              A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-              <a href="/participant/forums" className="text-blue-200 hover:text-white transition-colors text-sm">
-                Forums
-              </a>
-              <a href="#" className="text-blue-200 hover:text-white transition-colors text-sm">
-                Documentation
-              </a>
+        {/* Footer */}
+        <footer className="mt-auto w-full bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="space-y-4 text-center">
+              <h3 className="font-bold text-white text-lg">About MAKER</h3>
+              <p className="text-sm text-blue-100 max-w-2xl mx-auto">
+                A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
+              </p>
+              <div className="flex justify-center gap-8 text-sm text-blue-100">
+                <a href="/admin/forums" className="hover:text-white transition-colors">Community Forums</a>
+                <a href="/admin/settings" className="hover:text-white transition-colors">Documentation</a>
+              </div>
+              <div className="text-sm text-blue-200 pt-4 border-t border-blue-700/30 mt-4">
+                <p className="font-semibold">Department of Science and Technology</p>
+                <p>Science and Technology Information Institute</p>
+              </div>
             </div>
-            <p className="text-blue-300/70 text-xs pt-2">
-              &copy; 2025 MAKER Platform
-            </p>
           </div>
-        </div>
-      </footer>
+        </footer>
     </div>
   )
 }

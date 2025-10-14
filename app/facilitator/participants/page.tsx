@@ -42,7 +42,7 @@ export default async function FacilitatorParticipantsPage() {
       <div className="relative bg-blue-900 text-white py-16">
       </div>
 
-      <main className="relative -mt-16 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 bg-white rounded-lg shadow-lg flex-grow">
+      <main className="relative -mt-16 z-10 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 bg-white rounded-lg shadow-lg flex-grow">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Participants</h1>
           <p className="text-gray-600">Monitor participant progress and engagement</p>
@@ -55,7 +55,7 @@ export default async function FacilitatorParticipantsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {participants?.map((participant) => (
             <ParticipantCard
               key={participant.id}
