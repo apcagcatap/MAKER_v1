@@ -5,6 +5,7 @@ import { StatsCard } from "@/components/participant/stats-card"
 import { Users, Target, Award, TrendingUp } from "lucide-react"
 import { QuestManagementCard } from "@/components/facilitator/quest-management-card"
 import Image from "next/image"
+import { Button } from "@/components/ui/button"
 
 export default async function FacilitatorDashboard() {
   const supabase = await createClient()
@@ -91,9 +92,71 @@ export default async function FacilitatorDashboard() {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        {/* REMOVED the old greeting card/header here; everything else stays */}
-        {/* Stats Grid */}
+        {/* Combined Card Section */} 
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-8 flex flex-col lg:flex-row gap-8">
+          {/* Left Side: Department Info and Quest Card */} 
+          <div className="lg:w-1/2 flex flex-col gap-8">
+            {/* Department Info - Top Left */} 
+            <div className="p-4 bg-blue-600 text-white rounded-xl max-w-xs">
+              <p className="text-xs opacity-80">DEPARTMENT OF SCIENCE AND TECHNOLOGY</p>
+              <h3 className="text-lg font-bold">Science and Technology</h3>
+              <p className="text-sm">Information Institute</p>
+            </div>
+
+            {/* Left Section: Light The Tower Card */} 
+            <div className="bg-blue-600 rounded-xl p-6 text-white flex flex-col justify-between flex-grow">
+              <div>
+                <h2 className="text-3xl font-bold mb-4">Light The Tower</h2>
+                <div className="flex items-center mb-4">
+                  <div className="bg-white rounded-full p-3 mr-4">
+                    {/* Icon placeholder */} 
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-blue-600"
+                    >
+                      <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z" />
+                      <path d="M12 6v6l4 2" />
+                    </svg>
+                  </div>
+                  <p className="text-lg">Will you be a keeper of the Tower Flame?</p>
+                </div>
+                <span className="bg-red-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">Beginner</span>
+              </div>
+              {/* Progress Bar Placeholder */} 
+              <div className="mt-4 h-2 bg-blue-400 rounded-full">
+                <div className="h-full bg-white rounded-full w-1/2"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Section: Goal Of This Quest */} 
+          <div className="lg:w-1/2 bg-white rounded-xl p-8 shadow-lg flex flex-col justify-between">
+            <div>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">Goal Of This Quest</h2>
+              <p className="text-gray-700 leading-relaxed">
+                Design and build a functional sensor array using an Arduino that can detect motion or environmental
+                changes, triggering a signal to light up a watchtower. This quest introduces the basics of physical
+                computing, wiring, and sensor integration your mission is to bring the tower to life and guard the
+                realm!
+              </p>
+            </div>
+            <div className="flex justify-end mt-6">
+              <Button className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded">
+                Edit
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Grid */} 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatsCard
             title="Total Participants"

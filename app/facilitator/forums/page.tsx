@@ -4,6 +4,7 @@ import { FacilitatorNav } from "@/components/layout/facilitator-nav"
 import { MessageSquare, Clock, Plus } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 export default async function FacilitatorForumsPage() {
   const supabase = await createClient()
@@ -25,21 +26,43 @@ export default async function FacilitatorForumsPage() {
     .order("created_at", { ascending: false })
 
   return (
-    <div className="min-h-screen">
-      <FacilitatorNav />
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Forums</h1>
-            <p className="text-gray-600">Manage community discussions</p>
-          </div>
-          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-            <Plus className="w-4 h-4 mr-2" />
-            Create Forum
-          </Button>
+    <div className="min-h-screen bg-blue-900">
+      {/* Header Section with Greeting */}
+      <div
+        className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
+        style={{ borderBottomLeftRadius: "3rem", borderBottomRightRadius: "3rem" }}
+      >
+        <div className="absolute inset-0 opacity-100 z-0">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url('/navbarBg.png')`,
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              borderBottomLeftRadius: "3rem",
+              borderBottomRightRadius: "3rem",
+            }}
+          />
         </div>
+        <div className="relative z-10">
+          <FacilitatorNav />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h1 className="text-4xl font-bold text-white mb-2">Forums</h1>
+                <p className="text-gray-200">Manage community discussions</p>
+              </div>
+              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                <Plus className="w-4 h-4 mr-2" />
+                Create Forum
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
 
+      <main className="relative -mt-16 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-white rounded-lg shadow-lg">
         <div className="space-y-4">
           {forums?.map((forum) => (
             <Link
