@@ -169,6 +169,28 @@ export default async function ParticipantDetailPage({ params }: { params: { id: 
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="space-y-4 text-center">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+              <a href="/facilitator/forums" className="text-blue-200 hover:text-white transition-colors">
+                Forums
+              </a>
+              <a href="/facilitator/participants" className="text-blue-200 hover:text-white transition-colors">
+                Participants
+              </a>
+              <a href="#" className="text-blue-200 hover:text-white transition-colors">
+                Documentation
+              </a>
+            </div>
+            <p className="text-blue-300/70 text-sm">
+              © 2025 MAKER Platform
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

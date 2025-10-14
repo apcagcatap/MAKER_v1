@@ -27,51 +27,62 @@ export default async function AdminForumsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-page-bg flex flex-col">
-      <AdminNav />
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 flex-grow">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Forums Management</h1>
-          </div>
-          <CreateForumDialog />
+      {/* Header Section */}
+      <div
+        className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
+        style={{ borderBottomLeftRadius: "3rem", borderBottomRightRadius: "3rem" }}
+      >
+        <div className="absolute inset-0 opacity-100 z-0">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url('/navbarBg.png')`,
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              borderBottomLeftRadius: "3rem",
+              borderBottomRightRadius: "3rem",
+            }}
+          />
         </div>
+        <div className="relative z-10">
+          <AdminNav />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pb-24">
+            <div className="flex items-center justify-between">
+              <h1 className="text-5xl font-bold text-white">Forums Management</h1>
+              <CreateForumDialog />
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div className="space-y-4 text-center">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {forums?.map((forum) => (
             <div
               key={forum.id}
-              className="bg-card rounded-xl border p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
+              className="bg-card rounded-xl border p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col"
             >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <Link href={`/admin/forums/${forum.id}`} className="block mb-2">
-                    <h3 className="text-xl font-bold text-card-foreground hover:text-interactive-primary transition-colors">
-                      {forum.title}
-                    </h3>
-                  </Link>
-                  <p className="text-muted-foreground mb-4">{forum.description}</p>
+              <Link href={`/admin/forums/${forum.id}`} className="block mb-3">
+                <h3 className="text-xl font-bold text-card-foreground hover:text-interactive-primary transition-colors">
+                  {forum.title}
+                </h3>
+              </Link>
+              <p className="text-muted-foreground mb-4 flex-grow line-clamp-2">{forum.description}</p>
 
-                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4" />
-                      <span>{forum.posts?.[0]?.count || 0} posts</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      <span>Created: {new Date(forum.created_at).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                </div>
-
+              <div className="flex items-center justify-between text-sm text-muted-foreground border-t pt-4">
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="text-interactive-primary hover:text-interactive-primary-hover">
+                  <MessageSquare className="w-4 h-4" />
+                  <span>{forum.posts?.[0]?.count || 0} posts</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-interactive-primary hover:text-interactive-primary-hover">
                     <Edit className="w-4 h-4" />
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -82,28 +93,34 @@ export default async function AdminForumsPage() {
         </div>
 
         {forums?.length === 0 && (
-          <div className="text-center py-12">
+          <div className="col-span-full text-center py-12">
             <p className="text-blue-100">No forums yet. Create your first forum to get started!</p>
           </div>
         )}
       </main>
 
-        {/* Footer */}
-        <footer className="mt-auto w-full bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div className="space-y-4 text-center">
-            <h3 className="font-bold text-white text-lg">About MAKER</h3>
+      {/* Footer */}
+      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="space-y-4 text-center">
+            <h3 className="font-semibold text-white text-base">About MAKER</h3>
             <p className="text-sm text-blue-100 max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
-            <div className="flex justify-center gap-8 text-sm text-blue-100">
-              <a href="/admin/forums" className="hover:text-white transition-colors">Community Forums</a>
-              <a href="/admin/settings" className="hover:text-white transition-colors">Documentation</a>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+              <a href="/participant/forums" className="text-blue-200 hover:text-white transition-colors text-sm">
+                Forums
+              </a>
+              <a href="#" className="text-blue-200 hover:text-white transition-colors text-sm">
+                Documentation
+              </a>
             </div>
-            <div className="text-sm text-blue-200 pt-4 border-t border-blue-700/30 mt-4">
-              <p className="font-semibold">Department of Science and Technology</p>
-              <p>Science and Technology Information Institute</p>
-            </div>
-          </div></div></footer>
+            <p className="text-blue-300/70 text-xs pt-2">
+              &copy; 2025 MAKER Platform
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

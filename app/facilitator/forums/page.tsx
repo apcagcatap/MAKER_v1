@@ -60,32 +60,23 @@ export default async function FacilitatorForumsPage() {
       </div>
 
       <main className="relative -mt-16 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 bg-white rounded-lg shadow-lg flex-grow">
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {forums?.map((forum) => (
             <Link
               key={forum.id}
               href={`/facilitator/forums/${forum.id}`}
-              className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+              className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col"
             >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{forum.title}</h3>
-                  <p className="text-gray-600 mb-4">{forum.description}</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{forum.title}</h3>
+              <p className="text-gray-600 mb-4 flex-grow line-clamp-2">{forum.description}</p>
 
-                  <div className="flex items-center gap-6 text-sm text-gray-500">
-                    <div className="flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4" />
-                      <span>{forum.posts?.[0]?.count || 0} posts</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      <span>Last activity: {new Date(forum.created_at).toLocaleDateString()}</span>
-                    </div>
-                  </div>
+              <div className="flex items-center justify-between text-sm text-gray-500 border-t pt-4">
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  <span>{forum.posts?.[0]?.count || 0} posts</span>
                 </div>
-
-                <div className="bg-purple-100 rounded-lg p-3">
-                  <MessageSquare className="w-6 h-6 text-purple-600" />
+                <div className="bg-blue-100 rounded-lg p-2">
+                  <MessageSquare className="w-5 h-5 text-blue-600" />
                 </div>
               </div>
             </Link>
@@ -93,28 +84,31 @@ export default async function FacilitatorForumsPage() {
         </div>
 
         {forums?.length === 0 && (
-          <div className="text-center py-12">
+          <div className="col-span-full text-center py-12">
             <p className="text-gray-500">No forums yet. Create your first forum to get started!</p>
           </div>
         )}
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto w-full bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
+      <footer className="mt-auto bg-blue-900/30 backdrop-blur-sm border-t border-blue-700/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-4 text-center">
-            <h3 className="font-bold text-white text-lg">About MAKER</h3>
+            <h3 className="font-semibold text-white text-base">About MAKER</h3>
             <p className="text-sm text-blue-100 max-w-2xl mx-auto">
               A gamified learning platform for hands-on maker education, empowering participants to build, create, and innovate.
             </p>
-            <div className="flex justify-center gap-8 text-sm text-blue-100">
-              <a href="/facilitator/forums" className="hover:text-white transition-colors">Community Forums</a>
-              <a href="/facilitator" className="hover:text-white transition-colors">Documentation</a>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+              <a href="/participant/forums" className="text-blue-200 hover:text-white transition-colors text-sm">
+                Forums
+              </a>
+              <a href="#" className="text-blue-200 hover:text-white transition-colors text-sm">
+                Documentation
+              </a>
             </div>
-            <div className="text-sm text-blue-200 pt-4 border-t border-blue-700/30 mt-4">
-              <p className="font-semibold">Department of Science and Technology</p>
-              <p>Science and Technology Information Institute</p>
-            </div>
+            <p className="text-blue-300/70 text-xs pt-2">
+              &copy; 2025 MAKER Platform
+            </p>
           </div>
         </div>
       </footer>
