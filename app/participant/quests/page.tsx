@@ -49,7 +49,7 @@ export default async function QuestsPage() {
           </TabsList>
 
           <TabsContent value="all">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {allQuests?.map((quest) => (
                 <QuestCard key={quest.id} quest={quest} userQuest={userQuestsMap.get(quest.id)} />
               ))}
@@ -58,7 +58,7 @@ export default async function QuestsPage() {
 
           <TabsContent value="in-progress">
             {inProgress.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {inProgress.map((quest) => (
                   <QuestCard key={quest.id} quest={quest} userQuest={userQuestsMap.get(quest.id)} />
                 ))}
@@ -72,7 +72,7 @@ export default async function QuestsPage() {
 
           <TabsContent value="completed">
             {completed.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {completed.map((quest) => (
                   <QuestCard key={quest.id} quest={quest} userQuest={userQuestsMap.get(quest.id)} />
                 ))}

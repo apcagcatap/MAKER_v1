@@ -184,7 +184,7 @@ export default async function ParticipantDashboard() {
     </div>
   )}
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6 mb-8">
           <StatsCard
             title="Total XP"
             value={profile.xp}
@@ -214,7 +214,7 @@ export default async function ParticipantDashboard() {
         {inProgressQuests.length > 0 && (
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-card-foreground mb-4">Continue Learning</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {inProgressQuests.map((userQuest) => (
                 <QuestCard key={userQuest.id} quest={userQuest.quest} userQuest={userQuest} />
               ))}
@@ -224,7 +224,7 @@ export default async function ParticipantDashboard() {
 
         <div>
           <h2 className="text-2xl font-bold text-white mb-4">Explore New Quests</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {availableQuests?.map((quest) => (
               <QuestCard key={quest.id} quest={quest} />
             ))}

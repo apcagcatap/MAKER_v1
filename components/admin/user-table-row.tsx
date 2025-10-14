@@ -26,28 +26,28 @@ export function UserTableRow({ user, onEdit, onDelete }: UserTableRowProps) {
   }
 
   return (
-    <tr className="border-b border-border hover:bg-muted">
-      <td className="px-6 py-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-avatar rounded-full flex items-center justify-center text-white font-bold">
+    <tr className="border-b border-border hover:bg-muted transition-colors">
+      <td className="px-8 py-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-gradient-avatar rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm">
             {user.display_name?.[0] || "U"}
           </div>
           <div>
-            <div className="font-semibold text-card-foreground">{user.display_name || "Unknown"}</div>
-            <div className="text-sm text-muted-foreground">{user.email}</div>
+            <div className="font-bold text-card-foreground text-base">{user.display_name || "Unknown"}</div>
+            <div className="text-sm text-muted-foreground mt-0.5">{user.email}</div>
           </div>
         </div>
       </td>
-      <td className="px-6 py-4">{getRoleBadge(user.role)}</td>
-      <td className="px-6 py-4 text-card-foreground">Level {user.level}</td>
-      <td className="px-6 py-4 text-card-foreground">{user.xp} XP</td>
-      <td className="px-6 py-4 text-muted-foreground text-sm">{new Date(user.created_at).toLocaleDateString()}</td>
-      <td className="px-6 py-4">
+      <td className="px-8 py-6">{getRoleBadge(user.role)}</td>
+      <td className="px-8 py-6 text-card-foreground font-semibold text-base">Level {user.level}</td>
+      <td className="px-8 py-6 text-card-foreground font-semibold text-base">{user.xp} XP</td>
+      <td className="px-8 py-6 text-muted-foreground">{new Date(user.created_at).toLocaleDateString()}</td>
+      <td className="px-8 py-6">
         <div className="flex items-center gap-2">
-          <Button onClick={onEdit} variant="ghost" size="sm" className="text-interactive-primary hover:text-interactive-primary-hover">
+          <Button onClick={onEdit} variant="ghost" size="sm" className="text-interactive-primary hover:text-interactive-primary-hover hover:bg-blue-50 h-9 px-3">
             <Edit className="w-4 h-4" />
           </Button>
-          <Button onClick={onDelete} variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+          <Button onClick={onDelete} variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 h-9 px-3">
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>

@@ -100,7 +100,7 @@ export default async function SkillsPage() {
           Track your progress across different skills
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {allSkills?.map((skill) => (
             <SkillCard key={skill.id} skill={skill} userSkill={userSkillsMap.get(skill.id)} />
           ))}

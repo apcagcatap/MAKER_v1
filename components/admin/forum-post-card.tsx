@@ -138,19 +138,19 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
   const replyCount = post.replies?.[0]?.count || 0
 
   return (
-    <div className="bg-card rounded-xl border border-border overflow-hidden">
-      <div className="p-6">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-gradient-avatar rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+    <div className="bg-card rounded-xl border border-border overflow-hidden shadow-lg">
+      <div className="p-8">
+        <div className="flex items-start gap-5">
+          <div className="w-14 h-14 bg-gradient-avatar rounded-full flex items-center justify-center text-white font-bold text-xl flex-shrink-0 shadow-sm">
             {post.profile?.display_name?.[0]?.toUpperCase() || "U"}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-card-foreground">
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="font-bold text-card-foreground text-lg">
                   {post.profile?.display_name || "Unknown User"}
                 </span>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-muted-foreground font-medium">
                   {new Date(post.created_at).toLocaleDateString()}
                 </span>
               </div>
@@ -158,24 +158,24 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                 variant="ghost"
                 size="sm"
                 onClick={handleDeletePost}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 h-9 px-3"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>
-            <p className="text-gray-700 whitespace-pre-wrap break-words">{post.content}</p>
+            <p className="text-gray-700 whitespace-pre-wrap break-words text-base leading-relaxed">{post.content}</p>
           </div>
         </div>
 
-        <div className="mt-4 flex items-center gap-4">
+        <div className="mt-6 flex items-center gap-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={handleToggleReplies}
-            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 h-10 px-4"
           >
-            <MessageSquare className="w-4 h-4 mr-2" />
-            {replyCount} {replyCount === 1 ? "Reply" : "Replies"}
+            <MessageSquare className="w-5 h-5 mr-2" />
+            <span className="font-medium">{replyCount} {replyCount === 1 ? "Reply" : "Replies"}</span>
             {showReplies ? (
               <ChevronUp className="w-4 h-4 ml-2" />
             ) : (
@@ -186,7 +186,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
             variant="ghost"
             size="sm"
             onClick={() => setShowReplyForm(!showReplyForm)}
-            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-10 px-4 font-medium"
           >
             Reply
           </Button>
@@ -194,8 +194,8 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
       </div>
 
       {showReplyForm && (
-        <div className="px-6 pb-6">
-          <form onSubmit={handleSubmitReply} className="bg-gray-50 rounded-lg p-4">
+        <div className="px-8 pb-8">
+          <form onSubmit={handleSubmitReply} className="bg-gray-50 rounded-lg p-6">
             <Textarea
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}

@@ -49,20 +49,20 @@ export default async function AdminUsersPage() {
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wide">
                   User
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wide">
                   Role
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wide">
                   Level
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">XP</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wide">XP</th>
+                <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wide">
                   Joined
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wide">
                   Actions
                 </th>
               </tr>

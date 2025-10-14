@@ -31,60 +31,68 @@ export function QuestCard({ quest, userQuest, onStart, onContinue }: QuestCardPr
 
   return (
     <div className="bg-card rounded-xl border p-6 hover:shadow-lg transition-shadow">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <h3 className="text-xl font-bold text-card-foreground mb-2">{quest.title}</h3>
-          <p className="text-muted-foreground text-sm">{quest.description}</p>
-        </div>
-        <span className={getDifficultyColor(quest.difficulty)}>
-          {quest.difficulty}
-        </span>
-      </div>
-
-      <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
-        <div className="flex items-center gap-1">
-          <Trophy className="w-4 h-4 text-yellow-500" />
-          <span>{quest.xp_reward} XP</span>
-        </div>
-        {quest.skill && (
-          <div className="flex items-center gap-1">
-            <Star className="w-4 h-4 text-interactive-primary" />
-            <span>{quest.skill.name}</span>
+      {/* Desktop: Horizontal Layout, Mobile: Vertical */}
+      <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+        {/* Left side: Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between mb-3">
+            <h3 className="text-xl font-bold text-card-foreground flex-1">{quest.title}</h3>
+            <span className={`${getDifficultyColor(quest.difficulty)} ml-2 whitespace-nowrap`}>
+              {quest.difficulty}
+            </span>
           </div>
-        )}
-      </div>
 
-      {status === "in_progress" && (
-        <div className="mb-4">
-          <div className="flex items-center justify-between text-sm mb-2">
-            <span className="text-muted-foreground">Progress</span>
-            <span className="font-semibold text-interactive-primary">{progress}%</span>
+          <p className="text-muted-foreground text-base mb-4 line-clamp-2">{quest.description}</p>
+
+          <div className="flex items-center gap-6 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-yellow-500" />
+              <span className="font-medium">{quest.xp_reward} XP</span>
+            </div>
+            {quest.skill && (
+              <div className="flex items-center gap-2">
+                <Star className="w-5 h-5 text-interactive-primary" />
+                <span className="font-medium">{quest.skill.name}</span>
+              </div>
+            )}
           </div>
-          <Progress value={progress} className="h-2" />
-        </div>
-      )}
 
-      {status === "completed" ? (
-        <div className="flex items-center gap-2 text-green-600 font-semibold">
-          <Trophy className="w-5 h-5" />
-          <span>Completed!</span>
+          {status === "in_progress" && (
+            <div className="mt-4">
+              <div className="flex items-center justify-between text-sm mb-2">
+                <span className="text-muted-foreground font-medium">Progress</span>
+                <span className="font-bold text-interactive-primary">{progress}%</span>
+              </div>
+              <Progress value={progress} className="h-3" />
+            </div>
+          )}
         </div>
-      ) : status === "in_progress" ? (
-        <Button
-          onClick={onContinue}
-          className="w-full bg-blue-600 hover:bg-blue-700"
-        >
-          Continue Quest
-        </Button>
-      ) : (
-        <Button
-          onClick={onStart}
-          variant="outline"
-          className="w-full border-purple-600 text-purple-600 hover:bg-purple-50 bg-transparent"
-        >
-          Start Quest
-        </Button>
-      )}
+
+        {/* Right side: Action button */}
+        <div className="lg:w-48 flex-shrink-0">
+          {status === "completed" ? (
+            <div className="flex flex-col items-center justify-center gap-3 text-green-600 font-bold p-4 bg-green-50 rounded-lg">
+              <Trophy className="w-8 h-8" />
+              <span className="text-lg">Completed!</span>
+            </div>
+          ) : status === "in_progress" ? (
+            <Button
+              onClick={onContinue}
+              className="w-full bg-blue-600 hover:bg-blue-700 h-12 text-base font-semibold"
+            >
+              Continue Quest
+            </Button>
+          ) : (
+            <Button
+              onClick={onStart}
+              variant="outline"
+              className="w-full border-2 border-purple-600 text-purple-600 hover:bg-purple-50 bg-transparent h-12 text-base font-semibold"
+            >
+              Start Quest
+            </Button>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

@@ -91,10 +91,10 @@ export default async function AdminDashboard() {
 
       <main className="relative z-20 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex-grow pb-8">
         <div className="bg-card rounded-xl shadow-lg p-6">
-          {/* User Stats */}
+          {/* All Stats in One Row */}
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-card-foreground mb-4">User Statistics</h2>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+            <h2 className="text-xl font-bold text-card-foreground mb-4">Platform Overview</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
               <StatsCard
                 title="Total Users"
                 value={totalUsers || 0}
@@ -119,13 +119,6 @@ export default async function AdminDashboard() {
                 icon={<Activity className="w-6 h-6" />}
                 gradient="bg-blue-600"
               />
-            </div>
-          </div>
-
-          {/* Content Stats */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-card-foreground mb-4">Content Statistics</h2>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
               <StatsCard
                 title="Total Quests"
                 value={totalQuests || 0}
@@ -153,48 +146,54 @@ export default async function AdminDashboard() {
             </div>
           </div>
 
-          {/* Engagement Stats */}
+          {/* Engagement Stats - Horizontal Row */}
           <div className="mb-8">
             <h2 className="text-xl font-bold text-card-foreground mb-4">Engagement Metrics</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-gray-900">Quest Completion Rate</h3>
-                  <TrendingUp className="w-5 h-5 text-green-500" />
+                  <h3 className="font-bold text-gray-900 text-base">Quest Completion Rate</h3>
+                  <div className="bg-green-100 p-3 rounded-lg">
+                    <TrendingUp className="w-6 h-6 text-green-600" />
+                  </div>
                 </div>
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-4xl font-bold text-gray-900 mb-3">
                   {totalQuests && completedQuests
                     ? Math.round(((completedQuests || 0) / (totalQuests * (totalParticipants || 1))) * 100)
                     : 0}
                   %
                 </p>
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-sm text-gray-600">
                   {completedQuests || 0} completed out of {(totalQuests || 0) * (totalParticipants || 1)} total attempts
                 </p>
               </div>
 
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-gray-900">Active Quest Rate</h3>
-                  <Activity className="w-5 h-5 text-blue-500" />
+                  <h3 className="font-bold text-gray-900 text-base">Active Quest Rate</h3>
+                  <div className="bg-blue-100 p-3 rounded-lg">
+                    <Activity className="w-6 h-6 text-blue-600" />
+                  </div>
                 </div>
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-4xl font-bold text-gray-900 mb-3">
                   {totalQuests ? Math.round(((activeQuests || 0) / totalQuests) * 100) : 0}%
                 </p>
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-sm text-gray-600">
                   {activeQuests || 0} active out of {totalQuests || 0} total quests
                 </p>
               </div>
 
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-gray-900">Avg Posts per Forum</h3>
-                  <MessageSquare className="w-5 h-5 text-purple-500" />
+                  <h3 className="font-bold text-gray-900 text-base">Avg Posts per Forum</h3>
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <MessageSquare className="w-6 h-6 text-purple-600" />
+                  </div>
                 </div>
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-4xl font-bold text-gray-900 mb-3">
                   {totalForums ? Math.round((totalPosts || 0) / totalForums) : 0}
                 </p>
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-sm text-gray-600">
                   {totalPosts || 0} total posts across {totalForums || 0} forums
                 </p>
               </div>
@@ -204,45 +203,45 @@ export default async function AdminDashboard() {
           {/* Recent Users */}
           <div>
             <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Users</h2>
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wide">
                       User
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wide">
                       Role
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wide">
                       Level
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-8 py-5 text-left text-sm font-bold text-gray-700 uppercase tracking-wide">
                       Joined
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {recentUsers?.map((user) => (
-                    <tr key={user.id} className="border-b border-border hover:bg-muted">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-avatar rounded-full flex items-center justify-center text-white font-bold">
+                    <tr key={user.id} className="border-b border-border hover:bg-muted transition-colors">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-gradient-avatar rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm">
                             {user.display_name?.[0] || "U"}
                           </div>
                           <div>
-                            <div className="font-semibold text-card-foreground">{user.display_name || "Unknown"}</div>
-                            <div className="text-sm text-muted-foreground">{user.email}</div>
+                            <div className="font-bold text-card-foreground text-base">{user.display_name || "Unknown"}</div>
+                            <div className="text-sm text-muted-foreground mt-0.5">{user.email}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                      <td className="px-8 py-6">
+                        <span className="px-4 py-1.5 rounded-full text-sm font-bold bg-purple-100 text-purple-700">
                           {user.role}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-gray-900">Level {user.level}</td>
-                      <td className="px-6 py-4 text-gray-500 text-sm">
+                      <td className="px-8 py-6 text-gray-900 font-semibold text-base">Level {user.level}</td>
+                      <td className="px-8 py-6 text-gray-500">
                         {new Date(user.created_at).toLocaleDateString()}
                       </td>
                     </tr>

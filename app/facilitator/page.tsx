@@ -159,7 +159,7 @@ export default async function FacilitatorDashboard() {
         </div>
 
         {/* Stats Grid */} 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6 mb-8">
           <StatsCard
             title="Total Participants"
             value={totalParticipants || 0}
@@ -191,7 +191,7 @@ export default async function FacilitatorDashboard() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-cyan-100">Recent Quests</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {recentQuests?.map((quest) => (
               <QuestManagementCard key={quest.id} quest={quest} />
             ))}
