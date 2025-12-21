@@ -10,5 +10,4 @@ export const config = {
     // Run middleware on all routes except static assets
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
-  runtime: "nodejs", // ⚙️ critical to avoid Edge runtime crash
 }
