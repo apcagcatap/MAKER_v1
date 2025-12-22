@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { 
   Users, 
@@ -16,20 +15,8 @@ export default async function AdminDashboard() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect("/auth/login")
-  }
-
-  // Fetch user profile
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single()
-
-  if (!profile || profile.role !== "admin") {
-    redirect("/auth/login")
-  }
+  // Note: Authentication and RBAC are handled by middleware (proxy.ts)
+  // If user reaches here, they are authenticated and have admin role
 
   // Fetch statistics
   const { count: totalUsers } = await supabase

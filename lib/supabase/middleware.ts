@@ -1,17 +1,28 @@
 /**
- * Supabase session middleware (debug version)
+ * Supabase session middleware
  *
  * Handles:
  *  - Session refresh
  *  - Auth redirects
- *  - Logging for debugging
+ *  - Role-based access control (RBAC)
  */
 
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
+// Public routes that don't require authentication
+const PUBLIC_ROUTES = ["/auth/login", "/auth/signup", "/auth/select-role"]
+
+// Role-protected route prefixes and their allowed roles
+const ROLE_ROUTES: Record<string, string[]> = {
+  "/admin": ["admin"],
+  "/facilitator": ["facilitator", "admin"], // admins can also access facilitator routes
+  "/participant": ["participant", "facilitator", "admin"], // higher roles can access participant routes
+}
+
 export async function updateSession(request: NextRequest) {
-  console.log("🔍 Middleware triggered for:", request.nextUrl.pathname)
+  const pathname = request.nextUrl.pathname
+  console.log("🔍 Middleware triggered for:", pathname)
 
   let supabaseResponse = NextResponse.next()
 
@@ -34,8 +45,6 @@ export async function updateSession(request: NextRequest) {
       },
     )
 
-    console.log("✅ Supabase client created")
-
     // Fetch authenticated user
     const { data: userData, error: userError } = await supabase.auth.getUser()
 
@@ -46,18 +55,20 @@ export async function updateSession(request: NextRequest) {
     const user = userData?.user
     console.log("👤 User:", user?.id ?? "No user")
 
-    // Redirect unauthenticated users to login
-    if (!user && !request.nextUrl.pathname.startsWith("/auth") && request.nextUrl.pathname !== "/") {
+    // Check if route is public
+    const isPublicRoute = PUBLIC_ROUTES.some(route => pathname.startsWith(route))
+
+    // Redirect unauthenticated users to login (except public routes)
+    if (!user && !isPublicRoute) {
       console.log("🚫 No user — redirecting to /auth/login")
       const url = request.nextUrl.clone()
       url.pathname = "/auth/login"
       return NextResponse.redirect(url)
     }
 
-    // Redirect authenticated users away from /auth pages
-    if (user && request.nextUrl.pathname.startsWith("/auth")) {
-      console.log("👤 User logged in, checking profile role...")
-
+    // Handle authenticated users
+    if (user) {
+      // Fetch user profile for role
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("role")
@@ -66,52 +77,60 @@ export async function updateSession(request: NextRequest) {
 
       if (profileError) {
         console.error("❌ Supabase profile query failed:", profileError.message)
-      } else {
-        console.log("📄 Profile role:", profile?.role)
-      }
-
-      if (profile?.role) {
+        // If no profile, redirect to login
         const url = request.nextUrl.clone()
-        url.pathname = `/${profile.role}`
-        console.log("➡️ Redirecting to:", url.pathname)
+        url.pathname = "/auth/login"
         return NextResponse.redirect(url)
       }
-    }
 
-    // Check if user is accessing a role-specific route
-    if (user && (request.nextUrl.pathname.startsWith("/admin") || 
-                  request.nextUrl.pathname.startsWith("/facilitator") || 
-                  request.nextUrl.pathname.startsWith("/participant"))) {
-      
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single()
+      const userRole = profile?.role
+      console.log("📄 User role:", userRole)
 
-      if (profileError) {
-        console.error("❌ Error checking role access:", profileError.message)
-      } else if (profile?.role) {
-        // Extract the role from the path (e.g., "/admin/users" -> "admin")
-        const pathRole = request.nextUrl.pathname.split("/")[1]
-        
-        console.log(`🔐 Checking access: User role="${profile.role}", Path role="${pathRole}"`)
-        
-        // If user is trying to access a different role's area, redirect to their own
-        if (pathRole !== profile.role) {
-          console.log(`⛔ Access denied - redirecting from /${pathRole} to /${profile.role}`)
+      // Redirect authenticated users away from public auth pages
+      if (isPublicRoute && userRole) {
+        console.log("➡️ Authenticated user on auth page, redirecting to dashboard")
+        const url = request.nextUrl.clone()
+        url.pathname = `/${userRole}`
+        return NextResponse.redirect(url)
+      }
+
+      // Homepage redirect - send to user's dashboard
+      if (pathname === "/") {
+        if (userRole) {
+          console.log("➡️ Redirecting from / to user dashboard")
           const url = request.nextUrl.clone()
-          url.pathname = `/${profile.role}`
+          url.pathname = `/${userRole}`
           return NextResponse.redirect(url)
+        }
+      }
+
+      // RBAC: Check role-protected routes
+      for (const [routePrefix, allowedRoles] of Object.entries(ROLE_ROUTES)) {
+        if (pathname.startsWith(routePrefix)) {
+          console.log(`🔐 Checking RBAC: User role="${userRole}", Allowed roles="${allowedRoles.join(", ")}"`)
+          
+          if (!userRole || !allowedRoles.includes(userRole)) {
+            console.log(`⛔ Access denied - user role "${userRole}" cannot access ${routePrefix}`)
+            // Redirect to user's own dashboard or login
+            const url = request.nextUrl.clone()
+            if (userRole) {
+              url.pathname = `/${userRole}`
+            } else {
+              url.pathname = "/auth/login"
+            }
+            return NextResponse.redirect(url)
+          }
+          
+          console.log(`✅ RBAC passed for ${routePrefix}`)
+          break
         }
       }
     }
 
-    console.log("✅ Middleware finished successfully for:", request.nextUrl.pathname)
+    console.log("✅ Middleware finished successfully for:", pathname)
     return supabaseResponse
   } catch (e) {
     console.error("🔥 Middleware crashed:", e)
-    // Show visible message instead of generic 500
     return new NextResponse("Internal Server Error (check logs)", { status: 500 })
   }
 }

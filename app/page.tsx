@@ -1,22 +1,14 @@
-import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
-
 export default async function HomePage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect("/auth/login")
-  }
-
-  // Get user profile to redirect to correct dashboard
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
-
-  if (profile) {
-    redirect(`/${profile.role}`)
-  }
-
-  redirect("/auth/login")
+  // Middleware handles authentication and role-based redirects
+  // This page is only reached when middleware allows through
+  // Unauthenticated users are redirected to /auth/login by middleware
+  // Authenticated users are redirected to their dashboard by middleware
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold">Welcome to MAKER</h1>
+        <p className="text-muted-foreground">Redirecting...</p>
+      </div>
+    </div>
+  )
 }
