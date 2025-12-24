@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { MessageSquare, ChevronDown, ChevronUp, Loader2 } from "lucide-react"
-import { createReply, deleteReply } from "@/app/actions/forums"
+import { MessageSquare, ChevronDown, ChevronUp, Loader2, Trash2 } from "lucide-react"
+import { createReply, deleteReply, deletePost } from "@/app/actions/forums"
 import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
 import type { ForumPost, ForumReply } from "@/lib/types"
@@ -27,11 +27,13 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
   const [showReplyForm, setShowReplyForm] = useState(false)
   const [replyContent, setReplyContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDeletingPost, setIsDeletingPost] = useState(false)
   const [replies, setReplies] = useState<ForumReply[]>([])
   const [isLoadingReplies, setIsLoadingReplies] = useState(false)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const { toast } = useToast()
 
+  // Fetch current user on mount to check ownership
   useEffect(() => {
     const getUser = async () => {
       const supabase = createClient()
@@ -42,7 +44,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
   }, [])
 
   const loadReplies = async () => {
-    if (replies.length > 0) return // Already loaded
+    if (replies.length > 0) return 
     
     setIsLoadingReplies(true)
     const supabase = createClient()
@@ -68,20 +70,33 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
     setShowReplies(!showReplies)
   }
 
-  const handleSubmitReply = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleDeletePost = async () => {
+    if (!confirm("Are you sure you want to delete this post? All replies will be lost.")) return
 
-    if (!replyContent.trim()) {
+    setIsDeletingPost(true)
+    const result = await deletePost(post.id, forumId)
+
+    if (result.error) {
       toast({
         title: "Error",
-        description: "Please enter a reply",
+        description: result.error,
         variant: "destructive",
       })
-      return
+      setIsDeletingPost(false)
+    } else {
+      toast({
+        title: "Success",
+        description: "Post deleted successfully",
+      })
+      // No manual state clear needed as revalidatePath will refresh the list
     }
+  }
+
+  const handleSubmitReply = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!replyContent.trim()) return
 
     setIsSubmitting(true)
-
     const result = await createReply(post.id, replyContent, forumId)
 
     if (result.error) {
@@ -91,61 +106,60 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
         variant: "destructive",
       })
     } else {
-      toast({
-        title: "Success",
-        description: "Your reply has been posted!",
-        variant: "success",
-      })
+      toast({ title: "Success", description: "Reply posted!" })
       setReplyContent("")
       setShowReplyForm(false)
-      // Reload replies
-      setReplies([])
+      setReplies([]) 
       await loadReplies()
     }
-
     setIsSubmitting(false)
   }
 
   const handleDeleteReply = async (replyId: string) => {
-    if (!confirm("Are you sure you want to delete this reply?")) return
+    if (!confirm("Delete this reply?")) return
 
     const result = await deleteReply(replyId, forumId)
-
     if (result.error) {
-      toast({
-        title: "Error",
-        description: result.error,
-        variant: "destructive",
-      })
+      toast({ title: "Error", description: result.error, variant: "destructive" })
     } else {
-      toast({
-        title: "Success",
-        description: "Reply deleted",
-        variant: "delete",
-      })
-      // Reload replies
-      setReplies([])
-      await loadReplies()
+      toast({ title: "Success", description: "Reply deleted" })
+      setReplies(prev => prev.filter(r => r.id !== replyId))
     }
   }
 
   const replyCount = post.replies?.[0]?.count || 0
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+    <div className={`bg-white rounded-xl shadow-lg overflow-hidden transition-all ${isDeletingPost ? "opacity-50 grayscale" : ""}`}>
       <div className="p-6">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
             {post.profile?.display_name?.[0]?.toUpperCase() || "U"}
           </div>
+          
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <span className="font-semibold text-gray-900">
-                {post.profile?.display_name || "Unknown User"}
-              </span>
-              <span className="text-sm text-gray-500">
-                {new Date(post.created_at).toLocaleDateString()}
-              </span>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-semibold text-gray-900">
+                  {post.profile?.display_name || "Unknown User"}
+                </span>
+                <span className="text-sm text-gray-500">
+                  {new Date(post.created_at).toLocaleDateString()}
+                </span>
+              </div>
+
+              {/* Delete Post Button (Owner only) */}
+              {currentUserId === post.user_id && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleDeletePost}
+                  disabled={isDeletingPost}
+                  className="text-gray-400 hover:text-red-600 hover:bg-red-50 -mt-2"
+                >
+                  {isDeletingPost ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                </Button>
+              )}
             </div>
             <p className="text-gray-700 whitespace-pre-wrap break-words">{post.content}</p>
           </div>
@@ -160,11 +174,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
           >
             <MessageSquare className="w-4 h-4 mr-2" />
             {replyCount} {replyCount === 1 ? "Reply" : "Replies"}
-            {showReplies ? (
-              <ChevronUp className="w-4 h-4 ml-2" />
-            ) : (
-              <ChevronDown className="w-4 h-4 ml-2" />
-            )}
+            {showReplies ? <ChevronUp className="w-4 h-4 ml-2" /> : <ChevronDown className="w-4 h-4 ml-2" />}
           </Button>
           <Button
             variant="ghost"
@@ -177,6 +187,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
         </div>
       </div>
 
+      {/* Reply Form */}
       {showReplyForm && (
         <div className="px-6 pb-6">
           <form onSubmit={handleSubmitReply} className="bg-gray-50 rounded-lg p-4">
@@ -188,32 +199,10 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
               disabled={isSubmitting}
             />
             <div className="flex items-center gap-2">
-              <Button
-                type="submit"
-                size="sm"
-                disabled={isSubmitting}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Posting...
-                  </>
-                ) : (
-                  "Post Reply"
-                )}
+              <Button type="submit" size="sm" disabled={isSubmitting} className="bg-gradient-to-r from-purple-600 to-blue-600">
+                {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Post Reply"}
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setShowReplyForm(false)
-                  setReplyContent("")
-                }}
-                disabled={isSubmitting}
-                className="bg-red-600 text-white hover:bg-red-700 border-none"
-              >
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowReplyForm(false)} disabled={isSubmitting}>
                 Cancel
               </Button>
             </div>
@@ -221,12 +210,11 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
         </div>
       )}
 
+      {/* Replies List */}
       {showReplies && (
         <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
           {isLoadingReplies ? (
-            <div className="text-center py-4">
-              <Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-600" />
-            </div>
+            <div className="text-center py-4"><Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-600" /></div>
           ) : replies.length > 0 ? (
             <div className="space-y-4">
               {replies.map((reply) => (
@@ -236,21 +224,12 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-gray-900 text-sm">
-                          {reply.profile?.display_name || "Unknown User"}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {new Date(reply.created_at).toLocaleDateString()}
-                        </span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-gray-900 text-sm">{reply.profile?.display_name || "User"}</span>
+                        <span className="text-xs text-gray-500">{new Date(reply.created_at).toLocaleDateString()}</span>
                       </div>
                       {currentUserId === reply.user_id && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteReply(reply.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 px-2"
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => handleDeleteReply(reply.id)} className="text-red-600 h-6 px-2 hover:bg-red-50">
                           Delete
                         </Button>
                       )}
