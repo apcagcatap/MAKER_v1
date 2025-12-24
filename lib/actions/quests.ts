@@ -3,6 +3,41 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 
+export async function uploadImage(file: Blob, type: "badge" | "certificate") {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error("Unauthorized")
+  }
+
+  // Generate a unique filename
+  const timestamp = Date.now()
+  const random = Math.random().toString(36).substring(7)
+  const filename = `${type}/${user.id}/${timestamp}-${random}.${type === "badge" ? "png" : "png"}`
+
+  // Upload to Supabase storage
+  const { data, error } = await supabase.storage
+    .from("quest-images")
+    .upload(filename, file, {
+      cacheControl: "3600",
+      upsert: false,
+    })
+
+  if (error) {
+    throw new Error(`Failed to upload image: ${error.message}`)
+  }
+
+  // Get the public URL
+  const { data: urlData } = supabase.storage
+    .from("quest-images")
+    .getPublicUrl(data.path)
+
+  return urlData.publicUrl
+}
+
 export async function createQuest(formData: {
   title: string
   description: string
