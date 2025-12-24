@@ -4,14 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger,} from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Plus, Loader2 } from "lucide-react"
 import { createForum } from "@/app/actions/forums"
@@ -56,6 +49,7 @@ export function CreateForumDialog() {
       toast({
         title: "Success",
         description: "Forum created successfully!",
+        variant: "success",
       })
       setTitle("")
       setDescription("")
@@ -110,6 +104,7 @@ export function CreateForumDialog() {
               variant="outline"
               onClick={() => setOpen(false)}
               disabled={isSubmitting}
+              className="bg-red-600 text-white hover:bg-red-700 border-none"
             >
               Cancel
             </Button>
