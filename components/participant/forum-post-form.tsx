@@ -45,6 +45,7 @@ export function ForumPostForm({ forumId }: ForumPostFormProps) {
       toast({
         title: "Success",
         description: "Your post has been created!",
+        variant: "success",
       })
       setContent("")
       setIsExpanded(false)
@@ -99,15 +100,16 @@ export function ForumPostForm({ forumId }: ForumPostFormProps) {
         </Button>
         <Button
           type="button"
-          variant="outline"
           onClick={() => {
             setIsExpanded(false)
             setContent("")
           }}
           disabled={isSubmitting}
+          className="bg-red-600 text-white hover:bg-red-700 border-none"
         >
           Cancel
-        </Button>
+        </Button>   
+
       </div>
     </form>
   )
