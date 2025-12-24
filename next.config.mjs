@@ -6,6 +6,11 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-}
+  experimental: {
+    serverActions: {
+      allowedOrigins: ["*.app.github.dev"],
+    },
+  },
+};
 
-export default nextConfig
+export default nextConfig;
