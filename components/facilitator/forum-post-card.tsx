@@ -94,6 +94,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
       toast({
         title: "Success",
         description: "Your reply has been posted!",
+        variant:"success",
       })
       setReplyContent("")
       setShowReplyForm(false)
@@ -119,6 +120,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
       toast({
         title: "Success",
         description: "Post deleted",
+        variant: "delete",
       })
       window.location.reload()
     }
@@ -139,6 +141,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
       toast({
         title: "Success",
         description: "Reply deleted",
+        variant: "delete",
       })
       setReplies([])
       await loadReplies()
