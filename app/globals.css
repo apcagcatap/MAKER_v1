@@ -99,3 +99,23 @@
     color: var(--color-foreground);
   }
 }
+
+/* Hide scrollbars across browsers while keeping scroll functionality */
+/* WebKit (Chrome, Safari, Edge Chromium, Opera) */
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: none;
+  scrollbar-color: transparent transparent;
+}
+
+/* IE 10+ / Edge (legacy) */
+html, body {
+  -ms-overflow-style: none;
+}
+
+
