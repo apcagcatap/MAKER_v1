@@ -94,6 +94,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
       toast({
         title: "Success",
         description: "Your reply has been posted!",
+        variant: "success",
       })
       setReplyContent("")
       setShowReplyForm(false)
@@ -120,6 +121,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
       toast({
         title: "Success",
         description: "Reply deleted",
+        variant: "delete",
       })
       // Reload replies
       setReplies([])
@@ -210,6 +212,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                   setReplyContent("")
                 }}
                 disabled={isSubmitting}
+                className="bg-red-600 text-white hover:bg-red-700 border-none"
               >
                 Cancel
               </Button>
