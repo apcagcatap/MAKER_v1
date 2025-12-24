@@ -4,6 +4,7 @@ import { FacilitatorNav } from "@/components/layout/facilitator-nav"
 import { MessageSquare, Clock, Plus } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { CreateForumDialog } from "@/components/facilitator/create-forum-dialog"
 import Image from "next/image"
 
 export default async function FacilitatorForumsPage() {
@@ -53,10 +54,7 @@ export default async function FacilitatorForumsPage() {
                 <h1 className="text-4xl font-bold text-white mb-2">Forums</h1>
                 <p className="text-gray-200">Manage community discussions</p>
               </div>
-              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                <Plus className="w-4 h-4 mr-2" />
-                Create Forum
-              </Button>
+              <CreateForumDialog /> 
             </div>
           </div>
         </div>
