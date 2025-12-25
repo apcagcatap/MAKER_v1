@@ -1,39 +1,45 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { MessageSquare, Loader2 } from "lucide-react"
-import { createPost } from "@/app/actions/forums"
-import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
+import { Edit2, Loader2 } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { updatePost } from "@/app/actions/forums" 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 
-interface ForumPostFormProps {
+interface EditPostDialogProps {
+  post: {
+    id: string
+    content: string
+  }
   forumId: string
 }
 
-export function ForumPostForm({ forumId }: ForumPostFormProps) {
-  const [content, setContent] = useState("")
+export function EditPostDialog({ post, forumId }: EditPostDialogProps) {
+  const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [content, setContent] = useState(post.content)
   const { toast } = useToast()
   const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!content.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter some content for your post",
-        variant: "destructive",
-      })
-      return
-    }
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!content.trim()) return
 
     setIsSubmitting(true)
 
-    const result = await createPost(forumId, content)
+    // Using the updatePost action we created earlier
+    const result = await updatePost(post.id, content, forumId)
 
     if (result.error) {
       toast({
@@ -44,73 +50,73 @@ export function ForumPostForm({ forumId }: ForumPostFormProps) {
     } else {
       toast({
         title: "Success",
-        description: "Your post has been created!",
-        variant: "success"
+        description: "Post updated successfully",
+        variant: "success",
       })
-      setContent("")
-      setIsExpanded(false)
+      setOpen(false)
       router.refresh()
     }
-
     setIsSubmitting(false)
   }
 
-  if (!isExpanded) {
-    return (
-      <div className="bg-white rounded-xl shadow-lg p-4 mb-6 relative z-30">
-        <Button
-          onClick={() => setIsExpanded(true)}
-          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 cursor-pointer"
-          type="button"
-        >
-          <MessageSquare className="w-4 h-4 mr-2" />
-          Create New Post
-        </Button>
-      </div>
-    )
-  }
-
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-6 mb-6 relative z-30">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Create a New Post</h3>
-      <Textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="Share your thoughts..."
-        className="mb-4 min-h-[120px]"
-        disabled={isSubmitting}
-      />
-      <div className="flex items-center gap-2">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
         <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
         >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Posting...
-            </>
-          ) : (
-            <>
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Post
-            </>
-          )}
+          <Edit2 className="w-4 h-4" />
+          <span className="sr-only">Edit Post</span>
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => {
-            setIsExpanded(false)
-            setContent("")
-          }}
-          disabled={isSubmitting}
-          className="bg-red-600 text-white hover:bg-red-700 border-none"
-        >
-          Cancel
-        </Button>
-      </div>
-    </form>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[500px]">
+        <form onSubmit={handleSubmit}>
+          <DialogHeader>
+            <DialogTitle>Edit Post</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="content">Post Content</Label>
+              <Textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="What's on your mind?"
+                rows={6}
+                required
+                disabled={isSubmitting}
+                className="resize-none"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || content === post.content}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                "Update Post"
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }

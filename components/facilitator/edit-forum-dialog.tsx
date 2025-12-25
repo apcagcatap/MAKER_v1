@@ -1,25 +1,43 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Trash2, Loader2, AlertTriangle } from "lucide-react"
-import { deleteForum } from "@/app/actions/forums"
-import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
+import { Edit2, Loader2 } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { updateForum } from "@/app/actions/forums" // Ensure path is correct
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 
-interface DeleteForumButtonProps {
-  forumId: string
+interface EditForumDialogProps {
+  forum: {
+    id: string
+    title: string
+    description: string | null
+  }
 }
 
-export function DeleteForumButton({ forumId }: DeleteForumButtonProps) {
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
+export function EditForumDialog({ forum }: EditForumDialogProps) {
+  const [open, setOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
 
-  const handleDelete = async () => {
-    setIsDeleting(true)
-    const result = await deleteForum(forumId)
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsSubmitting(true)
+
+    const formData = new FormData(event.currentTarget)
+    const result = await updateForum(forum.id, formData)
 
     if (result.error) {
       toast({
@@ -27,60 +45,85 @@ export function DeleteForumButton({ forumId }: DeleteForumButtonProps) {
         description: result.error,
         variant: "destructive",
       })
-      setIsDeleting(false)
-      setShowConfirm(false)
     } else {
       toast({
-        title: "Deleted",
-        description: "The forum has been successfully removed.",
+        title: "Success",
+        description: "Forum updated successfully",
         variant: "success",
       })
-      // No need for setIsDeleting(false) as the page will refresh/redirect
+      setOpen(false)
       router.refresh()
     }
-  }
-
-  if (showConfirm) {
-    return (
-      <div className="flex items-center gap-2 animate-in fade-in zoom-in duration-200">
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={handleDelete}
-          disabled={isDeleting}
-          className="bg-red-600 hover:bg-red-700"
-        >
-          {isDeleting ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            "Confirm Delete"
-          )}
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => setShowConfirm(false)}
-          disabled={isDeleting}
-          className="bg-white"
-        >
-          Cancel
-        </Button>
-      </div>
-    )
+    setIsSubmitting(false)
   }
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={(e) => {
-        e.preventDefault() // Stop link navigation
-        e.stopPropagation() // Stop bubbling to Link
-        setShowConfirm(true)
-      }}
-      className="text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-    >
-      <Trash2 className="w-5 h-5" />
-    </Button>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+        >
+          <Edit2 className="w-4 h-4" />
+          <span className="sr-only">Edit Forum</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <form onSubmit={handleSubmit}>
+          <DialogHeader>
+            <DialogTitle>Edit Forum</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                name="title"
+                defaultValue={forum.title}
+                placeholder="Enter forum title"
+                required
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                name="description"
+                defaultValue={forum.description || ""}
+                placeholder="What is this forum about?"
+                rows={4}
+                disabled={isSubmitting}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
