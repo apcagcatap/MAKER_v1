@@ -8,6 +8,8 @@ import { createReply, deletePost, deleteReply } from "@/app/actions/forums"
 import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
 import type { ForumPost, ForumReply } from "@/lib/types"
+// 1. Import the EditPostDialog component
+import { EditPostDialog } from "../participant/edit-post-dialog"
 
 interface ForumPostCardProps {
   post: ForumPost & {
@@ -167,14 +169,21 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                   {new Date(post.created_at).toLocaleDateString()}
                 </span>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleDeletePost}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
+              
+              {/* 2. Added Action Container for Edit and Delete (Only for Post Owner) */}
+              {currentUserId === post.user_id && (
+                <div className="flex items-center gap-1">
+                  <EditPostDialog post={post} forumId={forumId} />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleDeletePost}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
             </div>
             <p className="text-gray-700 whitespace-pre-wrap break-words">{post.content}</p>
           </div>
@@ -240,6 +249,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                   setShowReplyForm(false)
                   setReplyContent("")
                 }}
+                className="bg-red-600 text-white hover:bg-red-700 border-none"
                 disabled={isSubmitting}
               >
                 Cancel
@@ -272,14 +282,16 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                           {new Date(reply.created_at).toLocaleDateString()}
                         </span>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteReply(reply.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 px-2"
-                      >
-                        Delete
-                      </Button>
+                      {currentUserId === reply.user_id && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteReply(reply.id)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 px-2"
+                        >
+                          Delete
+                        </Button>
+                      )}
                     </div>
                     <p className="text-gray-700 text-sm whitespace-pre-wrap break-words">{reply.content}</p>
                   </div>
