@@ -70,7 +70,7 @@ export default async function ForumDetailPage({ params }: { params: { id: string
         </div>
       </div>
 
-      <main className="relative -mt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 z-20">
+      <main className="relative -mt-24 pt-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 z-20">
         {/* Create Post Form */}
         <ForumPostForm forumId={id} />
 
