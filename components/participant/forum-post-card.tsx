@@ -9,6 +9,9 @@ import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
 import type { ForumPost, ForumReply } from "@/lib/types"
 
+// 1. Import the EditPostDialog
+import { EditPostDialog } from "./edit-post-dialog"
+
 interface ForumPostCardProps {
   post: ForumPost & {
     profile?: {
@@ -33,7 +36,6 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const { toast } = useToast()
 
-  // Fetch current user on mount to check ownership
   useEffect(() => {
     const getUser = async () => {
       const supabase = createClient()
@@ -87,8 +89,8 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
       toast({
         title: "Success",
         description: "Post deleted successfully",
+        variant: "delete",
       })
-      // No manual state clear needed as revalidatePath will refresh the list
     }
   }
 
@@ -106,7 +108,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
         variant: "destructive",
       })
     } else {
-      toast({ title: "Success", description: "Reply posted!" })
+      toast({ title: "Success", description: "Reply posted!", variant: "success" })
       setReplyContent("")
       setShowReplyForm(false)
       setReplies([]) 
@@ -122,7 +124,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
     if (result.error) {
       toast({ title: "Error", description: result.error, variant: "destructive" })
     } else {
-      toast({ title: "Success", description: "Reply deleted" })
+      toast({ title: "Success", description: "Reply deleted", variant: "delete" })
       setReplies(prev => prev.filter(r => r.id !== replyId))
     }
   }
@@ -148,17 +150,22 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                 </span>
               </div>
 
-              {/* Delete Post Button (Owner only) */}
+              {/* Action Buttons (Owner only) */}
               {currentUserId === post.user_id && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleDeletePost}
-                  disabled={isDeletingPost}
-                  className="text-gray-400 hover:text-red-600 hover:bg-red-50 -mt-2"
-                >
-                  {isDeletingPost ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                </Button>
+                <div className="flex items-center gap-1 -mt-2">
+                  {/* 2. Insert the Edit Dialog here */}
+                  <EditPostDialog post={post} forumId={forumId} />
+                  
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleDeletePost}
+                    disabled={isDeletingPost}
+                    className="text-gray-400 hover:text-red-600 hover:bg-red-50"
+                  >
+                    {isDeletingPost ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  </Button>
+                </div>
               )}
             </div>
             <p className="text-gray-700 whitespace-pre-wrap break-words">{post.content}</p>
@@ -187,7 +194,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
         </div>
       </div>
 
-      {/* Reply Form */}
+      {/* Reply Form (remains unchanged) */}
       {showReplyForm && (
         <div className="px-6 pb-6">
           <form onSubmit={handleSubmitReply} className="bg-gray-50 rounded-lg p-4">
@@ -202,7 +209,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
               <Button type="submit" size="sm" disabled={isSubmitting} className="bg-gradient-to-r from-purple-600 to-blue-600">
                 {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Post Reply"}
               </Button>
-              <Button type="button" variant="outline" size="sm" onClick={() => setShowReplyForm(false)} disabled={isSubmitting}>
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowReplyForm(false)} disabled={isSubmitting} className="bg-red-600 text-white hover:bg-red-700 border-none">
                 Cancel
               </Button>
             </div>
@@ -210,7 +217,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
         </div>
       )}
 
-      {/* Replies List */}
+      {/* Replies List (remains unchanged) */}
       {showReplies && (
         <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
           {isLoadingReplies ? (
