@@ -17,52 +17,65 @@ export default function LoginPage() {
   const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const supabase = createClient()
-    setIsLoading(true)
-    setError(null)
+  e.preventDefault()
+  const supabase = createClient()
+  setIsLoading(true)
+  setError(null)
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
 
-      if (error) throw error
+    if (error) throw error
 
-      if (data.user) {
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", data.user.id)
-          .single()
+    if (data.user) {
+      // Check if user exists in users table and get admin status
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("id, is_admin")
+        .eq("id", data.user.id)
+        .single()
 
-        if (profileError) {
-          console.error("Error fetching profile:", profileError)
-          throw new Error("Failed to load user profile")
-        }
+      if (userError || !userData) {
+        throw new Error("User not found")
+      }
 
-        console.log("Login - User role:", profile?.role)
+      // If user is a global admin, redirect to admin dashboard
+      if (userData.is_admin) {
+        router.push("/admin")
+        router.refresh()
+        return
+      }
 
-        if (profile?.role) {
-          // Force a router refresh to ensure middleware runs
-          router.refresh()
-          router.push(`/${profile.role}`)
+      // Check workshop assignments to determine role/redirect
+      const { data: workshops, error: workshopError } = await supabase
+        .from("workshop_user")
+        .select("role, workshop_id")
+        .eq("user_id", data.user.id)
+
+      // Redirect logic based on workshop assignments
+      if (workshops && workshops.length > 0) {
+        const hasFacilitator = workshops.some(w => w.role === 'facilitator')
+        
+        if (hasFacilitator) {
+          router.push("/facilitator")
         } else {
-          console.error("No role found in profile")
-          router.push("/auth/select-role")
+          router.push("/participant")
         }
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError(error.message)
       } else {
-        setError("An error occurred during login")
+        router.push("/waiting-room")
       }
-    } finally {
-      setIsLoading(false)
+
+      router.refresh()
     }
+  } catch (error: unknown) {
+    // error handling
+  } finally {
+    setIsLoading(false)
   }
+}
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">

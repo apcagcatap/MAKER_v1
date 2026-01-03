@@ -49,13 +49,13 @@ export function AccountForm({ user, profile }: AccountFormProps) {
     const supabase = createClient()
 
     try {
-      // Update display name in profiles table
-      const { error: profileError } = await supabase
-        .from("profiles")
+      // Update display name in users table
+      const { error: userError } = await supabase
+        .from("users")
         .update({ display_name: displayName })
         .eq("id", user.id)
 
-      if (profileError) throw profileError
+      if (userError) throw userError
 
       // Update password if provided
       if (newPassword) {

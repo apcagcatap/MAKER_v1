@@ -17,8 +17,8 @@ export default async function ParticipantDetailPage({ params }: { params: { id: 
 
   const { id } = await params
 
-  // Fetch participant profile
-  const { data: participant } = await supabase.from("profiles").select("*").eq("id", id).single()
+  // Fetch participant data
+  const { data: participant } = await supabase.from("users").select("*").eq("id", id).single()
 
   if (!participant) {
     redirect("/facilitator/participants")

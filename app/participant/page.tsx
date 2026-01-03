@@ -16,10 +16,19 @@ export default async function ParticipantDashboard() {
     redirect("/auth/login")
   }
 
-  // Fetch user profile
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+  // Fetch user data
+  const { data: userData } = await supabase.from("users").select("*").eq("id", user.id).single()
 
-  if (!profile || profile.role !== "participant") {
+  // Check if user has participant role in any workshop
+  const { data: workshopRoles } = await supabase
+    .from("workshop_user")
+    .select("role")
+    .eq("user_id", user.id)
+
+  const isParticipant = workshopRoles?.some(w => w.role === 'participant') || 
+                        (workshopRoles && workshopRoles.length === 0) // Allow if no assignments yet
+
+  if (!userData || !isParticipant) {
     redirect("/auth/login")
   }
 
@@ -80,7 +89,7 @@ export default async function ParticipantDashboard() {
                 </div>
               </div>
               <h1 className="text-5xl font-bold text-white drop-shadow-lg">
-                Hi there, {profile.display_name || "Maker"}!
+                Hi there, {userData.display_name || "Maker"}!
               </h1>
             </div>
 
@@ -187,18 +196,6 @@ export default async function ParticipantDashboard() {
   )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 ">
-          <StatsCard
-            title="Total XP"
-            value={profile.xp}
-            icon={<Trophy className="w-6 h-6" />}
-            gradient="bg-gradient-to-br from-yellow-400 to-orange-500"
-          />
-          <StatsCard
-            title="Level"
-            value={profile.level}
-            icon={<TrendingUp className="w-6 h-6" />}
-            gradient="bg-gradient-to-br from-purple-500 to-pink-500"
-          />
           <StatsCard
             title="Active Quests"
             value={inProgressQuests.length}

@@ -1,9 +1,14 @@
-import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { AdminNav } from "@/components/layout/admin-nav"
-import { StatsCard } from "@/components/participant/stats-card"
-import { Users, Target, Award, MessageSquare, TrendingUp, Activity } from "lucide-react"
-import Image from "next/image"
+import { 
+  Users, 
+  ScrollText, 
+  Calendar, 
+  Clock,
+  TrendingUp,
+  UserPlus,
+  Link as LinkIcon
+} from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
@@ -11,251 +16,221 @@ export default async function AdminDashboard() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect("/auth/login")
-  }
+  // Note: Authentication and RBAC are handled by middleware (proxy.ts)
+  // If user reaches here, they are authenticated and have admin role
 
-  // Fetch user profile
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
-
-  if (!profile || profile.role !== "admin") {
-    redirect("/auth/login")
-  }
-
-  // Fetch comprehensive statistics
-  const { count: totalUsers } = await supabase.from("profiles").select("*", { count: "exact", head: true })
-
-  const { count: totalParticipants } = await supabase
-    .from("profiles")
+  // Fetch statistics from new schema
+  const { count: totalUsers } = await supabase
+    .from("users")
     .select("*", { count: "exact", head: true })
-    .eq("role", "participant")
 
-  const { count: totalFacilitators } = await supabase
-    .from("profiles")
+  const { count: totalQuests } = await supabase
+    .from("quest")
     .select("*", { count: "exact", head: true })
-    .eq("role", "facilitator")
 
-  const { count: totalQuests } = await supabase.from("quests").select("*", { count: "exact", head: true })
-
-  const { count: activeQuests } = await supabase
-    .from("quests")
+  const { count: totalWorkshops } = await supabase
+    .from("workshop")
     .select("*", { count: "exact", head: true })
-    .eq("is_active", true)
 
-  const { count: totalSkills } = await supabase.from("skills").select("*", { count: "exact", head: true })
-
-  const { count: totalForums } = await supabase.from("forums").select("*", { count: "exact", head: true })
-
-  const { count: totalPosts } = await supabase.from("forum_posts").select("*", { count: "exact", head: true })
-
-  const { count: completedQuests } = await supabase
-    .from("user_quests")
+  const { count: totalAssignments } = await supabase
+    .from("workshop_user")
     .select("*", { count: "exact", head: true })
-    .eq("status", "completed")
 
-  const { count: inProgressQuests } = await supabase
-    .from("user_quests")
+  const { count: totalQuestAssignments } = await supabase
+    .from("workshop_quest")
     .select("*", { count: "exact", head: true })
-    .eq("status", "in_progress")
 
-  // Fetch recent activity
+  // Fetch recent users
   const { data: recentUsers } = await supabase
-    .from("profiles")
+    .from("users")
     .select("*")
     .order("created_at", { ascending: false })
     .limit(5)
 
+  // Fetch recent workshops
+  const { data: recentWorkshops } = await supabase
+    .from("workshop")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(5)
+
+  const stats = [
+    {
+      title: "Total Users",
+      value: totalUsers || 0,
+      description: "Registered accounts",
+      icon: Users,
+      color: "bg-blue-600",
+    },
+    {
+      title: "Total Quests",
+      value: totalQuests || 0,
+      description: "Available quests",
+      icon: ScrollText,
+      color: "bg-purple-600",
+    },
+    {
+      title: "Workshops",
+      value: totalWorkshops || 0,
+      description: "Created workshops",
+      icon: Calendar,
+      color: "bg-green-600",
+    },
+    {
+      title: "User Assignments",
+      value: totalAssignments || 0,
+      description: "Workshop-user links",
+      icon: UserPlus,
+      color: "bg-orange-600",
+    },
+  ]
+
   return (
-    <div
-      className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
-      style={{
-        backgroundImage: `url("/navbarBg.png")`,
-        backgroundRepeat: "no-repeat",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <AdminNav />
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ">
-        <div className="mb-12 text-center">
-          <div className="flex items-center justify-center gap-6 mb-8">
-            <div className="relative">
-              <div>
-                <Image src="/hismarty.png" alt="Owl" width={240} height={240} className="object-contain" />
-              </div>
-            </div>
-            <h1 className="text-5xl font-bold text-white drop-shadow-lg">
-              Admin Dashboard
-            </h1>
-          </div>
-          <p className="text-lg text-white">Complete system overview and management</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+          <p className="text-slate-500">Overview of your Maker Event system</p>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-slate-500">
+          <Clock className="w-4 h-4" />
+          <span>Last updated: {new Date().toLocaleTimeString()}</span>
         </div>
       </div>
 
-      <main className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24">
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          {/* User Stats */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">User Statistics</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <StatsCard
-                title="Total Users"
-                value={totalUsers || 0}
-                icon={<Users className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-purple-500 to-pink-500"
-              />
-              <StatsCard
-                title="Participants"
-                value={totalParticipants || 0}
-                icon={<Users className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-blue-500 to-cyan-500"
-              />
-              <StatsCard
-                title="Facilitators"
-                value={totalFacilitators || 0}
-                icon={<Users className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-green-500 to-emerald-500"
-              />
-              <StatsCard
-                title="Active Quests"
-                value={inProgressQuests || 0}
-                icon={<Activity className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-orange-500 to-red-500"
-              />
-            </div>
-          </div>
-
-          {/* Content Stats */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Content Statistics</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <StatsCard
-                title="Total Quests"
-                value={totalQuests || 0}
-                icon={<Target className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-indigo-500 to-purple-500"
-              />
-              <StatsCard
-                title="Skills"
-                value={totalSkills || 0}
-                icon={<Award className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-yellow-500 to-orange-500"
-              />
-              <StatsCard
-                title="Forums"
-                value={totalForums || 0}
-                icon={<MessageSquare className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-teal-500 to-cyan-500"
-              />
-              <StatsCard
-                title="Forum Posts"
-                value={totalPosts || 0}
-                icon={<MessageSquare className="w-6 h-6" />}
-                gradient="bg-gradient-to-br from-pink-500 to-rose-500"
-              />
-            </div>
-          </div>
-
-          {/* Engagement Stats */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Engagement Metrics</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-gray-900">Quest Completion Rate</h3>
-                  <TrendingUp className="w-5 h-5 text-green-500" />
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((stat) => {
+          const Icon = stat.icon
+          return (
+            <Card key={stat.title} className="border-slate-200">
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500">{stat.title}</p>
+                    <p className="text-3xl font-bold text-slate-900 mt-1">{stat.value}</p>
+                    <p className="text-xs text-slate-400 mt-1">{stat.description}</p>
+                  </div>
+                  <div className={`${stat.color} p-3 rounded-lg`}>
+                    <Icon className="w-5 h-5 text-white" />
+                  </div>
                 </div>
-                <p className="text-3xl font-bold text-gray-900">
-                  {totalQuests && completedQuests
-                    ? Math.round(((completedQuests || 0) / (totalQuests * (totalParticipants || 1))) * 100)
-                    : 0}
-                  %
-                </p>
-                <p className="text-sm text-gray-500 mt-2">
-                  {completedQuests || 0} completed out of {(totalQuests || 0) * (totalParticipants || 1)} total attempts
-                </p>
-              </div>
+              </CardContent>
+            </Card>
+          )
+        })}
+      </div>
 
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-gray-900">Active Quest Rate</h3>
-                  <Activity className="w-5 h-5 text-blue-500" />
-                </div>
-                <p className="text-3xl font-bold text-gray-900">
-                  {totalQuests ? Math.round(((activeQuests || 0) / totalQuests) * 100) : 0}%
-                </p>
-                <p className="text-sm text-gray-500 mt-2">
-                  {activeQuests || 0} active out of {totalQuests || 0} total quests
-                </p>
+      {/* Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Users */}
+        <Card className="border-slate-200">
+          <CardHeader className="border-b border-slate-100">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Users className="w-5 h-5 text-blue-600" />
+              Recent Users
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            {recentUsers && recentUsers.length > 0 ? (
+              <div className="divide-y divide-slate-100">
+                {recentUsers.map((u) => (
+                  <div key={u.id} className="flex items-center gap-3 p-4 hover:bg-slate-50 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-500 flex items-center justify-center text-white font-bold">
+                      {u.display_name?.[0]?.toUpperCase() || "U"}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-slate-900 truncate">
+                        {u.display_name || "Unnamed User"}
+                      </p>
+                      <p className="text-sm text-slate-500 truncate">{u.email}</p>
+                    </div>
+                    <span className="text-xs text-slate-400">
+                      {new Date(u.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
               </div>
+            ) : (
+              <div className="p-8 text-center text-slate-500">
+                No users yet
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-gray-900">Avg Posts per Forum</h3>
-                  <MessageSquare className="w-5 h-5 text-purple-500" />
-                </div>
-                <p className="text-3xl font-bold text-gray-900">
-                  {totalForums ? Math.round((totalPosts || 0) / totalForums) : 0}
-                </p>
-                <p className="text-sm text-gray-500 mt-2">
-                  {totalPosts || 0} total posts across {totalForums || 0} forums
-                </p>
+        {/* Recent Workshops */}
+        <Card className="border-slate-200">
+          <CardHeader className="border-b border-slate-100">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-green-600" />
+              Recent Workshops
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            {recentWorkshops && recentWorkshops.length > 0 ? (
+              <div className="divide-y divide-slate-100">
+                {recentWorkshops.map((workshop) => (
+                  <div key={workshop.id} className="flex items-center gap-3 p-4 hover:bg-slate-50 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold">
+                      <Calendar className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-slate-900 truncate">
+                        {workshop.name}
+                      </p>
+                      <p className="text-sm text-slate-500">
+                        {new Date(workshop.event_date).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
+            ) : (
+              <div className="p-8 text-center text-slate-500">
+                No workshops yet
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Actions */}
+      <Card className="border-slate-200">
+        <CardHeader className="border-b border-slate-100">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-purple-600" />
+            Quick Tips
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 bg-blue-50 border border-blue-100 rounded-lg">
+              <h4 className="font-medium text-blue-900 mb-2">1. Create Quests</h4>
+              <p className="text-sm text-blue-700">
+                Define quests that participants can complete during workshops.
+              </p>
+            </div>
+            <div className="p-4 bg-green-50 border border-green-100 rounded-lg">
+              <h4 className="font-medium text-green-900 mb-2">2. Set Up Workshops</h4>
+              <p className="text-sm text-green-700">
+                Create workshops with dates and assign quests to them.
+              </p>
+            </div>
+            <div className="p-4 bg-purple-50 border border-purple-100 rounded-lg">
+              <h4 className="font-medium text-purple-900 mb-2">3. Assign Users</h4>
+              <p className="text-sm text-purple-700">
+                Add participants and facilitators to your workshops.
+              </p>
             </div>
           </div>
-
-          {/* Recent Users */}
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Users</h2>
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      User
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Role
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Level
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Joined
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentUsers?.map((user) => (
-                    <tr key={user.id} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-                            {user.display_name?.[0] || "U"}
-                          </div>
-                          <div>
-                            <div className="font-semibold text-gray-900">{user.display_name || "Unknown"}</div>
-                            <div className="text-sm text-gray-500">{user.email}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
-                          {user.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-gray-900">Level {user.level}</td>
-                      <td className="px-6 py-4 text-gray-500 text-sm">
-                        {new Date(user.created_at).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </main>
+        </CardContent>
+      </Card>
     </div>
   )
 }

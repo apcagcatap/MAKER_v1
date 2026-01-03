@@ -29,11 +29,20 @@ export default async function AccountPage() {
     redirect("/auth/login")
   }
 
-  // Fetch user profile from database
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+  // Fetch user data from database
+  const { data: userData } = await supabase.from("users").select("*").eq("id", user.id).single()
 
-  // Redirect if profile doesn't exist or user is not a participant
-  if (!profile || profile.role !== "participant") {
+  // Check if user has participant role in any workshop
+  const { data: workshopRoles } = await supabase
+    .from("workshop_user")
+    .select("role")
+    .eq("user_id", user.id)
+
+  const isParticipant = workshopRoles?.some(w => w.role === 'participant') || 
+                        (workshopRoles && workshopRoles.length === 0)
+
+  // Redirect if user doesn't exist or is not a participant
+  if (!userData || !isParticipant) {
     redirect("/auth/login")
   }
 

@@ -5,7 +5,9 @@
  * These types match the database schema defined in the SQL scripts.
  *
  * Type Hierarchy:
- * - User Roles: participant, facilitator, admin
+ * - User Roles: participant, facilitator, admin (via workshop_user)
+ * - Users: public.users table
+ * - Workshops: workshop, workshop_user, workshop_quest tables
  * - Quest System: Quests, UserQuests, Skills, UserSkills
  * - Forum System: Forums, ForumPosts, ForumReplies
  */
@@ -14,7 +16,10 @@
 // ENUMS - Define allowed values for specific fields
 // ============================================
 
-/** User role types - determines dashboard access and permissions */
+/** Workshop role types - determines permissions within a workshop (excludes admin) */
+export type WorkshopRole = "participant" | "facilitator"
+
+/** @deprecated Use WorkshopRole instead. Kept for backwards compatibility */
 export type UserRole = "participant" | "facilitator" | "admin"
 
 /** Quest completion status for tracking user progress */
@@ -24,14 +29,75 @@ export type QuestStatus = "not_started" | "in_progress" | "completed"
 export type QuestDifficulty = "beginner" | "intermediate" | "advanced"
 
 // ============================================
-// USER & PROFILE TYPES
+// USER TYPES (new schema)
 // ============================================
 
 /**
- * User Profile
+ * User
  *
- * Extends the Supabase auth.users table with additional user information.
+ * Represents a user in the public.users table.
  * Created automatically when a user signs up via database trigger.
+ */
+export interface User {
+  id: string // UUID matching auth.users.id
+  email: string // User's email address
+  display_name: string | null // User's display name
+  bio: string | null // User biography/description
+  is_admin: boolean // Global admin flag
+  created_at: string // Account creation timestamp
+  updated_at: string // Last profile update timestamp
+}
+
+// ============================================
+// WORKSHOP SYSTEM TYPES (new schema)
+// ============================================
+
+/**
+ * Workshop
+ *
+ * Represents a workshop/event in the system.
+ */
+export interface Workshop {
+  id: string // UUID primary key
+  name: string // Workshop name
+  event_date: string // Date of the workshop event
+  created_at: string // Creation timestamp
+}
+
+/**
+ * Workshop User Assignment
+ *
+ * Junction table linking users to workshops with their role.
+ */
+export interface WorkshopUser {
+  workshop_id: string // Reference to workshop
+  user_id: string // Reference to user
+  role: WorkshopRole // User's role in this workshop (participant or facilitator)
+  assigned_at: string // When user was assigned
+  // Joined data
+  user?: User // Optional: populated user data
+  workshop?: Workshop // Optional: populated workshop data
+}
+
+/**
+ * Workshop Quest Assignment
+ *
+ * Junction table linking quests to workshops.
+ */
+export interface WorkshopQuest {
+  workshop_id: string // Reference to workshop
+  quest_id: string // Reference to quest
+  // Joined data
+  quest?: Quest // Optional: populated quest data
+  workshop?: Workshop // Optional: populated workshop data
+}
+
+// ============================================
+// LEGACY PROFILE TYPE (for backwards compatibility)
+// ============================================
+
+/**
+ * @deprecated Use User type instead. This is kept for backwards compatibility.
  */
 export interface Profile {
   id: string // UUID matching auth.users.id
@@ -85,23 +151,15 @@ export interface UserSkill {
 // ============================================
 
 /**
- * Quest Definition
+ * Quest Definition (new schema)
  *
- * Represents a quest/challenge that users can complete to earn XP.
- * Created by facilitators and admins.
+ * Represents a quest/challenge that users can complete.
  */
 export interface Quest {
-  id: string // Unique quest identifier
+  id: string // UUID primary key
   title: string // Quest title
   description: string | null // Detailed quest description
-  difficulty: QuestDifficulty // Quest difficulty level
-  xp_reward: number // XP awarded upon completion
-  skill_id: string | null // Optional: associated skill
-  created_by: string | null // User who created the quest
-  is_active: boolean // Whether quest is currently available
   created_at: string // Creation timestamp
-  updated_at: string // Last update timestamp
-  skill?: Skill // Optional: populated skill data
 }
 
 /**

@@ -1,8 +1,20 @@
 "use client"
 
+/**
+ * @deprecated This component is no longer used.
+ * The admin section now uses the layout at /app/admin/layout.tsx
+ * which includes an integrated sidebar navigation.
+ */
+
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Users, Target, Award, MessageSquare, Settings, LogOut, User } from "lucide-react"
+import { 
+  LayoutDashboard, 
+  Users, 
+  ScrollText, 
+  Calendar,
+  LogOut 
+} from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
@@ -17,16 +29,14 @@ export function AdminNav() {
   }
 
   const navItems = [
-    { href: "/admin", icon: Home, label: "Dashboard" },
-    { href: "/admin/users", icon: Users, label: "Users" },
-    { href: "/admin/quests", icon: Target, label: "Quests" },
-    { href: "/admin/skills", icon: Award, label: "Skills" },
-    { href: "/admin/forums", icon: MessageSquare, label: "Forums" },
-    { href: "/admin/settings", icon: Settings, label: "Settings" },
+    { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
+    { href: "/admin/accounts", icon: Users, label: "Accounts" },
+    { href: "/admin/quests", icon: ScrollText, label: "Quests" },
+    { href: "/admin/workshops", icon: Calendar, label: "Workshops" },
   ]
 
   return (
-    <nav className="relative z-10">
+    <nav className="relative z-10 bg-blue-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
@@ -45,7 +55,7 @@ export function AdminNav() {
                     key={item.href}
                     href={item.href}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                      isActive ? "bg-blue-600 text-white" : "text-blue-100 hover:bg-blue-700 hover:text-white"
+                      isActive ? "bg-red-600 text-white" : "text-blue-100 hover:bg-blue-700 hover:text-white"
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -56,19 +66,11 @@ export function AdminNav() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Link
-              href="/admin/account"
-              className="flex items-center gap-2 px-4 py-2 text-blue-100 hover:text-white transition-colors"
-            >
-              <span className="font-medium">Account</span>
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
-                <User className="w-5 h-5" />
-              </div>
-            </Link>
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-4 py-2 text-blue-100 hover:text-white transition-colors"
             >
+              <LogOut className="w-5 h-5" />
               <span>Logout</span>
             </button>
           </div>

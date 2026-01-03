@@ -22,9 +22,18 @@ export default async function AboutPage() {
     redirect("/auth/login")
   }
 
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+  const { data: userData } = await supabase.from("users").select("*").eq("id", user.id).single()
 
-  if (!profile || profile.role !== "participant") {
+  // Check if user has participant role in any workshop
+  const { data: workshopRoles } = await supabase
+    .from("workshop_user")
+    .select("role")
+    .eq("user_id", user.id)
+
+  const isParticipant = workshopRoles?.some(w => w.role === 'participant') || 
+                        (workshopRoles && workshopRoles.length === 0)
+
+  if (!userData || !isParticipant) {
     redirect("/auth/login")
   }
 

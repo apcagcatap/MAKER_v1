@@ -17,16 +17,24 @@ export default async function FacilitatorDashboard() {
     redirect("/auth/login")
   }
 
-  // Fetch user profile
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+  // Fetch user data
+  const { data: userData } = await supabase.from("users").select("*").eq("id", user.id).single()
 
-  if (!profile || profile.role !== "facilitator") {
+  // Check if user has facilitator role in any workshop
+  const { data: workshopRoles } = await supabase
+    .from("workshop_user")
+    .select("role")
+    .eq("user_id", user.id)
+
+  const isFacilitator = workshopRoles?.some(w => w.role === 'facilitator' || w.role === 'admin')
+
+  if (!userData || !isFacilitator) {
     redirect("/auth/login")
   }
 
   // Fetch statistics
   const { count: totalParticipants } = await supabase
-    .from("profiles")
+    .from("workshop_user")
     .select("*", { count: "exact", head: true })
     .eq("role", "participant")
 
@@ -84,7 +92,7 @@ export default async function FacilitatorDashboard() {
                 <Image src="/hismarty.png" alt="Owl" width={180} height={180} className="w-44 h-44 object-contain" />
               </div>
               <h1 className="text-5xl font-bold text-white drop-shadow-lg">
-                Hi there, {profile.display_name || "Facilitator"}!
+                Hi there, {userData.display_name || "Facilitator"}!
               </h1>
             </div>
           </div>

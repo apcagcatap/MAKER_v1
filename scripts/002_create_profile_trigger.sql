@@ -1,4 +1,5 @@
--- Function to auto-create profile on user signup
+-- Function to auto-create user on signup
+-- Inserts into public.users table
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -6,12 +7,12 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, display_name, role)
+  -- Insert into public.users
+  INSERT INTO public.users (id, email, display_name)
   VALUES (
     new.id,
     new.email,
-    COALESCE(new.raw_user_meta_data->>'display_name', new.email),
-    COALESCE((new.raw_user_meta_data->>'role')::user_role, 'participant')
+    COALESCE(new.raw_user_meta_data->>'display_name', new.email)
   )
   ON CONFLICT (id) DO NOTHING;
   

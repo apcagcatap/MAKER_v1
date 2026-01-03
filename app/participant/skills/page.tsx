@@ -14,8 +14,8 @@ export default async function SkillsPage() {
     redirect("/auth/login")
   }
 
-  // Fetch user profile
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+  // Fetch user data
+  const { data: userData } = await supabase.from("users").select("*").eq("id", user.id).single()
 
   // Fetch all skills
   const { data: allSkills } = await supabase.from("skills").select("*").order("name")
