@@ -15,97 +15,63 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
 
-  // Get role from URL parameter
-  const role = searchParams.get("role") as "participant" | "facilitator" | "admin" | null
+  // app/auth/signup/page.tsx
+const handleSignup = async (e: React.FormEvent) => {
+  e.preventDefault()
+  const supabase = createClient()
+  setIsLoading(true)
+  setError(null)
 
-  // Redirect to role selection if no role is provided
-  useEffect(() => {
-    if (!role) {
-      router.push("/auth/select-role")
-    }
-  }, [role, router])
-
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!role) return
-
-    const supabase = createClient()
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      // Sign up the user with role in metadata
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            display_name: displayName,
-            role: role, // Include role in user metadata
-          },
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          display_name: displayName,
         },
-      })
+      },
+    })
 
-      if (error) throw error
+    if (error) throw error
 
-      if (data.user) {
-        // Wait a moment for the trigger to complete
-        await new Promise(resolve => setTimeout(resolve, 500))
-        
-        // Update profile with selected role (ensure it's set)
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .update({ role, display_name: displayName })
-          .eq("id", data.user.id)
+    if (data.user) {
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      // Insert into users table
+      const { error: userError } = await supabase
+        .from("users")
+        .insert({ 
+          id: data.user.id,
+          email: email,
+          display_name: displayName 
+        })
 
-        if (profileError) throw profileError
+      if (userError) throw userError
 
-        // Wait a moment to ensure the update is complete
-        await new Promise(resolve => setTimeout(resolve, 200))
-
-        // Force a router refresh to ensure middleware runs
-        router.refresh()
-        // Redirect to appropriate dashboard
-        router.push(`/${role}`)
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        if (error.message.includes("already registered")) {
-          setError("This email is already registered. Please sign in instead.")
-        } else {
-          setError(error.message)
-        }
-      } else {
-        setError("An error occurred")
-      }
-    } finally {
-      setIsLoading(false)
+      router.refresh()
+      router.push("/waiting-room") // Default landing - no workshop assignment yet
+      
     }
+  } catch (error: unknown) {
+    // error handling
+  } finally {
+    setIsLoading(false)
   }
-
-  if (!role) {
-    return null // Will redirect in useEffect
-  }
-
-  // Capitalize role for display
-  const roleDisplay = role.charAt(0).toUpperCase() + role.slice(1)
+}
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <h1 className="text-5xl font-bold text-white mb-2">MAKER</h1>
-          <p className="text-white/90 text-lg">Create your {roleDisplay} account</p>
+          <p className="text-white/90 text-lg">Create your account</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Create Account</h2>
-            <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-              {roleDisplay}
-            </span>
           </div>
 
           <form onSubmit={handleSignup} className="space-y-6">

@@ -15,11 +15,18 @@ export default async function FacilitatorParticipantsPage() {
     redirect("/auth/login")
   }
 
-  // Fetch all participants
-  const { data: participants } = await supabase
-    .from("profiles")
-    .select("*")
+  // Fetch all participants from workshop_user join with users
+  const { data: participantRoles } = await supabase
+    .from("workshop_user")
+    .select("user_id")
     .eq("role", "participant")
+
+  const participantUserIds = participantRoles?.map((p) => p.user_id) || []
+  
+  const { data: participants } = await supabase
+    .from("users")
+    .select("*")
+    .in("id", participantUserIds.length > 0 ? participantUserIds : [''])
     .order("created_at", { ascending: false })
 
   // Fetch quest completion counts for each participant

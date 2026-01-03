@@ -64,7 +64,7 @@ export default function AccountManagementPage() {
   const fetchAccounts = useCallback(async () => {
     setLoading(true)
     const { data, error } = await supabase
-      .from("profiles")
+      .from("users")
       .select("*")
       .order("created_at", { ascending: false })
     
@@ -112,14 +112,16 @@ export default function AccountManagementPage() {
     })
 
     if (!error && data.user) {
-      // Update profile with role
+      // Update user with display name
       await supabase
-        .from("profiles")
+        .from("users")
         .update({ 
-          display_name: formData.display_name,
-          role: formData.role 
+          display_name: formData.display_name
         })
         .eq("id", data.user.id)
+      
+      // Assign role via workshop_user if needed
+      // Note: Role assignment should be done through workshop assignment
       
       fetchAccounts()
       setCreateDialogOpen(false)
@@ -131,12 +133,13 @@ export default function AccountManagementPage() {
     if (!selectedAccount) return
 
     const { error } = await supabase
-      .from("profiles")
+      .from("users")
       .update({
         display_name: formData.display_name,
-        role: formData.role,
       })
       .eq("id", selectedAccount.id)
+
+    // Note: Role changes should be done through workshop_user table
 
     if (!error) {
       fetchAccounts()
@@ -150,9 +153,9 @@ export default function AccountManagementPage() {
     if (!selectedAccount) return
 
     // Note: Deleting users requires admin privileges
-    // This deletes the profile only for prototyping
+    // This deletes the user record only for prototyping
     const { error } = await supabase
-      .from("profiles")
+      .from("users")
       .delete()
       .eq("id", selectedAccount.id)
 

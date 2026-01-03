@@ -68,40 +68,41 @@ export async function updateSession(request: NextRequest) {
 
     // Handle authenticated users
     if (user) {
-      // Fetch user profile for role
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
+      // Fetch user's workshop assignments to determine role
+      const { data: workshopUsers, error: workshopError } = await supabase
+        .from("workshop_user")
         .select("role")
-        .eq("id", user.id)
-        .single()
+        .eq("user_id", user.id)
 
-      if (profileError) {
-        console.error("❌ Supabase profile query failed:", profileError.message)
-        // If no profile, redirect to login
-        const url = request.nextUrl.clone()
-        url.pathname = "/auth/login"
-        return NextResponse.redirect(url)
+      // Determine highest role from workshop assignments
+      let userRole: string | null = null
+      if (workshopUsers && workshopUsers.length > 0) {
+        const hasAdmin = workshopUsers.some(w => w.role === 'admin')
+        const hasFacilitator = workshopUsers.some(w => w.role === 'facilitator')
+        if (hasAdmin) {
+          userRole = 'admin'
+        } else if (hasFacilitator) {
+          userRole = 'facilitator'
+        } else {
+          userRole = 'participant'
+        }
       }
-
-      const userRole = profile?.role
-      console.log("📄 User role:", userRole)
+      console.log("📄 User role from workshop_user:", userRole)
 
       // Redirect authenticated users away from public auth pages
-      if (isPublicRoute && userRole) {
-        console.log("➡️ Authenticated user on auth page, redirecting to dashboard")
+      if (isPublicRoute) {
+        console.log("➡️ Authenticated user on auth page, redirecting")
         const url = request.nextUrl.clone()
-        url.pathname = `/${userRole}`
+        url.pathname = userRole ? `/${userRole}` : "/waiting-room"
         return NextResponse.redirect(url)
       }
 
-      // Homepage redirect - send to user's dashboard
+      // Homepage redirect - send to user's dashboard or waiting room
       if (pathname === "/") {
-        if (userRole) {
-          console.log("➡️ Redirecting from / to user dashboard")
-          const url = request.nextUrl.clone()
-          url.pathname = `/${userRole}`
-          return NextResponse.redirect(url)
-        }
+        console.log("➡️ Redirecting from / to user dashboard or waiting room")
+        const url = request.nextUrl.clone()
+        url.pathname = userRole ? `/${userRole}` : "/waiting-room"
+        return NextResponse.redirect(url)
       }
 
       // RBAC: Check role-protected routes

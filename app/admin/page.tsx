@@ -20,16 +20,16 @@ export default async function AdminDashboard() {
 
   // Fetch statistics
   const { count: totalUsers } = await supabase
-    .from("profiles")
+    .from("users")
     .select("*", { count: "exact", head: true })
 
   const { count: totalParticipants } = await supabase
-    .from("profiles")
+    .from("workshop_user")
     .select("*", { count: "exact", head: true })
     .eq("role", "participant")
 
   const { count: totalFacilitators } = await supabase
-    .from("profiles")
+    .from("workshop_user")
     .select("*", { count: "exact", head: true })
     .eq("role", "facilitator")
 
@@ -49,7 +49,7 @@ export default async function AdminDashboard() {
 
   // Fetch recent users
   const { data: recentUsers } = await supabase
-    .from("profiles")
+    .from("users")
     .select("*")
     .order("created_at", { ascending: false })
     .limit(5)

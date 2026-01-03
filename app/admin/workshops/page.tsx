@@ -138,7 +138,7 @@ export default function WorkshopManagementPage() {
 
   const fetchAccounts = useCallback(async () => {
     const { data } = await supabase
-      .from("profiles")
+      .from("users")
       .select("*")
       .order("display_name")
     
