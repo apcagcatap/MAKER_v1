@@ -68,26 +68,35 @@ export async function updateSession(request: NextRequest) {
 
     // Handle authenticated users
     if (user) {
-      // Fetch user's workshop assignments to determine role
+      // First check if user is a global admin
+      const { data: userProfile, error: profileError } = await supabase
+        .from("users")
+        .select("is_admin")
+        .eq("id", user.id)
+        .single()
+
+      const isGlobalAdmin = userProfile?.is_admin === true
+      console.log("🔑 Is global admin:", isGlobalAdmin)
+
+      // Fetch user's workshop assignments to determine workshop role
       const { data: workshopUsers, error: workshopError } = await supabase
         .from("workshop_user")
         .select("role")
         .eq("user_id", user.id)
 
-      // Determine highest role from workshop assignments
+      // Determine role: global admin takes priority, then workshop roles
       let userRole: string | null = null
-      if (workshopUsers && workshopUsers.length > 0) {
-        const hasAdmin = workshopUsers.some(w => w.role === 'admin')
+      if (isGlobalAdmin) {
+        userRole = 'admin'
+      } else if (workshopUsers && workshopUsers.length > 0) {
         const hasFacilitator = workshopUsers.some(w => w.role === 'facilitator')
-        if (hasAdmin) {
-          userRole = 'admin'
-        } else if (hasFacilitator) {
+        if (hasFacilitator) {
           userRole = 'facilitator'
         } else {
           userRole = 'participant'
         }
       }
-      console.log("📄 User role from workshop_user:", userRole)
+      console.log("📄 User role:", userRole)
 
       // Redirect authenticated users away from public auth pages
       if (isPublicRoute) {

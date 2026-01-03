@@ -37,25 +37,21 @@ const handleSignup = async (e: React.FormEvent) => {
     if (error) throw error
 
     if (data.user) {
+      // Wait for the database trigger to create the user record
       await new Promise(resolve => setTimeout(resolve, 500))
       
-      // Insert into users table
-      const { error: userError } = await supabase
-        .from("users")
-        .insert({ 
-          id: data.user.id,
-          email: email,
-          display_name: displayName 
-        })
-
-      if (userError) throw userError
-
+      // The trigger already creates the user record, so we don't need to insert
+      // Just redirect to waiting room
       router.refresh()
       router.push("/waiting-room") // Default landing - no workshop assignment yet
       
     }
   } catch (error: unknown) {
-    // error handling
+    if (error instanceof Error) {
+      setError(error.message)
+    } else {
+      setError("An unexpected error occurred")
+    }
   } finally {
     setIsLoading(false)
   }

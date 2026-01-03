@@ -10,7 +10,8 @@ import {
   MoreHorizontal,
   Users,
   UserPlus,
-  Filter
+  Calendar,
+  Shield
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog"
 import {
   DropdownMenu,
@@ -28,350 +30,384 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import type { Profile, UserRole } from "@/lib/types"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
+import Link from "next/link"
+import type { User, WorkshopUser, Workshop } from "@/lib/types"
+
+interface UserWithWorkshops extends User {
+  workshop_count?: number
+  workshops?: Array<{
+    workshop: Workshop
+    role: string
+  }>
+}
 
 export default function AccountManagementPage() {
-  const [accounts, setAccounts] = useState<Profile[]>([])
-  const [filteredAccounts, setFilteredAccounts] = useState<Profile[]>([])
+  const [users, setUsers] = useState<UserWithWorkshops[]>([])
+  const [filteredUsers, setFilteredUsers] = useState<UserWithWorkshops[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
-  const [roleFilter, setRoleFilter] = useState<string>("all")
   
   // Dialog states
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [selectedAccount, setSelectedAccount] = useState<Profile | null>(null)
+  const [viewWorkshopsDialogOpen, setViewWorkshopsDialogOpen] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<UserWithWorkshops | null>(null)
   
   // Form states
   const [formData, setFormData] = useState({
     email: "",
     display_name: "",
-    role: "participant" as UserRole,
+    bio: "",
     password: "",
   })
 
   const supabase = createClient()
 
-  const fetchAccounts = useCallback(async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true)
-    const { data, error } = await supabase
+    
+    // Fetch users
+    const { data: usersData, error } = await supabase
       .from("users")
       .select("*")
       .order("created_at", { ascending: false })
     
-    if (!error && data) {
-      setAccounts(data)
-      setFilteredAccounts(data)
+    if (!error && usersData) {
+      // Fetch workshop counts for each user
+      const usersWithCounts = await Promise.all(
+        usersData.map(async (user) => {
+          const { count } = await supabase
+            .from("workshop_user")
+            .select("*", { count: "exact", head: true })
+            .eq("user_id", user.id)
+          
+          return {
+            ...user,
+            workshop_count: count || 0,
+          }
+        })
+      )
+      
+      setUsers(usersWithCounts)
+      setFilteredUsers(usersWithCounts)
     }
     setLoading(false)
   }, [supabase])
 
   useEffect(() => {
-    fetchAccounts()
-  }, [fetchAccounts])
+    fetchUsers()
+  }, [fetchUsers])
 
   useEffect(() => {
-    let filtered = accounts
+    let filtered = users
     
     if (searchQuery) {
       filtered = filtered.filter(
-        (account) =>
-          account.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          account.email.toLowerCase().includes(searchQuery.toLowerCase())
+        (user) =>
+          user.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
     
-    if (roleFilter !== "all") {
-      filtered = filtered.filter((account) => account.role === roleFilter)
-    }
-    
-    setFilteredAccounts(filtered)
-  }, [searchQuery, roleFilter, accounts])
+    setFilteredUsers(filtered)
+  }, [searchQuery, users])
 
   const handleCreateAccount = async () => {
-    // Note: In a real implementation, you'd use Supabase Admin API or Edge Functions
-    // to create users. This is a simplified version for prototyping.
-    const { data, error } = await supabase.auth.signUp({
-      email: formData.email,
-      password: formData.password,
-      options: {
-        data: {
-          display_name: formData.display_name,
-          role: formData.role,
-        },
+    // Use admin API route to create user without affecting current session
+    const response = await fetch("/api/admin/create-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        email: formData.email,
+        password: formData.password,
+        display_name: formData.display_name,
+        bio: formData.bio,
+      }),
     })
 
-    if (!error && data.user) {
-      // Update user with display name
-      await supabase
-        .from("users")
-        .update({ 
-          display_name: formData.display_name
-        })
-        .eq("id", data.user.id)
-      
-      // Assign role via workshop_user if needed
-      // Note: Role assignment should be done through workshop assignment
-      
-      fetchAccounts()
+    const result = await response.json()
+
+    if (response.ok && result.success) {
+      fetchUsers()
       setCreateDialogOpen(false)
       resetForm()
+    } else {
+      // Handle error - you might want to show this to the user
+      console.error("Failed to create user:", result.error)
     }
   }
 
-  const handleEditAccount = async () => {
-    if (!selectedAccount) return
+  const handleEditUser = async () => {
+    if (!selectedUser) return
 
     const { error } = await supabase
       .from("users")
       .update({
         display_name: formData.display_name,
+        bio: formData.bio || null,
       })
-      .eq("id", selectedAccount.id)
-
-    // Note: Role changes should be done through workshop_user table
+      .eq("id", selectedUser.id)
 
     if (!error) {
-      fetchAccounts()
+      fetchUsers()
       setEditDialogOpen(false)
-      setSelectedAccount(null)
+      setSelectedUser(null)
       resetForm()
     }
   }
 
-  const handleDeleteAccount = async () => {
-    if (!selectedAccount) return
+  const handleDeleteUser = async () => {
+    if (!selectedUser) return
 
-    // Note: Deleting users requires admin privileges
-    // This deletes the user record only for prototyping
+    // Use admin API route to delete user from both auth.users and public.users
+    const response = await fetch("/api/admin/delete-user", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: selectedUser.id,
+      }),
+    })
+
+    const result = await response.json()
+
+    if (response.ok && result.success) {
+      fetchUsers()
+      setDeleteDialogOpen(false)
+      setSelectedUser(null)
+    } else {
+      console.error("Failed to delete user:", result.error)
+    }
+  }
+
+  const handleToggleAdmin = async (user: UserWithWorkshops) => {
     const { error } = await supabase
       .from("users")
-      .delete()
-      .eq("id", selectedAccount.id)
+      .update({ is_admin: !user.is_admin })
+      .eq("id", user.id)
 
     if (!error) {
-      fetchAccounts()
-      setDeleteDialogOpen(false)
-      setSelectedAccount(null)
+      fetchUsers()
     }
+  }
+
+  const fetchUserWorkshops = async (user: UserWithWorkshops) => {
+    const { data } = await supabase
+      .from("workshop_user")
+      .select(`
+        role,
+        workshop:workshop(*)
+      `)
+      .eq("user_id", user.id)
+    
+    setSelectedUser({
+      ...user,
+      workshops: data as any || [],
+    })
+    setViewWorkshopsDialogOpen(true)
   }
 
   const resetForm = () => {
     setFormData({
       email: "",
       display_name: "",
-      role: "participant",
+      bio: "",
       password: "",
     })
   }
 
-  const openEditDialog = (account: Profile) => {
-    setSelectedAccount(account)
+  const openEditDialog = (user: UserWithWorkshops) => {
+    setSelectedUser(user)
     setFormData({
-      email: account.email,
-      display_name: account.display_name || "",
-      role: account.role as UserRole,
+      email: user.email,
+      display_name: user.display_name || "",
+      bio: user.bio || "",
       password: "",
     })
     setEditDialogOpen(true)
   }
 
-  const openDeleteDialog = (account: Profile) => {
-    setSelectedAccount(account)
+  const openDeleteDialog = (user: UserWithWorkshops) => {
+    setSelectedUser(user)
     setDeleteDialogOpen(true)
   }
-
-  const getRoleBadgeStyles = (role: string) => {
-    switch (role) {
-      case "admin":
-        return "bg-red-100 text-red-700 border-red-200"
-      case "facilitator":
-        return "bg-blue-100 text-blue-700 border-blue-200"
-      default:
-        return "bg-green-100 text-green-700 border-green-200"
-    }
-  }
-
-  const stats = [
-    { label: "Total Accounts", value: accounts.length, icon: Users },
-    { label: "Participants", value: accounts.filter(a => a.role === "participant").length, icon: Users },
-    { label: "Facilitators", value: accounts.filter(a => a.role === "facilitator").length, icon: Users },
-    { label: "Admins", value: accounts.filter(a => a.role === "admin").length, icon: Users },
-  ]
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Account Management</h1>
-          <p className="text-slate-500">Create, edit, and manage user accounts</p>
+          <h1 className="text-2xl font-bold text-slate-900">User Management</h1>
+          <p className="text-slate-500">Create and manage user accounts</p>
         </div>
-        <Button 
-          onClick={() => setCreateDialogOpen(true)}
-          className="bg-red-600 hover:bg-red-700 text-white"
-        >
+        <Button onClick={() => setCreateDialogOpen(true)}>
           <UserPlus className="w-4 h-4 mr-2" />
-          Create Account
+          Create User
         </Button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon
-          return (
-            <Card key={stat.label} className="border-slate-200">
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Icon className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
-                    <p className="text-xs text-slate-500">{stat.label}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
-
-      {/* Filters */}
-      <Card className="border-slate-200">
-        <CardContent className="pt-4 pb-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input
-                placeholder="Search by name or email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+      {/* Quick Link */}
+      <Link href="/admin/workshop-users">
+        <Card className="hover:bg-slate-50 transition-colors cursor-pointer">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Calendar className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold">Assign Users to Workshops</h3>
+                <p className="text-sm text-slate-500">
+                  Manage user roles by assigning them to workshops as participants or facilitators
+                </p>
+              </div>
             </div>
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <Filter className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Filter by role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="participant">Participants</SelectItem>
-                <SelectItem value="facilitator">Facilitators</SelectItem>
-                <SelectItem value="admin">Admins</SelectItem>
-              </SelectContent>
-            </Select>
+          </CardContent>
+        </Card>
+      </Link>
+
+      {/* Search */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Search users by name or email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
         </CardContent>
       </Card>
 
-      {/* Accounts Table */}
-      <Card className="border-slate-200">
-        <CardHeader className="border-b border-slate-100 py-4">
-          <CardTitle className="text-base">
-            Accounts ({filteredAccounts.length})
+      {/* Users Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            Users ({filteredUsers.length})
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent>
           {loading ? (
-            <div className="p-8 text-center text-slate-500">Loading accounts...</div>
-          ) : filteredAccounts.length === 0 ? (
-            <div className="p-8 text-center text-slate-500">
-              No accounts found. Create your first account to get started.
+            <div className="text-center py-8 text-slate-500">Loading...</div>
+          ) : filteredUsers.length === 0 ? (
+            <div className="text-center py-8 text-slate-500">
+              No users found. Create your first user to get started.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-50 border-b border-slate-100">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
-                      User
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
-                      Role
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
-                      Joined
-                    </th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredAccounts.map((account) => (
-                    <tr key={account.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-red-500 flex items-center justify-center text-white font-bold">
-                            {account.display_name?.[0]?.toUpperCase() || "U"}
-                          </div>
-                          <div>
-                            <p className="font-medium text-slate-900">
-                              {account.display_name || "Unnamed User"}
-                            </p>
-                            <p className="text-sm text-slate-500">{account.email}</p>
-                          </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User</TableHead>
+                  <TableHead>Admin</TableHead>
+                  <TableHead>Bio</TableHead>
+                  <TableHead>Workshop Assignments</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead className="w-[80px]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredUsers.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-500 flex items-center justify-center text-white font-bold">
+                          {user.display_name?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
                         </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getRoleBadgeStyles(account.role)}`}>
-                          {account.role}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-slate-500">
-                        {new Date(account.created_at).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => openEditDialog(account)}>
-                              <Edit className="w-4 h-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => openDeleteDialog(account)}
-                              className="text-red-600"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        <div>
+                          <p className="font-medium">{user.display_name || "Unnamed User"}</p>
+                          <p className="text-sm text-slate-500">{user.email}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={user.is_admin}
+                          onCheckedChange={() => handleToggleAdmin(user)}
+                        />
+                        {user.is_admin && (
+                          <Badge className="bg-red-100 text-red-700 hover:bg-red-100">
+                            <Shield className="w-3 h-3 mr-1" />
+                            Admin
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="max-w-xs truncate">
+                      {user.bio || "-"}
+                    </TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => fetchUserWorkshops(user)}
+                        className="text-blue-600 hover:text-blue-700"
+                      >
+                        <Calendar className="w-4 h-4 mr-1" />
+                        {user.workshop_count} workshop{user.workshop_count !== 1 ? 's' : ''}
+                      </Button>
+                    </TableCell>
+                    <TableCell>
+                      {new Date(user.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openEditDialog(user)}>
+                            <Edit className="w-4 h-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => openDeleteDialog(user)}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>
 
-      {/* Create Account Dialog */}
+      {/* Create User Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create New Account</DialogTitle>
+            <DialogTitle>Create New User</DialogTitle>
+            <DialogDescription>
+              Add a new user account. You can assign them to workshops later.
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -380,6 +416,16 @@ export default function AccountManagementPage() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="user@example.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="Minimum 6 characters"
               />
             </div>
             <div className="space-y-2">
@@ -392,30 +438,14 @@ export default function AccountManagementPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                placeholder="••••••••"
+              <Label htmlFor="bio">Bio (optional)</Label>
+              <Textarea
+                id="bio"
+                value={formData.bio}
+                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                placeholder="Tell us about this user..."
+                rows={3}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <Select 
-                value={formData.role} 
-                onValueChange={(value: UserRole) => setFormData({ ...formData, role: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="participant">Participant</SelectItem>
-                  <SelectItem value="facilitator">Facilitator</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
           <DialogFooter>
@@ -424,25 +454,28 @@ export default function AccountManagementPage() {
             </Button>
             <Button 
               onClick={handleCreateAccount}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={!formData.email || !formData.password || formData.password.length < 6}
             >
-              Create Account
+              Create User
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Edit Account Dialog */}
+      {/* Edit User Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Account</DialogTitle>
+            <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>
+              Update user profile information.
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="edit_email">Email</Label>
+              <Label htmlFor="edit-email">Email</Label>
               <Input
-                id="edit_email"
+                id="edit-email"
                 type="email"
                 value={formData.email}
                 disabled
@@ -450,39 +483,85 @@ export default function AccountManagementPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit_display_name">Display Name</Label>
+              <Label htmlFor="edit-display_name">Display Name</Label>
               <Input
-                id="edit_display_name"
+                id="edit-display_name"
                 value={formData.display_name}
                 onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
+                placeholder="John Doe"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit_role">Role</Label>
-              <Select 
-                value={formData.role} 
-                onValueChange={(value: UserRole) => setFormData({ ...formData, role: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="participant">Participant</SelectItem>
-                  <SelectItem value="facilitator">Facilitator</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="edit-bio">Bio</Label>
+              <Textarea
+                id="edit-bio"
+                value={formData.bio}
+                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                placeholder="Tell us about this user..."
+                rows={3}
+              />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
-              onClick={handleEditAccount}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
+            <Button onClick={handleEditUser}>
               Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Workshops Dialog */}
+      <Dialog open={viewWorkshopsDialogOpen} onOpenChange={setViewWorkshopsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Workshop Assignments</DialogTitle>
+            <DialogDescription>
+              Workshops that {selectedUser?.display_name || selectedUser?.email} is assigned to.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {selectedUser?.workshops && selectedUser.workshops.length > 0 ? (
+              selectedUser.workshops.map((assignment: any) => (
+                <div 
+                  key={assignment.workshop?.id} 
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
+                  <div>
+                    <p className="font-medium">{assignment.workshop?.name}</p>
+                    <p className="text-sm text-slate-500">
+                      {new Date(assignment.workshop?.event_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Badge 
+                    className={
+                      assignment.role === 'admin' 
+                        ? 'bg-red-100 text-red-700' 
+                        : assignment.role === 'facilitator'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'bg-green-100 text-green-700'
+                    }
+                  >
+                    {assignment.role}
+                  </Badge>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-4 text-slate-500">
+                No workshop assignments yet.
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Link href="/admin/workshop-users">
+              <Button variant="outline">
+                Manage Assignments
+              </Button>
+            </Link>
+            <Button onClick={() => setViewWorkshopsDialogOpen(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -492,26 +571,18 @@ export default function AccountManagementPage() {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Account</DialogTitle>
+            <DialogTitle>Delete User</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete {selectedUser?.display_name || selectedUser?.email}? 
+              This will also remove all their workshop assignments. This action cannot be undone.
+            </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <p className="text-slate-600">
-              Are you sure you want to delete the account for{" "}
-              <span className="font-semibold">{selectedAccount?.display_name || selectedAccount?.email}</span>?
-            </p>
-            <p className="text-sm text-slate-500 mt-2">
-              This action cannot be undone.
-            </p>
-          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
-              onClick={handleDeleteAccount}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              Delete Account
+            <Button variant="destructive" onClick={handleDeleteUser}>
+              Delete User
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -31,15 +31,22 @@ export default function LoginPage() {
     if (error) throw error
 
     if (data.user) {
-      // Check if user exists in users table
+      // Check if user exists in users table and get admin status
       const { data: userData, error: userError } = await supabase
         .from("users")
-        .select("id")
+        .select("id, is_admin")
         .eq("id", data.user.id)
         .single()
 
       if (userError || !userData) {
         throw new Error("User not found")
+      }
+
+      // If user is a global admin, redirect to admin dashboard
+      if (userData.is_admin) {
+        router.push("/admin")
+        router.refresh()
+        return
       }
 
       // Check workshop assignments to determine role/redirect
@@ -50,12 +57,9 @@ export default function LoginPage() {
 
       // Redirect logic based on workshop assignments
       if (workshops && workshops.length > 0) {
-        const hasAdmin = workshops.some(w => w.role === 'Admin')
-        const hasFacilitator = workshops.some(w => w.role === 'Facilitator')
+        const hasFacilitator = workshops.some(w => w.role === 'facilitator')
         
-        if (hasAdmin) {
-          router.push("/admin")
-        } else if (hasFacilitator) {
+        if (hasFacilitator) {
           router.push("/facilitator")
         } else {
           router.push("/participant")

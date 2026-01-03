@@ -11,7 +11,9 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  Menu
+  Menu,
+  UserPlus,
+  Link as LinkIcon
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -20,9 +22,11 @@ import { cn } from "@/lib/utils"
 
 const navItems = [
   { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/admin/accounts", icon: Users, label: "Account Management" },
-  { href: "/admin/quests", icon: ScrollText, label: "Quest Management" },
-  { href: "/admin/workshops", icon: Calendar, label: "Workshop Management" },
+  { href: "/admin/accounts", icon: Users, label: "Accounts" },
+  { href: "/admin/quests", icon: ScrollText, label: "Quests" },
+  { href: "/admin/workshops", icon: Calendar, label: "Workshops" },
+  { href: "/admin/workshop-users", icon: UserPlus, label: "Workshop Users" },
+  { href: "/admin/workshop-quests", icon: LinkIcon, label: "Workshop Quests" },
 ]
 
 export default function AdminLayout({

@@ -3,9 +3,10 @@ import {
   Users, 
   ScrollText, 
   Calendar, 
-  Award,
   Clock,
-  TrendingUp
+  TrendingUp,
+  UserPlus,
+  Link as LinkIcon
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -18,34 +19,26 @@ export default async function AdminDashboard() {
   // Note: Authentication and RBAC are handled by middleware (proxy.ts)
   // If user reaches here, they are authenticated and have admin role
 
-  // Fetch statistics
+  // Fetch statistics from new schema
   const { count: totalUsers } = await supabase
     .from("users")
     .select("*", { count: "exact", head: true })
 
-  const { count: totalParticipants } = await supabase
-    .from("workshop_user")
-    .select("*", { count: "exact", head: true })
-    .eq("role", "participant")
-
-  const { count: totalFacilitators } = await supabase
-    .from("workshop_user")
-    .select("*", { count: "exact", head: true })
-    .eq("role", "facilitator")
-
   const { count: totalQuests } = await supabase
-    .from("quests")
+    .from("quest")
     .select("*", { count: "exact", head: true })
 
-  const { count: activeQuests } = await supabase
-    .from("quests")
+  const { count: totalWorkshops } = await supabase
+    .from("workshop")
     .select("*", { count: "exact", head: true })
-    .eq("is_active", true)
 
-  const { count: completedQuests } = await supabase
-    .from("user_quests")
+  const { count: totalAssignments } = await supabase
+    .from("workshop_user")
     .select("*", { count: "exact", head: true })
-    .eq("status", "completed")
+
+  const { count: totalQuestAssignments } = await supabase
+    .from("workshop_quest")
+    .select("*", { count: "exact", head: true })
 
   // Fetch recent users
   const { data: recentUsers } = await supabase
@@ -54,34 +47,41 @@ export default async function AdminDashboard() {
     .order("created_at", { ascending: false })
     .limit(5)
 
+  // Fetch recent workshops
+  const { data: recentWorkshops } = await supabase
+    .from("workshop")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(5)
+
   const stats = [
     {
-      title: "Total Accounts",
+      title: "Total Users",
       value: totalUsers || 0,
-      description: `${totalParticipants || 0} participants, ${totalFacilitators || 0} facilitators`,
+      description: "Registered accounts",
       icon: Users,
       color: "bg-blue-600",
     },
     {
       title: "Total Quests",
       value: totalQuests || 0,
-      description: `${activeQuests || 0} active quests`,
+      description: "Available quests",
       icon: ScrollText,
-      color: "bg-red-600",
-    },
-    {
-      title: "Completions",
-      value: completedQuests || 0,
-      description: "Total quest completions",
-      icon: Award,
-      color: "bg-green-600",
+      color: "bg-purple-600",
     },
     {
       title: "Workshops",
-      value: 0,
-      description: "No active workshops",
+      value: totalWorkshops || 0,
+      description: "Created workshops",
       icon: Calendar,
-      color: "bg-purple-600",
+      color: "bg-green-600",
+    },
+    {
+      title: "User Assignments",
+      value: totalAssignments || 0,
+      description: "Workshop-user links",
+      icon: UserPlus,
+      color: "bg-orange-600",
     },
   ]
 
@@ -129,95 +129,108 @@ export default async function AdminDashboard() {
           <CardHeader className="border-b border-slate-100">
             <CardTitle className="text-lg flex items-center gap-2">
               <Users className="w-5 h-5 text-blue-600" />
-              Recent Accounts
+              Recent Users
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {recentUsers && recentUsers.length > 0 ? (
               <div className="divide-y divide-slate-100">
-                {recentUsers.map((user) => (
-                  <div key={user.id} className="flex items-center gap-3 p-4 hover:bg-slate-50 transition-colors">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-red-500 flex items-center justify-center text-white font-bold">
-                      {user.display_name?.[0]?.toUpperCase() || "U"}
+                {recentUsers.map((u) => (
+                  <div key={u.id} className="flex items-center gap-3 p-4 hover:bg-slate-50 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-500 flex items-center justify-center text-white font-bold">
+                      {u.display_name?.[0]?.toUpperCase() || "U"}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-slate-900 truncate">
-                        {user.display_name || "Unnamed User"}
+                        {u.display_name || "Unnamed User"}
                       </p>
-                      <p className="text-sm text-slate-500 truncate">{user.email}</p>
+                      <p className="text-sm text-slate-500 truncate">{u.email}</p>
                     </div>
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      user.role === "admin" 
-                        ? "bg-red-100 text-red-700"
-                        : user.role === "facilitator"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-green-100 text-green-700"
-                    }`}>
-                      {user.role}
+                    <span className="text-xs text-slate-400">
+                      {new Date(u.created_at).toLocaleDateString()}
                     </span>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="p-8 text-center text-slate-500">
-                No recent users
+                No users yet
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* System Status */}
+        {/* Recent Workshops */}
         <Card className="border-slate-200">
           <CardHeader className="border-b border-slate-100">
             <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-green-600" />
-              System Status
+              <Calendar className="w-5 h-5 text-green-600" />
+              Recent Workshops
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-sm font-medium text-slate-700">Database Status</span>
-                </div>
-                <span className="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">
-                  Connected
-                </span>
+          <CardContent className="p-0">
+            {recentWorkshops && recentWorkshops.length > 0 ? (
+              <div className="divide-y divide-slate-100">
+                {recentWorkshops.map((workshop) => (
+                  <div key={workshop.id} className="flex items-center gap-3 p-4 hover:bg-slate-50 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold">
+                      <Calendar className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-slate-900 truncate">
+                        {workshop.name}
+                      </p>
+                      <p className="text-sm text-slate-500">
+                        {new Date(workshop.event_date).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-              
-              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-sm font-medium text-slate-700">Authentication</span>
-                </div>
-                <span className="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">
-                  Active
-                </span>
+            ) : (
+              <div className="p-8 text-center text-slate-500">
+                No workshops yet
               </div>
-
-              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full" />
-                  <span className="text-sm font-medium text-slate-700">Active Workshop</span>
-                </div>
-                <span className="text-xs font-medium text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full">
-                  None Scheduled
-                </span>
-              </div>
-
-              <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
-                <h4 className="font-medium text-blue-900 mb-1">Quick Tips</h4>
-                <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• Create accounts before setting up a workshop</li>
-                  <li>• Set up quests with sections for badge progression</li>
-                  <li>• Schedule workshops to manage event timings</li>
-                </ul>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>
+
+      {/* Quick Actions */}
+      <Card className="border-slate-200">
+        <CardHeader className="border-b border-slate-100">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-purple-600" />
+            Quick Tips
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 bg-blue-50 border border-blue-100 rounded-lg">
+              <h4 className="font-medium text-blue-900 mb-2">1. Create Quests</h4>
+              <p className="text-sm text-blue-700">
+                Define quests that participants can complete during workshops.
+              </p>
+            </div>
+            <div className="p-4 bg-green-50 border border-green-100 rounded-lg">
+              <h4 className="font-medium text-green-900 mb-2">2. Set Up Workshops</h4>
+              <p className="text-sm text-green-700">
+                Create workshops with dates and assign quests to them.
+              </p>
+            </div>
+            <div className="p-4 bg-purple-50 border border-purple-100 rounded-lg">
+              <h4 className="font-medium text-purple-900 mb-2">3. Assign Users</h4>
+              <p className="text-sm text-purple-700">
+                Add participants and facilitators to your workshops.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
