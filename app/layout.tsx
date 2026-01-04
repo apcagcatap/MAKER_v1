@@ -1,23 +1,22 @@
 import type { Metadata } from 'next'
-import { DM_Sans, DM_Mono } from 'next/font/google'
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
 import { Analytics } from '@vercel/analytics/next'
+import { Toaster } from 'sonner'
 import './globals.css'
 
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  variable: '--font-sans',
-  weight: ['300', '400', '500', '600', '700'],
-})
+// Import Poppins font from Google Fonts
+import { Poppins } from 'next/font/google'
 
-const dmMono = DM_Mono({
+const poppins = Poppins({
   subsets: ['latin'],
-  variable: '--font-mono',
-  weight: ['300', '400', '500'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-poppins',
 })
 
 export const metadata: Metadata = {
-  title: 'MAKER - Level Up Your Skills',
-  description: 'An interactive learning platform for creating and completing educational quests',
+  title: 'v0 App',
+  description: 'Created with v0',
   generator: 'v0.app',
 }
 
@@ -28,8 +27,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${dmSans.variable} ${dmMono.variable} font-sans antialiased`}>
+      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${poppins.variable}`} style={{ fontFamily: 'Poppins, sans-serif' }}>
         {children}
+        <Toaster position="bottom-right" />
         <Analytics />
       </body>
     </html>

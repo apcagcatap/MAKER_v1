@@ -3,6 +3,23 @@
 import { createClient } from "@/lib/supabase/server"
 import { getAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
+import type { Skill } from "@/lib/types"
+
+export async function getSkills(): Promise<Skill[]> {
+  const supabase = await createClient()
+
+  const { data: skills, error } = await supabase
+    .from("skills")
+    .select("*")
+    .order("name", { ascending: true })
+
+  if (error) {
+    console.error("Error fetching skills:", error)
+    return []
+  }
+
+  return skills || []
+}
 
 export async function uploadImage(file: Blob, type: "badge" | "certificate") {
   const supabase = await createClient()
@@ -79,6 +96,8 @@ export async function createQuest(formData: {
     title: string
     description: string
   }>
+  xp_reward: number | null
+  skill_id: string | null
 }) {
   try {
     console.log("📝 Creating quest with data:", { title: formData.title, difficulty: formData.difficulty })
@@ -105,6 +124,8 @@ export async function createQuest(formData: {
         materials_needed: formData.materials_needed,
         general_instructions: formData.general_instructions,
         levels: formData.levels,
+        xp_reward: formData.xp_reward || 0,
+        skill_id: formData.skill_id || null,
         created_by: userId,
         is_active: true,
       })
@@ -140,6 +161,8 @@ export async function updateQuest(
       title: string
       description: string
     }>
+    xp_reward: number | null
+    skill_id: string | null
   }
 ) {
   const supabase = await createClient()
@@ -163,6 +186,8 @@ export async function updateQuest(
       materials_needed: formData.materials_needed,
       general_instructions: formData.general_instructions,
       levels: formData.levels,
+      xp_reward: formData.xp_reward || 0,
+      skill_id: formData.skill_id || null,
     })
     .eq("id", questId)
     .eq("created_by", userId)
