@@ -22,6 +22,8 @@ export default async function QuestsPage() {
       skill:skills(*)
     `)
     .eq("is_active", true)
+    // Exclude drafts from being shown on the public participant page.
+    .or('status.is.null,status.neq.Draft')
     .order("created_at", { ascending: false })
 
   // Fetch user's quest progress
