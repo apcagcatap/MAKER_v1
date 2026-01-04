@@ -3,13 +3,11 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { MessageSquare, ChevronDown, ChevronUp, Loader2, Trash2 } from "lucide-react"
-import { createReply, deleteReply, deletePost } from "@/app/actions/forums"
+import { MessageSquare, ChevronDown, ChevronUp, Loader2, Trash2, Pencil } from "lucide-react"
+import { createReply, deleteReply, deletePost, updateReply } from "@/app/actions/forums"
 import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
 import type { ForumPost, ForumReply } from "@/lib/types"
-
-// 1. Import the EditPostDialog
 import { EditPostDialog } from "./edit-post-dialog"
 
 interface ForumPostCardProps {
@@ -34,6 +32,9 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
   const [replies, setReplies] = useState<ForumReply[]>([])
   const [isLoadingReplies, setIsLoadingReplies] = useState(false)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [editingReplyId, setEditingReplyId] = useState<string | null>(null)
+  const [editReplyContent, setEditReplyContent] = useState("")
+  const [isUpdatingReply, setIsUpdatingReply] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -94,7 +95,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
     }
   }
 
-  const handleSubmitReply = async (e: React.FormEvent) => {
+  const handleSubmitReply = async (e: React.MouseEvent) => {
     e.preventDefault()
     if (!replyContent.trim()) return
 
@@ -129,6 +130,37 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
     }
   }
 
+  const handleStartEditReply = (reply: ForumReply) => {
+    setEditingReplyId(reply.id)
+    setEditReplyContent(reply.content)
+  }
+
+  const handleCancelEditReply = () => {
+    setEditingReplyId(null)
+    setEditReplyContent("")
+  }
+
+  const handleUpdateReply = async (replyId: string) => {
+    if (!editReplyContent.trim()) return
+
+    setIsUpdatingReply(true)
+    const result = await updateReply(replyId, editReplyContent, forumId)
+
+    if (result.error) {
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      })
+    } else {
+      toast({ title: "Success", description: "Reply updated!", variant: "success" })
+      setReplies(prev => prev.map(r => r.id === replyId ? { ...r, content: editReplyContent } : r))
+      setEditingReplyId(null)
+      setEditReplyContent("")
+    }
+    setIsUpdatingReply(false)
+  }
+
   const replyCount = post.replies?.[0]?.count || 0
 
   return (
@@ -150,10 +182,8 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                 </span>
               </div>
 
-              {/* Action Buttons (Owner only) */}
               {currentUserId === post.user_id && (
                 <div className="flex items-center gap-1 -mt-2">
-                  {/* 2. Insert the Edit Dialog here */}
                   <EditPostDialog post={post} forumId={forumId} />
                   
                   <Button
@@ -194,10 +224,9 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
         </div>
       </div>
 
-      {/* Reply Form (remains unchanged) */}
       {showReplyForm && (
         <div className="px-6 pb-6">
-          <form onSubmit={handleSubmitReply} className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4">
             <Textarea
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}
@@ -206,18 +235,17 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
               disabled={isSubmitting}
             />
             <div className="flex items-center gap-2">
-              <Button type="submit" size="sm" disabled={isSubmitting} className="bg-gradient-to-r from-purple-600 to-blue-600">
+              <Button onClick={handleSubmitReply} size="sm" disabled={isSubmitting} className="bg-gradient-to-r from-purple-600 to-blue-600">
                 {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Post Reply"}
               </Button>
               <Button type="button" variant="outline" size="sm" onClick={() => setShowReplyForm(false)} disabled={isSubmitting} className="bg-red-600 text-white hover:bg-red-700 border-none">
                 Cancel
               </Button>
             </div>
-          </form>
+          </div>
         </div>
       )}
 
-      {/* Replies List (remains unchanged) */}
       {showReplies && (
         <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
           {isLoadingReplies ? (
@@ -236,12 +264,61 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                         <span className="text-xs text-gray-500">{new Date(reply.created_at).toLocaleDateString()}</span>
                       </div>
                       {currentUserId === reply.user_id && (
-                        <Button variant="ghost" size="sm" onClick={() => handleDeleteReply(reply.id)} className="text-red-600 h-6 px-2 hover:bg-red-50">
-                          Delete
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleStartEditReply(reply)} 
+                            className="text-blue-600 h-6 px-2 hover:bg-blue-50"
+                            disabled={editingReplyId === reply.id}
+                          >
+                            <Pencil className="w-3 h-3 mr-1" />
+                            Edit
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleDeleteReply(reply.id)} 
+                            className="text-red-600 h-6 px-2 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-3 h-3 mr-1" />
+                            Delete
+                          </Button>
+                        </div>
                       )}
                     </div>
-                    <p className="text-gray-700 text-sm whitespace-pre-wrap break-words">{reply.content}</p>
+                    
+                    {editingReplyId === reply.id ? (
+                      <div className="mt-2">
+                        <Textarea
+                          value={editReplyContent}
+                          onChange={(e) => setEditReplyContent(e.target.value)}
+                          className="mb-2 bg-white text-sm"
+                          disabled={isUpdatingReply}
+                        />
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            size="sm" 
+                            onClick={() => handleUpdateReply(reply.id)}
+                            disabled={isUpdatingReply}
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 h-7 text-xs"
+                          >
+                            {isUpdatingReply ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : "Save"}
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={handleCancelEditReply}
+                            disabled={isUpdatingReply}
+                            className="bg-red-600 text-white hover:bg-red-700 border-none"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-gray-700 text-sm whitespace-pre-wrap break-words">{reply.content}</p>
+                    )}
                   </div>
                 </div>
               ))}
