@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { FacilitatorNav } from "@/components/layout/facilitator-nav"
 import { CreateQuestModal } from "@/components/facilitator/create-quest-modal"
+import { ImageViewerModal } from "@/components/facilitator/image-viewer-modal"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Trash2 } from "lucide-react"
@@ -25,13 +26,36 @@ interface Quest {
   created_at: string
 }
 
-export function QuestsTable({ initialQuests }: { initialQuests: Quest[] }) {
+interface QuestsTableProps {
+  initialQuests: Quest[]
+  initialEditingQuest?: Quest | null
+  initialModalOpen?: boolean
+  onQuestsUpdated?: (quests: Quest[]) => void
+}
+
+export function QuestsTable({
+  initialQuests,
+  initialEditingQuest = null,
+  initialModalOpen = false,
+  onQuestsUpdated,
+}: QuestsTableProps) {
   const router = useRouter()
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editingQuest, setEditingQuest] = useState<Quest | null>(null)
+  const [modalOpen, setModalOpen] = useState(initialModalOpen)
+  const [editingQuest, setEditingQuest] = useState<Quest | null>(initialEditingQuest || null)
   const [searchQuery, setSearchQuery] = useState("")
   const [quests, setQuests] = useState<Quest[]>(initialQuests || [])
   const [isLoading, setIsLoading] = useState(false)
+  const [imageViewerOpen, setImageViewerOpen] = useState(false)
+  const [viewingImage, setViewingImage] = useState<{ url: string | null; title: string; alt: string }>({
+    url: null,
+    title: "",
+    alt: "",
+  })
+
+  // Update quests when initialQuests changes (e.g., after refresh)
+  useEffect(() => {
+    setQuests(initialQuests || [])
+  }, [initialQuests])
 
   // Filter quests based on search query
   const filteredQuests = useMemo(() => {
@@ -64,6 +88,15 @@ export function QuestsTable({ initialQuests }: { initialQuests: Quest[] }) {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleViewImage = (imageUrl: string | null, title: string, alt: string) => {
+    if (!imageUrl) {
+      toast.error("No image available")
+      return
+    }
+    setViewingImage({ url: imageUrl, title, alt })
+    setImageViewerOpen(true)
   }
 
   const handlePublishQuest = async (questId: string) => {
@@ -103,6 +136,11 @@ export function QuestsTable({ initialQuests }: { initialQuests: Quest[] }) {
   const handleModalClose = () => {
     setModalOpen(false)
     setEditingQuest(null)
+  }
+
+  const handleQuestSaved = () => {
+    // Refresh the page to get updated quests
+    router.refresh()
   }
 
   return (
@@ -173,6 +211,9 @@ export function QuestsTable({ initialQuests }: { initialQuests: Quest[] }) {
                     <div className="flex flex-col items-center gap-2">
                       <span className="text-sm font-light text-black text-center">{quest.title}</span>
                       <Button
+                        onClick={() =>
+                          handleViewImage(quest.badge_image_url, `${quest.title} Badge`, "Badge")
+                        }
                         variant="ghost"
                         size="sm"
                         className="h-auto py-2 px-4 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-sm font-light"
@@ -183,6 +224,9 @@ export function QuestsTable({ initialQuests }: { initialQuests: Quest[] }) {
                   </td>
                   <td className="px-6 py-4 text-center" style={{ fontFamily: "Poppins, sans-serif" }}>
                     <Button
+                      onClick={() =>
+                        handleViewImage(quest.certificate_image_url, `${quest.title} Certificate`, "Certificate")
+                      }
                       variant="ghost"
                       size="sm"
                       className="h-auto py-2 px-4 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-lg text-sm font-light"
@@ -276,7 +320,17 @@ export function QuestsTable({ initialQuests }: { initialQuests: Quest[] }) {
       <CreateQuestModal
         open={modalOpen}
         onOpenChange={handleModalClose}
+        onQuestSaved={handleQuestSaved}
         editingQuest={editingQuest || undefined}
+      />
+
+      {/* Image Viewer Modal */}
+      <ImageViewerModal
+        open={imageViewerOpen}
+        onOpenChange={setImageViewerOpen}
+        imageUrl={viewingImage.url}
+        title={viewingImage.title}
+        altText={viewingImage.alt}
       />
     </div>
   )

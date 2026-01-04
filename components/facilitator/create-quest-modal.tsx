@@ -20,6 +20,7 @@ interface QuestLevel {
 interface CreateQuestModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onQuestSaved?: () => void
   editingQuest?: {
     id: string
     title: string
@@ -35,7 +36,7 @@ interface CreateQuestModalProps {
   }
 }
 
-export function CreateQuestModal({ open, onOpenChange, editingQuest }: CreateQuestModalProps) {
+export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQuest }: CreateQuestModalProps) {
   const router = useRouter()
   const badgeInputRef = useRef<HTMLInputElement>(null)
   const certificateInputRef = useRef<HTMLInputElement>(null)
@@ -216,8 +217,12 @@ export function CreateQuestModal({ open, onOpenChange, editingQuest }: CreateQue
       resetForm()
       onOpenChange(false)
 
-      // Refresh the page to get updated quests
-      setTimeout(() => router.refresh(), 300)
+      // Call the refresh callback if provided, otherwise refresh the page
+      if (onQuestSaved) {
+        onQuestSaved()
+      } else {
+        setTimeout(() => router.refresh(), 300)
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to save quest")
     } finally {
@@ -239,13 +244,15 @@ export function CreateQuestModal({ open, onOpenChange, editingQuest }: CreateQue
     setLevels([])
   }
 
-  const handleClose = (refresh = false) => {
-    onOpenChange(refresh)
-    resetForm()
+  const handleDialogOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      resetForm()
+    }
+    onOpenChange(newOpen)
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-blue-50">
         <DialogHeader>
           <DialogTitle className="text-3xl font-bold text-gray-900">Create New Quest</DialogTitle>
@@ -584,7 +591,7 @@ export function CreateQuestModal({ open, onOpenChange, editingQuest }: CreateQue
 
           <div className="flex gap-3">
             <Button
-              onClick={() => handleClose()}
+              onClick={() => onOpenChange(false)}
               variant="outline"
             >
               Cancel
