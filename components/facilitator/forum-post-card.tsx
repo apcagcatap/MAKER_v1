@@ -3,12 +3,11 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { MessageSquare, ChevronDown, ChevronUp, Loader2, Trash2 } from "lucide-react"
-import { createReply, deletePost, deleteReply } from "@/app/actions/forums"
+import { MessageSquare, ChevronDown, ChevronUp, Loader2, Trash2, Pencil } from "lucide-react"
+import { createReply, deletePost, deleteReply, updateReply } from "@/app/actions/forums"
 import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
 import type { ForumPost, ForumReply } from "@/lib/types"
-// 1. Import the EditPostDialog component
 import { EditPostDialog } from "../participant/edit-post-dialog"
 
 interface ForumPostCardProps {
@@ -32,13 +31,29 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
   const [replies, setReplies] = useState<ForumReply[]>([])
   const [isLoadingReplies, setIsLoadingReplies] = useState(false)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
+  const [editingReplyId, setEditingReplyId] = useState<string | null>(null)
+  const [editReplyContent, setEditReplyContent] = useState("")
+  const [isUpdatingReply, setIsUpdatingReply] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
     const getUser = async () => {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      setCurrentUserId(user?.id || null)
+      
+      if (user) {
+        setCurrentUserId(user.id)
+        
+        // Get user's role from profile
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single()
+        
+        setCurrentUserRole(profile?.role || null)
+      }
     }
     getUser()
   }, [])
@@ -150,6 +165,61 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
     }
   }
 
+  const handleStartEditReply = (reply: ForumReply) => {
+    setEditingReplyId(reply.id)
+    setEditReplyContent(reply.content)
+  }
+
+  const handleCancelEditReply = () => {
+    setEditingReplyId(null)
+    setEditReplyContent("")
+  }
+
+  const handleUpdateReply = async (replyId: string) => {
+    if (!editReplyContent.trim()) {
+      toast({
+        title: "Error",
+        description: "Reply cannot be empty",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsUpdatingReply(true)
+    const result = await updateReply(replyId, editReplyContent, forumId)
+
+    if (result.error) {
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      })
+    } else {
+      toast({ 
+        title: "Success", 
+        description: "Reply updated!", 
+        variant: "success" 
+      })
+      setReplies(prev => prev.map(r => r.id === replyId ? { ...r, content: editReplyContent } : r))
+      setEditingReplyId(null)
+      setEditReplyContent("")
+    }
+    setIsUpdatingReply(false)
+  }
+
+  // Check if user can delete post (owner or facilitator)
+  const canDeletePost = currentUserId === post.user_id || currentUserRole === "facilitator"
+  
+  // Function to check if user can delete a reply (owner or facilitator)
+  const canDeleteReply = (replyUserId: string) => {
+    return currentUserId === replyUserId || currentUserRole === "facilitator"
+  }
+
+  // Function to check if user can edit a reply (owner only)
+  const canEditReply = (replyUserId: string) => {
+    return currentUserId === replyUserId
+  }
+
   const replyCount = post.replies?.[0]?.count || 0
 
   return (
@@ -170,10 +240,12 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                 </span>
               </div>
               
-              {/* 2. Added Action Container for Edit and Delete (Only for Post Owner) */}
-              {currentUserId === post.user_id && (
+              {/* Action Container for Edit and Delete (Owner or Facilitator) */}
+              {canDeletePost && (
                 <div className="flex items-center gap-1">
-                  <EditPostDialog post={post} forumId={forumId} />
+                  {currentUserId === post.user_id && (
+                    <EditPostDialog post={post} forumId={forumId} />
+                  )}
                   <Button
                     variant="ghost"
                     size="sm"
@@ -282,18 +354,71 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                           {new Date(reply.created_at).toLocaleDateString()}
                         </span>
                       </div>
-                      {currentUserId === reply.user_id && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteReply(reply.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 px-2"
-                        >
-                          Delete
-                        </Button>
-                      )}
+                      <div className="flex items-center gap-1">
+                        {canEditReply(reply.user_id) && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleStartEditReply(reply)}
+                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-6 px-2"
+                            disabled={editingReplyId === reply.id}
+                          >
+                            <Pencil className="w-3 h-3 mr-1" />
+                            Edit
+                          </Button>
+                        )}
+                        {canDeleteReply(reply.user_id) && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteReply(reply.id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 px-2"
+                          >
+                            <Trash2 className="w-3 h-3 mr-1" />
+                            Delete
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-gray-700 text-sm whitespace-pre-wrap break-words">{reply.content}</p>
+                    
+                    {editingReplyId === reply.id ? (
+                      <div className="mt-2">
+                        <Textarea
+                          value={editReplyContent}
+                          onChange={(e) => setEditReplyContent(e.target.value)}
+                          className="mb-2 bg-white text-sm"
+                          disabled={isUpdatingReply}
+                        />
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            size="sm" 
+                            onClick={() => handleUpdateReply(reply.id)}
+                            disabled={isUpdatingReply}
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 h-7 text-xs"
+                          >
+                            {isUpdatingReply ? (
+                              <>
+                                <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                Saving...
+                              </>
+                            ) : (
+                              "Save"
+                            )}
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={handleCancelEditReply}
+                            disabled={isUpdatingReply}
+                            className="bg-red-600 text-white hover:bg-red-700 border-none"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-gray-700 text-sm whitespace-pre-wrap break-words">{reply.content}</p>
+                    )}
                   </div>
                 </div>
               ))}
