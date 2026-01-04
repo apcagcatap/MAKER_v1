@@ -115,3 +115,5 @@ export async function updateSession(request: NextRequest) {
     return new NextResponse("Internal Server Error (check logs)", { status: 500 })
   }
 }
+
+

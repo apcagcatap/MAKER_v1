@@ -1,12 +1,23 @@
 import type { Metadata } from 'next'
-import { GeistSans } from 'geist/font/sans'
-import { GeistMono } from 'geist/font/mono'
+import { DM_Sans, DM_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  weight: ['300', '400', '500', '600', '700'],
+})
+
+const dmMono = DM_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  weight: ['300', '400', '500'],
+})
+
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'MAKER - Level Up Your Skills',
+  description: 'An interactive learning platform for creating and completing educational quests',
   generator: 'v0.app',
 }
 
@@ -17,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
+      <body className={`${dmSans.variable} ${dmMono.variable} font-sans antialiased`}>
         {children}
         <Analytics />
       </body>

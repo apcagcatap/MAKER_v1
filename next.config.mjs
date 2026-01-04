@@ -9,6 +9,17 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+
+  experimental: {
+    serverActions: {
+      allowedOrigins: [
+        "localhost:3000",
+        "*.github.dev",
+        "*.vercel.app"
+      ]
+  },
 }
+
+};
 
 export default nextConfig
