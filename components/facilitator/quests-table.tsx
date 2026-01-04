@@ -57,6 +57,8 @@ export function QuestsTable({ initialQuests }: { initialQuests: Quest[] }) {
       await deleteQuest(questId)
       setQuests(quests.filter((q) => q.id !== questId))
       toast.success("Quest deleted successfully")
+      // Refresh the page to ensure database is synced
+      setTimeout(() => router.refresh(), 300)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to delete quest")
     } finally {
@@ -107,7 +109,7 @@ export function QuestsTable({ initialQuests }: { initialQuests: Quest[] }) {
     <div className="min-h-screen bg-[#004A98]">
       {/* Header with background image */}
       <div
-        className="relative overflow-hidden"
+        className="relative overflow-hidden flex flex-col"
         style={{
           backgroundImage: `url('/navbarBg.png')`,
           backgroundRepeat: "no-repeat",
@@ -117,11 +119,11 @@ export function QuestsTable({ initialQuests }: { initialQuests: Quest[] }) {
           borderBottomRightRadius: "190px",
         }}
       >
-        <div className="relative z-10">
+        <div className="relative z-10 flex flex-col">
           <FacilitatorNav />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
             <div className="flex items-center justify-center">
-              <h1 className="text-5xl font-light text-white">Quests</h1>
+              <h1 className="text-5xl font-semibold text-white" style={{ fontFamily: "Poppins, sans-serif" }}>Quests</h1>
             </div>
           </div>
         </div>
@@ -154,18 +156,20 @@ export function QuestsTable({ initialQuests }: { initialQuests: Quest[] }) {
           <table className="w-full">
             <thead>
               <tr className="bg-gray-100 border-b border-gray-200">
-                <th className="px-6 py-4 text-center text-sm font-light text-black">Badge</th>
-                <th className="px-6 py-4 text-center text-sm font-light text-black">Certificate</th>
-                <th className="px-6 py-4 text-center text-sm font-light text-black">Difficulty</th>
-                <th className="px-6 py-4 text-center text-sm font-light text-black">Scheduled For</th>
-                <th className="px-6 py-4 text-center text-sm font-light text-black">Status</th>
-                <th className="px-6 py-4 text-center text-sm font-light text-black">Action</th>
+                <th className="px-6 py-4 text-center text-sm font-semibold text-black" style={{ fontFamily: "Poppins, sans-serif" }}>
+                  <h1>Badge</h1>
+                </th>
+                <th className="px-6 py-4 text-center text-sm font-semibold text-black" style={{ fontFamily: "Poppins, sans-serif" }}>Certificate</th>
+                <th className="px-6 py-4 text-center text-sm text-black" style={{ font: "600 14px/20px Poppins, sans-serif" }}>Difficulty</th>
+                <th className="px-6 py-4 text-center text-sm font-semibold text-black" style={{ fontFamily: "Poppins, sans-serif" }}>Scheduled For</th>
+                <th className="px-6 py-4 text-center text-sm text-black" style={{ font: "600 14px/20px Poppins, sans-serif" }}>Status</th>
+                <th className="px-6 py-4 text-center text-sm text-black" style={{ font: "600 14px/20px Poppins, sans-serif" }}>Action</th>
               </tr>
             </thead>
             <tbody>
               {filteredQuests?.map((quest) => (
                 <tr key={quest.id} className="border-b border-gray-200 hover:bg-gray-50">
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4" style={{ fontFamily: "Poppins, sans-serif" }}>
                     <div className="flex flex-col items-center gap-2">
                       <span className="text-sm font-light text-black text-center">{quest.title}</span>
                       <Button
@@ -177,7 +181,7 @@ export function QuestsTable({ initialQuests }: { initialQuests: Quest[] }) {
                       </Button>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-center">
+                  <td className="px-6 py-4 text-center" style={{ fontFamily: "Poppins, sans-serif" }}>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -186,13 +190,13 @@ export function QuestsTable({ initialQuests }: { initialQuests: Quest[] }) {
                       View Certificate
                     </Button>
                   </td>
-                  <td className="px-6 py-4 text-center text-sm font-light text-black">
-                    {quest.difficulty || "Beginner - Intermediate"}
+                  <td className="px-6 py-4 text-center text-sm font-light text-black" style={{ fontFamily: "Poppins, sans-serif" }}>
+                    <p>{quest.difficulty && quest.difficulty.charAt(0).toUpperCase() + quest.difficulty.slice(1).toLowerCase() || "Beginner - Intermediate"}</p>
                   </td>
-                  <td className="px-6 py-4 text-center text-sm font-light text-black">
+                  <td className="px-6 py-4 text-center text-sm font-light text-black" style={{ fontFamily: "Poppins, sans-serif" }}>
                     {quest.scheduled_date ? new Date(quest.scheduled_date).toLocaleDateString() : "N/A"}
                   </td>
-                  <td className="px-6 py-4 text-center">
+                  <td className="px-6 py-4 text-center" style={{ fontFamily: "Poppins, sans-serif" }}>
                     <span
                       className={`text-sm font-light ${
                         quest.status === "published"
@@ -216,7 +220,8 @@ export function QuestsTable({ initialQuests }: { initialQuests: Quest[] }) {
                         disabled={isLoading}
                         variant="ghost"
                         size="sm"
-                        className="h-auto py-2 px-4 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-sm font-light w-20"
+                        className="h-auto py-2 px-4 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg w-20"
+                        style={{ font: "300 14px/20px Poppins, sans-serif" }}
                       >
                         Edit
                       </Button>
@@ -226,7 +231,8 @@ export function QuestsTable({ initialQuests }: { initialQuests: Quest[] }) {
                           disabled={isLoading}
                           variant="ghost"
                           size="sm"
-                          className="h-auto py-2 px-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm font-light w-20"
+                          className="h-auto py-2 px-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg w-20"
+                          style={{ font: "300 14px/20px Poppins, sans-serif" }}
                         >
                           Archive
                         </Button>
@@ -236,7 +242,8 @@ export function QuestsTable({ initialQuests }: { initialQuests: Quest[] }) {
                           disabled={isLoading}
                           variant="ghost"
                           size="sm"
-                          className="h-auto py-2 px-4 bg-green-50 hover:bg-green-100 text-green-600 rounded-lg text-sm font-light w-20"
+                          className="h-auto py-2 px-4 bg-green-50 hover:bg-green-100 text-green-600 rounded-lg w-20"
+                          style={{ font: "300 14px/20px Poppins, sans-serif" }}
                         >
                           Publish
                         </Button>

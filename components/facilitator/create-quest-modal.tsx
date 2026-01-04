@@ -65,29 +65,41 @@ export function CreateQuestModal({ open, onOpenChange, editingQuest }: CreateQue
   // Validation errors
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const validateForm = () => {
+  const getValidationErrors = (stepToValidate: number) => {
     const newErrors: Record<string, string> = {}
 
     // Step 1 validation
-    if (!title.trim()) newErrors.title = "Quest name is required"
-    if (!description.trim()) newErrors.description = "Description is required"
-    if (!badgeImageUrl) newErrors.badgeImage = "Badge image is required"
-    if (!certificateImageUrl) newErrors.certificateImage = "Certificate image is required"
-
-    // Step 2 validation
-    if (!materialsNeeded.trim()) newErrors.materials = "Materials needed is required"
-    if (!generalInstructions.trim()) newErrors.instructions = "General instructions are required"
-
-    // Step 3 validation
-    if (levels.length === 0) {
-      newErrors.levels = "At least one level is required"
-    } else {
-      levels.forEach((level, index) => {
-        if (!level.title.trim()) newErrors[`level_${index}_title`] = "Level title is required"
-        if (!level.description.trim()) newErrors[`level_${index}_desc`] = "Level description is required"
-      })
+    if (stepToValidate === 1) {
+      if (!title.trim()) newErrors.title = "Quest name is required"
+      if (!description.trim()) newErrors.description = "Description is required"
+      if (!badgeImageUrl) newErrors.badgeImage = "Badge image is required"
+      if (!certificateImageUrl) newErrors.certificateImage = "Certificate image is required"
     }
 
+    // Step 2 validation
+    if (stepToValidate === 2) {
+      if (!materialsNeeded.trim()) newErrors.materials = "Materials needed is required"
+      if (!generalInstructions.trim()) newErrors.instructions = "General instructions are required"
+    }
+
+    // Step 3 validation
+    if (stepToValidate === 3) {
+      if (levels.length === 0) {
+        newErrors.levels = "At least one level is required"
+      } else {
+        levels.forEach((level, index) => {
+          if (!level.title.trim()) newErrors[`level_${index}_title`] = "Level title is required"
+          if (!level.description.trim()) newErrors[`level_${index}_desc`] = "Level description is required"
+        })
+      }
+    }
+
+    return newErrors
+  }
+
+  const validateForm = (stepToValidate?: number) => {
+    const validatingStep = stepToValidate || step
+    const newErrors = getValidationErrors(validatingStep)
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -102,8 +114,11 @@ export function CreateQuestModal({ open, onOpenChange, editingQuest }: CreateQue
       setBadgeImageUrl(url)
       setBadgeImagePreview(url)
       toast.success("Badge image uploaded successfully")
+      if (badgeInputRef.current) badgeInputRef.current.value = ""
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to upload badge image")
+      const errorMessage = error instanceof Error ? error.message : "Failed to upload badge image"
+      console.error("Badge upload error:", error)
+      toast.error(errorMessage)
     } finally {
       setBadgeImageUploading(false)
     }
@@ -119,8 +134,11 @@ export function CreateQuestModal({ open, onOpenChange, editingQuest }: CreateQue
       setCertificateImageUrl(url)
       setCertificateImagePreview(url)
       toast.success("Certificate image uploaded successfully")
+      if (certificateInputRef.current) certificateInputRef.current.value = ""
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to upload certificate image")
+      const errorMessage = error instanceof Error ? error.message : "Failed to upload certificate image"
+      console.error("Certificate upload error:", error)
+      toast.error(errorMessage)
     } finally {
       setCertificateImageUploading(false)
     }
@@ -153,7 +171,7 @@ export function CreateQuestModal({ open, onOpenChange, editingQuest }: CreateQue
   }
 
   const handleNextStep = () => {
-    if (!validateForm()) {
+    if (!validateForm(step)) {
       toast.error("Please fill in all required fields")
       return
     }
@@ -161,7 +179,12 @@ export function CreateQuestModal({ open, onOpenChange, editingQuest }: CreateQue
   }
 
   const handleSubmit = async () => {
-    if (!validateForm()) {
+    // Validate all steps before submission
+    const step1Errors = getValidationErrors(1)
+    const step2Errors = getValidationErrors(2)
+    const step3Errors = getValidationErrors(3)
+
+    if (Object.keys(step1Errors).length > 0 || Object.keys(step2Errors).length > 0 || Object.keys(step3Errors).length > 0) {
       toast.error("Please fill in all required fields")
       return
     }
