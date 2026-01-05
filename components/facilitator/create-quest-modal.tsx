@@ -213,11 +213,10 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
         toast.success("Quest created successfully")
       }
 
-      // Close modal and signal to refresh
       resetForm()
       onOpenChange(false)
 
-      // Call the refresh callback if provided, otherwise refresh the page
+
       if (onQuestSaved) {
         onQuestSaved()
       } else {
@@ -258,7 +257,6 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
           <DialogTitle className="text-3xl font-bold text-gray-900">Create New Quest</DialogTitle>
         </DialogHeader>
 
-        {/* Step Indicator */}
         <div className="flex items-center justify-center gap-8 my-6">
           {[1, 2, 3, 4].map((stepNum) => (
             <div key={stepNum} className="flex items-center gap-3">
@@ -592,7 +590,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
           <div className="flex gap-3">
             <Button
               onClick={() => onOpenChange(false)}
-              variant="outline"
+              variant="cancel"
             >
               Cancel
             </Button>
