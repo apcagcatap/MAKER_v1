@@ -5,6 +5,8 @@ import { getAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 import type { Skill } from "@/lib/types"
 
+
+
 export async function getSkills(): Promise<Skill[]> {
   const supabase = await createClient()
 
@@ -249,6 +251,7 @@ export async function publishQuest(questId: string) {
 
   revalidatePath("/facilitator/quests")
 }
+
 
 export async function archiveQuest(questId: string) {
   const supabase = await createClient()
