@@ -12,8 +12,7 @@ import {
   ChevronRight,
   LogOut,
   Menu,
-  UserPlus,
-  Link as LinkIcon
+  ListTodo,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -26,10 +25,9 @@ import "./admin.css"
 const navItems = [
   { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/admin/accounts", icon: Users, label: "Accounts" },
-  { href: "/admin/quests", icon: ScrollText, label: "Quests" },
   { href: "/admin/workshops", icon: Calendar, label: "Workshops" },
-  { href: "/admin/workshop-users", icon: UserPlus, label: "Workshop Users" },
-  { href: "/admin/workshop-quests", icon: LinkIcon, label: "Workshop Quests" },
+  { href: "/admin/quest-templates", icon: ScrollText, label: "Quest Templates" },
+  { href: "/admin/task-templates", icon: ListTodo, label: "Task Templates" },
 ]
 
 export default function AdminLayout({

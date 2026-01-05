@@ -1,12 +1,34 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { Plus, Calendar, Users, ScrollText } from "lucide-react"
+import {
+  Plus,
+  Calendar,
+  Users,
+  ScrollText,
+  Clock,
+  MapPin,
+  Play,
+  CheckCircle2,
+  XCircle,
+  FileEdit,
+  CalendarClock,
+  ExternalLink,
+} from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { TableCell, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   AdminPageHeader,
   AdminSearchCard,
@@ -16,23 +38,33 @@ import {
   ConfirmDeleteDialog,
   EditDeleteActions,
 } from "@/components/admin"
-import type { Workshop } from "@/lib/types"
+import type { Workshop, WorkshopStatus } from "@/lib/types"
 
 interface WorkshopWithCounts extends Workshop {
   user_count?: number
   quest_count?: number
 }
 
+const STATUS_OPTIONS: { value: WorkshopStatus; label: string; color: string }[] = [
+  { value: "draft", label: "Draft", color: "bg-slate-100 text-slate-700" },
+  { value: "scheduled", label: "Scheduled", color: "bg-blue-100 text-blue-700" },
+  { value: "active", label: "Active", color: "bg-green-100 text-green-700" },
+  { value: "completed", label: "Completed", color: "bg-purple-100 text-purple-700" },
+  { value: "cancelled", label: "Cancelled", color: "bg-red-100 text-red-700" },
+]
+
 const WORKSHOP_TABLE_COLUMNS = [
   { key: "name", label: "Name" },
-  { key: "event_date", label: "Event Date" },
+  { key: "date", label: "Date & Time" },
+  { key: "location", label: "Location" },
+  { key: "status", label: "Status" },
   { key: "users", label: "Users" },
   { key: "quests", label: "Quests" },
-  { key: "created_at", label: "Created At" },
   { key: "actions", label: "Actions", className: "w-[80px]" },
 ]
 
 export default function WorkshopManagementPage() {
+  const router = useRouter()
   const [workshops, setWorkshops] = useState<WorkshopWithCounts[]>([])
   const [filteredWorkshops, setFilteredWorkshops] = useState<WorkshopWithCounts[]>([])
   const [loading, setLoading] = useState(true)
@@ -47,7 +79,12 @@ export default function WorkshopManagementPage() {
   // Form states
   const [formData, setFormData] = useState({
     name: "",
+    description: "",
     event_date: "",
+    start_time: "",
+    end_time: "",
+    location: "",
+    status: "draft" as WorkshopStatus,
   })
 
   const supabase = createClient()
@@ -104,7 +141,12 @@ export default function WorkshopManagementPage() {
   const handleCreateWorkshop = async () => {
     const { error } = await supabase.from("workshop").insert({
       name: formData.name,
+      description: formData.description || null,
       event_date: formData.event_date,
+      start_time: formData.start_time || null,
+      end_time: formData.end_time || null,
+      location: formData.location || null,
+      status: formData.status,
     })
 
     if (!error) {
@@ -121,7 +163,12 @@ export default function WorkshopManagementPage() {
       .from("workshop")
       .update({
         name: formData.name,
+        description: formData.description || null,
         event_date: formData.event_date,
+        start_time: formData.start_time || null,
+        end_time: formData.end_time || null,
+        location: formData.location || null,
+        status: formData.status,
       })
       .eq("id", selectedWorkshop.id)
 
@@ -149,14 +196,27 @@ export default function WorkshopManagementPage() {
   }
 
   const resetForm = () => {
-    setFormData({ name: "", event_date: "" })
+    setFormData({
+      name: "",
+      description: "",
+      event_date: "",
+      start_time: "",
+      end_time: "",
+      location: "",
+      status: "draft",
+    })
   }
 
   const openEditDialog = (workshop: WorkshopWithCounts) => {
     setSelectedWorkshop(workshop)
     setFormData({
       name: workshop.name,
+      description: workshop.description || "",
       event_date: workshop.event_date,
+      start_time: workshop.start_time || "",
+      end_time: workshop.end_time || "",
+      location: workshop.location || "",
+      status: workshop.status || "draft",
     })
     setEditDialogOpen(true)
   }
@@ -174,31 +234,105 @@ export default function WorkshopManagementPage() {
     })
   }
 
-  const renderWorkshopRow = (workshop: WorkshopWithCounts) => (
-    <TableRow key={workshop.id}>
-      <TableCell className="font-medium">{workshop.name}</TableCell>
-      <TableCell>{formatDate(workshop.event_date)}</TableCell>
-      <TableCell>
-        <Badge variant="secondary">
-          <Users className="w-3 h-3 mr-1" />
-          {workshop.user_count}
-        </Badge>
-      </TableCell>
-      <TableCell>
-        <Badge variant="secondary">
-          <ScrollText className="w-3 h-3 mr-1" />
-          {workshop.quest_count}
-        </Badge>
-      </TableCell>
-      <TableCell>{new Date(workshop.created_at).toLocaleDateString()}</TableCell>
-      <TableCell>
-        <EditDeleteActions
-          onEdit={() => openEditDialog(workshop)}
-          onDelete={() => openDeleteDialog(workshop)}
-        />
-      </TableCell>
-    </TableRow>
-  )
+  const formatTime = (timeString: string | null) => {
+    if (!timeString) return null
+    return timeString.slice(0, 5) // HH:MM format
+  }
+
+  const getStatusConfig = (status: WorkshopStatus) => {
+    return STATUS_OPTIONS.find((opt) => opt.value === status) || STATUS_OPTIONS[0]
+  }
+
+  const getStatusIcon = (status: WorkshopStatus) => {
+    switch (status) {
+      case "draft":
+        return <FileEdit className="w-3 h-3 mr-1" />
+      case "scheduled":
+        return <CalendarClock className="w-3 h-3 mr-1" />
+      case "active":
+        return <Play className="w-3 h-3 mr-1" />
+      case "completed":
+        return <CheckCircle2 className="w-3 h-3 mr-1" />
+      case "cancelled":
+        return <XCircle className="w-3 h-3 mr-1" />
+      default:
+        return null
+    }
+  }
+
+  const renderWorkshopRow = (workshop: WorkshopWithCounts) => {
+    const statusConfig = getStatusConfig(workshop.status)
+    return (
+      <TableRow
+        key={workshop.id}
+        className="cursor-pointer hover:bg-slate-50"
+        onClick={() => router.push(`/admin/workshops/${workshop.id}`)}
+      >
+        <TableCell>
+          <div>
+            <div className="flex items-center gap-2">
+              <p className="font-medium">{workshop.name}</p>
+              <ExternalLink className="w-3 h-3 text-slate-400" />
+            </div>
+            {workshop.description && (
+              <p className="text-sm text-slate-500 truncate max-w-xs">
+                {workshop.description}
+              </p>
+            )}
+          </div>
+        </TableCell>
+        <TableCell>
+          <div className="space-y-1">
+            <div className="flex items-center gap-1 text-sm">
+              <Calendar className="w-3 h-3" />
+              {formatDate(workshop.event_date)}
+            </div>
+            {(workshop.start_time || workshop.end_time) && (
+              <div className="flex items-center gap-1 text-xs text-slate-500">
+                <Clock className="w-3 h-3" />
+                {formatTime(workshop.start_time) || "--:--"} -{" "}
+                {formatTime(workshop.end_time) || "--:--"}
+              </div>
+            )}
+          </div>
+        </TableCell>
+        <TableCell>
+          {workshop.location ? (
+            <div className="flex items-center gap-1 text-sm">
+              <MapPin className="w-3 h-3" />
+              {workshop.location}
+            </div>
+          ) : (
+            <span className="text-slate-400">-</span>
+          )}
+        </TableCell>
+        <TableCell>
+          <Badge className={`${statusConfig.color} hover:${statusConfig.color}`}>
+            {getStatusIcon(workshop.status)}
+            {statusConfig.label}
+          </Badge>
+        </TableCell>
+        <TableCell>
+          <Badge variant="secondary">
+            <Users className="w-3 h-3 mr-1" />
+            {workshop.user_count}
+          </Badge>
+        </TableCell>
+        <TableCell>
+          <Badge variant="secondary">
+            <ScrollText className="w-3 h-3 mr-1" />
+            {workshop.quest_count}
+          </Badge>
+        </TableCell>
+        <TableCell onClick={(e) => e.stopPropagation()}>
+          <EditDeleteActions
+            onEdit={() => openEditDialog(workshop)}
+            onDelete={() => openDeleteDialog(workshop)}
+          />
+        </TableCell>
+      </TableRow>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -266,12 +400,73 @@ export default function WorkshopManagementPage() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="event_date">Event Date</Label>
+          <Label htmlFor="description">Description</Label>
+          <Textarea
+            id="description"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            placeholder="Enter workshop description (optional)"
+            rows={3}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="event_date">Event Date</Label>
+            <Input
+              id="event_date"
+              type="date"
+              value={formData.event_date}
+              onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="status">Status</Label>
+            <Select
+              value={formData.status}
+              onValueChange={(value: WorkshopStatus) =>
+                setFormData({ ...formData, status: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="start_time">Start Time</Label>
+            <Input
+              id="start_time"
+              type="time"
+              value={formData.start_time}
+              onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="end_time">End Time</Label>
+            <Input
+              id="end_time"
+              type="time"
+              value={formData.end_time}
+              onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+            />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="location">Location</Label>
           <Input
-            id="event_date"
-            type="date"
-            value={formData.event_date}
-            onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
+            id="location"
+            value={formData.location}
+            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            placeholder="Enter location (optional)"
           />
         </div>
       </AdminFormDialog>
@@ -296,12 +491,73 @@ export default function WorkshopManagementPage() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="edit-event_date">Event Date</Label>
+          <Label htmlFor="edit-description">Description</Label>
+          <Textarea
+            id="edit-description"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            placeholder="Enter workshop description (optional)"
+            rows={3}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="edit-event_date">Event Date</Label>
+            <Input
+              id="edit-event_date"
+              type="date"
+              value={formData.event_date}
+              onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-status">Status</Label>
+            <Select
+              value={formData.status}
+              onValueChange={(value: WorkshopStatus) =>
+                setFormData({ ...formData, status: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="edit-start_time">Start Time</Label>
+            <Input
+              id="edit-start_time"
+              type="time"
+              value={formData.start_time}
+              onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-end_time">End Time</Label>
+            <Input
+              id="edit-end_time"
+              type="time"
+              value={formData.end_time}
+              onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+            />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="edit-location">Location</Label>
           <Input
-            id="edit-event_date"
-            type="date"
-            value={formData.event_date}
-            onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
+            id="edit-location"
+            value={formData.location}
+            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            placeholder="Enter location (optional)"
           />
         </div>
       </AdminFormDialog>
