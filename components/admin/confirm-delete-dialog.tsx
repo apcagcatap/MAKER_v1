@@ -27,6 +27,11 @@ export function ConfirmDeleteDialog({
   onConfirm,
   confirmLabel = "Delete",
 }: ConfirmDeleteDialogProps) {
+  const handleConfirm = () => {
+    console.log("ConfirmDeleteDialog: Delete button clicked, calling onConfirm")
+    onConfirm()
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -38,7 +43,7 @@ export function ConfirmDeleteDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button variant="destructive" onClick={onConfirm}>
+          <Button variant="destructive" onClick={handleConfirm}>
             {confirmLabel}
           </Button>
         </DialogFooter>

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Plus, ScrollText, Clock, ListTodo, Archive, ArchiveRestore, ExternalLink } from "lucide-react"
+import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
@@ -159,15 +160,42 @@ export default function QuestTemplatesPage() {
   const handleDeleteTemplate = async () => {
     if (!selectedTemplate) return
 
-    const { error } = await supabase
-      .from("quest_template")
-      .delete()
-      .eq("id", selectedTemplate.id)
+    try {
+      console.log("Attempting to delete quest template:", selectedTemplate.id)
+      
+      const { data, error, status } = await supabase
+        .from("quest_template")
+        .delete()
+        .eq("id", selectedTemplate.id)
+        .select()
 
-    if (!error) {
+      console.log("Delete response:", { data, error, status })
+
+      if (status === 409) {
+        toast.error("Permission denied: You need admin privileges to delete templates")
+        setDeleteDialogOpen(false)
+        return
+      }
+
+      if (error) {
+        console.error("Delete error:", error)
+        toast.error(`Failed to delete: ${error.message} (Code: ${error.code})`)
+        return
+      }
+
+      if (!data || data.length === 0) {
+        toast.error("Delete failed: Permission denied or template not found")
+        setDeleteDialogOpen(false)
+        return
+      }
+
+      toast.success("Quest template deleted successfully")
       fetchQuestTemplates()
       setDeleteDialogOpen(false)
       setSelectedTemplate(null)
+    } catch (err) {
+      console.error("Delete exception:", err)
+      toast.error("An unexpected error occurred while deleting")
     }
   }
 
