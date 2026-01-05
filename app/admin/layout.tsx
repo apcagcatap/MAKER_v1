@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { 
   LayoutDashboard, 
@@ -67,17 +68,25 @@ export default function AdminLayout({
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-blue-700/50">
           {!collapsed && (
-            <Link href="/admin" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center font-bold text-white">
-                M
-              </div>
+            <Link href="/admin" className="flex items-center gap-3">
+              <Image
+                src="/admin avatar.png"
+                alt="Admin Logo"
+                width={44}
+                height={44}
+                className="rounded-lg"
+              />
               <span className="text-xl font-bold">MAKER</span>
             </Link>
           )}
           {collapsed && (
-            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center font-bold text-white mx-auto">
-              M
-            </div>
+            <Image
+              src="/admin avatar.png"
+              alt="Admin Logo"
+              width={40}
+              height={40}
+              className="rounded-lg mx-auto"
+            />
           )}
         </div>
 
