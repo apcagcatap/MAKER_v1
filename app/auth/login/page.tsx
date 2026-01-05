@@ -31,6 +31,9 @@ export default function LoginPage() {
       if (error) throw error
 
       if (data.user) {
+        // Small delay to ensure session cookies are written
+        await new Promise(resolve => setTimeout(resolve, 100))
+
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("role")
@@ -45,7 +48,7 @@ export default function LoginPage() {
         console.log("Login - User role:", profile?.role)
 
         if (profile?.role) {
-          // Force a router refresh to ensure middleware runs
+
           router.refresh()
           router.push(`/${profile.role}`)
         } else {
