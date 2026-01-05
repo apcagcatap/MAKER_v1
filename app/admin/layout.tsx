@@ -20,6 +20,9 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
+// Admin-specific styles
+import "./admin.css"
+
 const navItems = [
   { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/admin/accounts", icon: Users, label: "Accounts" },
@@ -46,7 +49,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="admin-theme min-h-screen flex">
       {/* Mobile overlay */}
       {mobileOpen && (
         <div 
@@ -140,20 +143,20 @@ export default function AdminLayout({
         )}
       >
         {/* Top bar */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center px-4 lg:px-6 sticky top-0 z-30">
+        <header className="h-16 admin-card border-b border-[var(--admin-border)] flex items-center px-4 lg:px-6 sticky top-0 z-30">
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden mr-2"
+            className="lg:hidden mr-2 text-[var(--admin-foreground)] hover:bg-[var(--admin-secondary)]"
             onClick={() => setMobileOpen(true)}
           >
             <Menu className="w-5 h-5" />
           </Button>
           
           <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-500">Admin Panel</span>
-            <span className="text-slate-300">/</span>
-            <span className="text-sm font-medium text-slate-900">
+            <span className="text-sm admin-text-muted">Admin Panel</span>
+            <span className="text-[var(--admin-border)]">/</span>
+            <span className="text-sm font-medium text-[var(--admin-foreground)]">
               {navItems.find(item => 
                 pathname === item.href || 
                 (item.href !== "/admin" && pathname.startsWith(item.href))

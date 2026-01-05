@@ -1,0 +1,11 @@
+// Admin components barrel export
+export { AdminPageHeader } from "./admin-page-header"
+export { AdminSearchCard } from "./admin-search-card"
+export { AdminFilterCard } from "./admin-filter-card"
+export { AdminDataTable } from "./admin-data-table"
+export { AdminFormDialog } from "./admin-form-dialog"
+export { AdminQuickLinkCard } from "./admin-quick-link-card"
+export { AdminStatCard } from "./admin-stat-card"
+export { AdminTableActions, EditDeleteActions } from "./admin-table-actions"
+export { ConfirmDeleteDialog } from "./confirm-delete-dialog"
+export { UserAvatar } from "./user-avatar"

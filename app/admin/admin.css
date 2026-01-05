@@ -1,0 +1,192 @@
+/**
+ * Admin-specific CSS variables and styles
+ * These override the global CSS for all /admin routes
+ */
+
+/* Admin theme - Light blue low contrast look */
+.admin-theme {
+  --admin-background: #eff6ff;
+  --admin-foreground: #1e3a5f;
+  --admin-card: #ffffff;
+  --admin-card-foreground: #1e3a5f;
+  --admin-primary: #3b82f6;
+  --admin-primary-foreground: #ffffff;
+  --admin-secondary: #dbeafe;
+  --admin-secondary-foreground: #1e40af;
+  --admin-muted: #e0f2fe;
+  --admin-muted-foreground: #64748b;
+  --admin-accent: #bfdbfe;
+  --admin-accent-foreground: #1e40af;
+  --admin-border: #bfdbfe;
+  --admin-input: #ffffff;
+  --admin-ring: #3b82f6;
+  --admin-sidebar: #1e40af;
+  --admin-sidebar-foreground: #ffffff;
+  --admin-sidebar-hover: #1d4ed8;
+  --admin-sidebar-active: #dc2626;
+}
+
+/* Apply admin theme to the layout */
+.admin-theme {
+  background-color: var(--admin-background);
+  color: var(--admin-foreground);
+}
+
+/* Admin sidebar styling */
+.admin-sidebar {
+  background-color: var(--admin-sidebar);
+  border-color: var(--admin-border);
+}
+
+.admin-sidebar-link {
+  color: var(--admin-sidebar-foreground);
+  transition: all 0.2s ease;
+}
+
+.admin-sidebar-link:hover {
+  background-color: var(--admin-sidebar-hover);
+}
+
+.admin-sidebar-link.active {
+  background-color: var(--admin-sidebar-active);
+  color: var(--admin-primary-foreground);
+}
+
+/* Admin cards */
+.admin-card {
+  background-color: var(--admin-card);
+  color: var(--admin-card-foreground);
+  border-color: var(--admin-border);
+}
+
+/* Admin buttons */
+.admin-btn-primary {
+  background-color: var(--admin-primary);
+  color: var(--admin-primary-foreground);
+}
+
+.admin-btn-primary:hover {
+  background-color: #2563eb;
+}
+
+.admin-btn-secondary {
+  background-color: var(--admin-secondary);
+  color: var(--admin-secondary-foreground);
+}
+
+.admin-btn-secondary:hover {
+  background-color: #475569;
+}
+
+/* Admin tables */
+.admin-table {
+  background-color: var(--admin-card);
+  border-color: var(--admin-border);
+}
+
+.admin-table th {
+  background-color: var(--admin-secondary);
+  color: var(--admin-muted-foreground);
+  border-color: var(--admin-border);
+}
+
+.admin-table td {
+  border-color: var(--admin-border);
+}
+
+.admin-table tr:hover {
+  background-color: var(--admin-sidebar-hover);
+}
+
+/* Admin inputs */
+.admin-input {
+  background-color: var(--admin-input);
+  border-color: var(--admin-border);
+  color: var(--admin-foreground);
+}
+
+.admin-input:focus {
+  border-color: var(--admin-ring);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.admin-input::placeholder {
+  color: var(--admin-muted-foreground);
+}
+
+/* Admin text utilities */
+.admin-text-muted {
+  color: var(--admin-muted-foreground);
+}
+
+.admin-text-primary {
+  color: var(--admin-primary);
+}
+
+/* Admin page header */
+.admin-page-header {
+  border-bottom: 1px solid var(--admin-border);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--admin-foreground);
+}
+
+.admin-page-description {
+  color: var(--admin-muted-foreground);
+  margin-top: 0.25rem;
+}
+
+/* Admin stats cards */
+.admin-stat-card {
+  background: linear-gradient(135deg, var(--admin-card) 0%, var(--admin-secondary) 100%);
+  border: 1px solid var(--admin-border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.admin-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--admin-foreground);
+}
+
+.admin-stat-label {
+  color: var(--admin-muted-foreground);
+  font-size: 0.875rem;
+}
+
+/* Admin badges */
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.admin-badge-success {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+}
+
+.admin-badge-warning {
+  background-color: rgba(234, 179, 8, 0.2);
+  color: #facc15;
+}
+
+.admin-badge-danger {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.admin-badge-info {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
