@@ -5,20 +5,21 @@ import { QuestsTableWrapper } from "@/components/facilitator/quests-table-wrappe
 export default async function FacilitatorQuestsPage({
   searchParams,
 }: {
-  searchParams: { edit?: string }
+  searchParams: Promise<{ edit?: string }> 
 }) {
+
+  const params = await searchParams
+  
   const supabase = await createClient()
-
-
-  // }
 
   const { data: quests } = await supabase
     .from("quests")
     .select("*")
     .order("created_at", { ascending: false })
 
-  const questToEdit = searchParams.edit
-    ? quests?.find((q) => q.id === searchParams.edit)
+  // ✅ Use params.edit instead of searchParams.edit
+  const questToEdit = params.edit
+    ? quests?.find((q) => q.id === params.edit)
     : null
 
   return <QuestsTableWrapper initialQuests={quests || []} initialEditingQuestId={questToEdit?.id || null} />
