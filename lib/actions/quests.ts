@@ -1,10 +1,60 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { getAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
+import { getAdminClient } from "@/lib/supabase/admin"
 import type { Skill } from "@/lib/types"
 
+export async function getAllQuests() {
+  try {
+    const supabase = await createClient()
+    
+    const { data: quests, error } = await supabase
+      .from("quests")
+      .select(`
+        *,
+        quest_participants(count)
+      `)
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("Error fetching all quests:", error)
+      throw new Error(error.message)
+    }
+
+    return quests || []
+  } catch (error) {
+    console.error("Error in getAllQuests:", error)
+    throw error
+  }
+}
+
+/**
+ * Get only published quests (for participant view)
+ * Filters out drafts and archived quests
+ */
+export async function getPublishedQuests() {
+  try {
+    const supabase = await createClient()
+    
+    const { data: quests, error } = await supabase
+      .from("quests")
+      .select("*")
+      .eq("status", "ublished") // 
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("Error fetching published quests:", error)
+      throw new Error(error.message)
+    }
+
+    return quests || []
+  } catch (error) {
+    console.error("Error in getPublishedQuests:", error)
+    throw error
+  }
+}
 
 
 export async function getSkills(): Promise<Skill[]> {

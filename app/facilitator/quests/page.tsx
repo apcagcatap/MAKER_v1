@@ -9,13 +9,7 @@ export default async function FacilitatorQuestsPage({
 }) {
   const supabase = await createClient()
 
-  // Allow access without authentication during development
-  // const {
-  //   data: { user },
-  // } = await supabase.auth.getUser()
-  //
-  // if (!user) {
-  //   redirect("/auth/login")
+
   // }
 
   const { data: quests } = await supabase

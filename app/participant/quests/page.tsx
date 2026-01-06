@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { ParticipantNav } from "@/components/layout/participant-nav"
 import { QuestCard } from "@/components/participant/quest-card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getPublishedQuests } from "@/lib/actions/quests"
 
 export default async function QuestsPage() {
   const supabase = await createClient()
@@ -14,15 +15,9 @@ export default async function QuestsPage() {
     redirect("/auth/login")
   }
 
-  // Fetch all quests with skill details
-  const { data: allQuests } = await supabase
-    .from("quests")
-    .select(`
-      *,
-      skill:skills(*)
-    `)
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
+  // ✅ USE getPublishedQuests() instead of direct query
+  // This will only fetch Published quests, hiding Drafts from participants
+  const allQuests = await getPublishedQuests()
 
   // Fetch user's quest progress
   const { data: userQuests } = await supabase.from("user_quests").select("*").eq("user_id", user.id)
