@@ -8,23 +8,14 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ["*.app.github.dev"],
+      allowedOrigins: [
+        "localhost:3000",
+        "*.github.dev",
+        "*.vercel.app",
+        "*.app.github.dev"
+      ],
     },
   },
 };
 
 export default nextConfig;
-
-  experimental: {
-    serverActions: {
-      allowedOrigins: [
-        "localhost:3000",
-        "*.github.dev",
-        "*.vercel.app"
-      ]
-  },
-}
-
-};
-
-export default nextConfig
