@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { Analytics } from '@vercel/analytics/next'
-import { Toaster } from '@/components/ui/toaster'
 import { Toaster } from 'sonner'
 import './globals.css'
 
@@ -27,12 +26,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body className="font-sans">
-        {children}
-        <Toaster />
-    <html lang="en">
-      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${poppins.variable}`} style={{ fontFamily: 'Poppins, sans-serif' }}>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} ${poppins.variable}`}>
+      <body className="font-sans" style={{ fontFamily: 'Poppins, sans-serif' }}>
         {children}
         <Toaster position="bottom-right" />
         <Analytics />
