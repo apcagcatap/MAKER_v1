@@ -25,7 +25,7 @@ export default async function ForumsPage() {
     .order("created_at", { ascending: false })
 
   return (
-    <div className="min-h-screen bg-blue-900">
+    <div className="min-h-screen bg-gradient-page-bg flex flex-col">
       <ParticipantNav />
 
       <div className="relative h-48">
@@ -38,47 +38,42 @@ export default async function ForumsPage() {
           className="absolute inset-0 z-0"
         />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 text-white">
-          <h1 className="text-4xl font-bold mb-2">Forums</h1>
-          <p className="text-blue-100">Connect with other makers and share your journey</p>
+          <h1 className="text-4xl font-bold mb-2">Community Forums</h1>
+          <p className="text-on-blue">Connect with other makers and share your journey</p>
         </div>
       </div>
 
-      <main className="relative -mt-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="space-y-4">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {forums?.map((forum) => (
-            <Link
+            <div
               key={forum.id}
-              href={`/participant/forums/${forum.id}`}
-              className="block bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow"
+              className="bg-card rounded-xl border p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col"
             >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{forum.title}</h3>
-                  <p className="text-gray-600 mb-4">{forum.description}</p>
+              <Link href={`/participant/forums/${forum.id}`} className="block mb-3">
+                <h3 className="text-xl font-bold text-card-foreground hover:text-interactive-primary transition-colors">
+                  {forum.title}
+                </h3>
+              
+              <p className="text-muted-foreground mb-4 flex-grow line-clamp-2">{forum.description}</p>
 
-                  <div className="flex items-center gap-6 text-sm text-gray-500">
-                    <div className="flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4" />
-                      <span>{forum.posts?.[0]?.count || 0} posts</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      <span>Last activity: {new Date(forum.created_at).toLocaleDateString()}</span>
-                    </div>
-                  </div>
+              <div className="flex items-center justify-between text-sm text-muted-foreground border-t pt-4">
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  <span>{forum.posts?.[0]?.count || 0} posts</span>
                 </div>
-
-                <div className="bg-purple-100 rounded-lg p-3">
-                  <MessageSquare className="w-6 h-6 text-purple-600" />
+                <div className="bg-brand-blue-light rounded-lg p-2">
+                  <MessageSquare className="w-5 h-5 text-brand-blue" />
                 </div>
               </div>
-            </Link>
+              </Link>
+            </div>
           ))}
         </div>
 
         {forums?.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-xl shadow-lg">
-            <p className="text-gray-500">No forums available yet. Check back soon!</p>
+          <div className="col-span-full text-center py-12 bg-card rounded-xl shadow-lg">
+            <p className="text-muted-foreground">No forums available yet. Check back soon!</p>
           </div>
         )}
       </main>
