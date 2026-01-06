@@ -40,7 +40,7 @@ export async function getPublishedQuests() {
     const { data: quests, error } = await supabase
       .from("quests")
       .select("*")
-      .eq("status", "ublished") // 
+      .eq("status", "published") // 
       .eq("is_active", true)
       .order("created_at", { ascending: false })
 

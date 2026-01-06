@@ -15,8 +15,7 @@ export default async function QuestsPage() {
     redirect("/auth/login")
   }
 
-  // ✅ USE getPublishedQuests() instead of direct query
-  // This will only fetch Published quests, hiding Drafts from participants
+
   const allQuests = await getPublishedQuests()
 
   // Fetch user's quest progress
