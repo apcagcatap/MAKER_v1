@@ -287,29 +287,29 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
 
             <div>
               <Label className="text-gray-900 font-medium">Quest Name *</Label>
-              <Input
-                placeholder="Enter quest name"
-                value={title}
-                onChange={(e) => {
-                  setTitle(e.target.value)
-                  if (errors.title) setErrors({ ...errors, title: "" })
-                }}
-                className={`mt-2 h-10 ${errors.title ? "border-red-500" : ""}`}
-              />
+                <Input
+                  placeholder="Enter quest name"
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value)
+                    if (errors.title) setErrors({ ...errors, title: "" })
+                  }}
+                  className={`mt-2 h-10 text-gray-900 placeholder:text-gray-400 ${errors.title ? "border-red-500" : ""}`}
+                />
               {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
             </div>
 
             <div>
               <Label className="text-gray-900 font-medium">Description *</Label>
-              <Textarea
-                placeholder="Enter quest description"
-                value={description}
-                onChange={(e) => {
-                  setDescription(e.target.value)
-                  if (errors.description) setErrors({ ...errors, description: "" })
-                }}
-                className={errors.description ? "border-red-500" : ""}
-              />
+                <Textarea
+                  placeholder="Enter quest description"
+                  value={description}
+                  onChange={(e) => {
+                    setDescription(e.target.value)
+                    if (errors.description) setErrors({ ...errors, description: "" })
+                  }}
+                  className={`text-gray-900 placeholder:text-gray-400 ${errors.description ? "border-red-500" : ""}`}
+                />
               {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
             </div>
 
@@ -317,7 +317,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
               <div>
                 <Label className="text-gray-900 font-medium">Difficulty</Label>
                 <Select value={difficulty} onValueChange={setDifficulty}>
-                  <SelectTrigger className="mt-2 h-10">
+                  <SelectTrigger className="mt-2 h-10 text-gray-900">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -331,12 +331,12 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
               </div>
 
               <div>
-                <Label className="text-gray-900 font-medium">Scheduled For</Label>
+                <Label className="text-gray-900 font-medium">Scheduled Date</Label>
                 <Input
                   type="date"
                   value={scheduledDate}
                   onChange={(e) => setScheduledDate(e.target.value)}
-                  className="mt-2 h-10"
+                  className="mt-2 h-10 text-gray-900"
                 />
               </div>
             </div>
@@ -417,18 +417,18 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
               </div>
             </div>
 
-            <div>
-              <Label className="text-gray-900 font-medium">Status</Label>
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger className="mt-2 h-10">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Draft">Draft</SelectItem>
-                  <SelectItem value="Published">Published</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <div>
+                <Label className="text-gray-900 font-medium">Status</Label>
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger className="mt-2 h-10 text-gray-900">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Draft">Draft</SelectItem>
+                    <SelectItem value="Published">Published</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
           </div>
         )}
 
@@ -439,29 +439,29 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
 
             <div>
               <Label className="text-gray-900 font-medium">Materials Needed *</Label>
-              <Textarea
-                placeholder="List all materials needed for this quest (e.g., Arduino board, LED lights, breadboard)"
-                value={materialsNeeded}
-                onChange={(e) => {
-                  setMaterialsNeeded(e.target.value)
-                  if (errors.materials) setErrors({ ...errors, materials: "" })
-                }}
-                className={errors.materials ? "border-red-500 mt-2" : "mt-2"}
-              />
+                <Textarea
+                  placeholder="List all materials needed for this quest (e.g., Arduino board, LED lights, breadboard)"
+                  value={materialsNeeded}
+                  onChange={(e) => {
+                    setMaterialsNeeded(e.target.value)
+                    if (errors.materials) setErrors({ ...errors, materials: "" })
+                  }}
+                  className={`text-gray-900 placeholder:text-gray-400 ${errors.materials ? "border-red-500 mt-2" : "mt-2"}`}
+                />
               {errors.materials && <p className="text-red-500 text-sm mt-1">{errors.materials}</p>}
             </div>
 
             <div>
               <Label className="text-gray-900 font-medium">General Instructions *</Label>
-              <Textarea
-                placeholder="Provide general instructions or guidelines for completing this quest"
-                value={generalInstructions}
-                onChange={(e) => {
-                  setGeneralInstructions(e.target.value)
-                  if (errors.instructions) setErrors({ ...errors, instructions: "" })
-                }}
-                className={errors.instructions ? "border-red-500 mt-2" : "mt-2"}
-              />
+                <Textarea
+                  placeholder="Provide general instructions or guidelines for completing this quest"
+                  value={generalInstructions}
+                  onChange={(e) => {
+                    setGeneralInstructions(e.target.value)
+                    if (errors.instructions) setErrors({ ...errors, instructions: "" })
+                  }}
+                  className={`text-gray-900 placeholder:text-gray-400 ${errors.instructions ? "border-red-500 mt-2" : "mt-2"}`}
+                />
               {errors.instructions && <p className="text-red-500 text-sm mt-1">{errors.instructions}</p>}
             </div>
           </div>
@@ -506,16 +506,16 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
 
                 <div>
                   <Label className="text-gray-900 font-medium">Task Title *</Label>
-                  <Input
-                    placeholder="e.g., Connect the LED circuit"
-                    value={level.title}
-                    onChange={(e) => {
-                      updateLevel(index, "title", e.target.value)
-                      if (errors[`level_${index}_title`])
-                        setErrors({ ...errors, [`level_${index}_title`]: "" })
-                    }}
-                    className={`mt-2 h-10 ${errors[`level_${index}_title`] ? "border-red-500" : ""}`}
-                  />
+                    <Input
+                      placeholder="e.g., Connect the LED circuit"
+                      value={level.title}
+                      onChange={(e) => {
+                        updateLevel(index, "title", e.target.value)
+                        if (errors[`level_${index}_title`])
+                          setErrors({ ...errors, [`level_${index}_title`]: "" })
+                      }}
+                      className={`mt-2 h-10 text-gray-900 placeholder:text-gray-400 ${errors[`level_${index}_title`] ? "border-red-500" : ""}`}
+                    />
                   {errors[`level_${index}_title`] && (
                     <p className="text-red-500 text-sm mt-1">{errors[`level_${index}_title`]}</p>
                   )}
@@ -523,16 +523,16 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
 
                 <div>
                   <Label className="text-gray-900 font-medium">Task Description *</Label>
-                  <Textarea
-                    placeholder="Describe what the participant needs to do in this level"
-                    value={level.description}
-                    onChange={(e) => {
-                      updateLevel(index, "description", e.target.value)
-                      if (errors[`level_${index}_desc`])
-                        setErrors({ ...errors, [`level_${index}_desc`]: "" })
-                    }}
-                    className={errors[`level_${index}_desc`] ? "border-red-500" : ""}
-                  />
+                    <Textarea
+                      placeholder="Describe what the participant needs to do in this level"
+                      value={level.description}
+                      onChange={(e) => {
+                        updateLevel(index, "description", e.target.value)
+                        if (errors[`level_${index}_desc`])
+                          setErrors({ ...errors, [`level_${index}_desc`]: "" })
+                      }}
+                      className={`text-gray-900 placeholder:text-gray-400 ${errors[`level_${index}_desc`] ? "border-red-500" : ""}`}
+                    />
                   {errors[`level_${index}_desc`] && (
                     <p className="text-red-500 text-sm mt-1">{errors[`level_${index}_desc`]}</p>
                   )}

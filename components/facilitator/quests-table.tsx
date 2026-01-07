@@ -74,17 +74,21 @@ export function QuestsTable({
   }
 
   const handleDeleteQuest = async (questId: string) => {
-    if (!confirm("Are you sure you want to delete this quest?")) return
+    if (!confirm("Are you sure you want to delete this quest? This action cannot be undone.")) return
 
     setIsLoading(true)
     try {
       await deleteQuest(questId)
-      setQuests(quests.filter((q) => q.id !== questId))
+      // Update local state immediately
+      setQuests(prevQuests => prevQuests.filter((q) => q.id !== questId))
       toast.success("Quest deleted successfully")
-      // Refresh the page to ensure database is synced
-      setTimeout(() => router.refresh(), 300)
+      // Refresh to sync with database
+      router.refresh()
     } catch (error) {
+      console.error("Delete quest error:", error)
       toast.error(error instanceof Error ? error.message : "Failed to delete quest")
+      // Refresh on error to ensure UI is in sync
+      router.refresh()
     } finally {
       setIsLoading(false)
     }
@@ -102,32 +106,46 @@ export function QuestsTable({
   const handlePublishQuest = async (questId: string) => {
     setIsLoading(true)
     try {
-      await publishQuest(questId)
-      setQuests(
-        quests.map((q) =>
-          q.id === questId ? { ...q, status: "published" } : q
+      const updatedQuest = await publishQuest(questId)
+      // Update local state with the returned data
+      setQuests(prevQuests =>
+        prevQuests.map((q) =>
+          q.id === questId ? { ...q, status: "Published" } : q
         )
       )
       toast.success("Quest published successfully")
+      // Refresh to ensure sync
+      router.refresh()
     } catch (error) {
+      console.error("Publish quest error:", error)
       toast.error(error instanceof Error ? error.message : "Failed to publish quest")
+      // Refresh on error to ensure UI is in sync
+      router.refresh()
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleArchiveQuest = async (questId: string) => {
+    if (!confirm("Are you sure you want to archive this quest?")) return
+    
     setIsLoading(true)
     try {
-      await archiveQuest(questId)
-      setQuests(
-        quests.map((q) =>
-          q.id === questId ? { ...q, status: "archived" } : q
+      const updatedQuest = await archiveQuest(questId)
+      // Update local state with the returned data
+      setQuests(prevQuests =>
+        prevQuests.map((q) =>
+          q.id === questId ? { ...q, status: "Archived" } : q
         )
       )
       toast.success("Quest archived successfully")
+      // Refresh to ensure sync
+      router.refresh()
     } catch (error) {
+      console.error("Archive quest error:", error)
       toast.error(error instanceof Error ? error.message : "Failed to archive quest")
+      // Refresh on error to ensure UI is in sync
+      router.refresh()
     } finally {
       setIsLoading(false)
     }
@@ -243,18 +261,16 @@ export function QuestsTable({
                   <td className="px-6 py-4 text-center" style={{ fontFamily: "Poppins, sans-serif" }}>
                     <span
                       className={`text-sm font-light ${
-                        quest.status === "published"
+                        quest.status === "Published"
                           ? "text-green-600"
-                          : quest.status === "draft"
+                          : quest.status === "Draft"
                             ? "text-yellow-600"
-                            : "text-gray-600"
+                            : quest.status === "Archived"
+                              ? "text-gray-600"
+                              : "text-gray-600"
                       }`}
                     >
-                      {quest.status === "published"
-                        ? "Published"
-                        : quest.status === "draft"
-                          ? "Draft"
-                          : quest.status || "Draft"}
+                      {quest.status || "Draft"}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -269,16 +285,27 @@ export function QuestsTable({
                       >
                         Edit
                       </Button>
-                      {quest.status === "published" ? (
+                      {quest.status === "Published" ? (
                         <Button
                           onClick={() => handleArchiveQuest(quest.id)}
                           disabled={isLoading}
                           variant="ghost"
                           size="sm"
-                          className="h-auto py-2 px-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg w-20"
+                          className="h-auto py-2 px-4 bg-orange-50 hover:bg-orange-100 text-orange-600 rounded-lg w-20"
                           style={{ font: "300 14px/20px Poppins, sans-serif" }}
                         >
-                          Archive
+                          {isLoading ? "..." : "Archive"}
+                        </Button>
+                      ) : quest.status === "Archived" ? (
+                        <Button
+                          onClick={() => handlePublishQuest(quest.id)}
+                          disabled={isLoading}
+                          variant="ghost"
+                          size="sm"
+                          className="h-auto py-2 px-4 bg-green-50 hover:bg-green-100 text-green-600 rounded-lg w-20"
+                          style={{ font: "300 14px/20px Poppins, sans-serif" }}
+                        >
+                          {isLoading ? "..." : "Publish"}
                         </Button>
                       ) : (
                         <Button
@@ -289,13 +316,13 @@ export function QuestsTable({
                           className="h-auto py-2 px-4 bg-green-50 hover:bg-green-100 text-green-600 rounded-lg w-20"
                           style={{ font: "300 14px/20px Poppins, sans-serif" }}
                         >
-                          Publish
+                          {isLoading ? "..." : "Publish"}
                         </Button>
                       )}
                       <button
                         onClick={() => handleDeleteQuest(quest.id)}
                         disabled={isLoading}
-                        className="text-red-600 hover:text-red-800 transition-colors"
+                        className="text-red-600 hover:text-red-800 transition-colors disabled:opacity-50"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

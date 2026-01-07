@@ -5,6 +5,10 @@ import { revalidatePath } from "next/cache"
 import { getAdminClient } from "@/lib/supabase/admin"
 import type { Skill } from "@/lib/types"
 
+/**
+ * Get all quests (for facilitator/admin view)
+ * Shows all quests regardless of status
+ */
 export async function getAllQuests() {
   try {
     const supabase = await createClient()
@@ -39,8 +43,11 @@ export async function getPublishedQuests() {
     
     const { data: quests, error } = await supabase
       .from("quests")
-      .select("*")
-      .eq("status", "published") // 
+      .select(`
+        *,
+        skill:skills(*)
+      `)
+      .eq("status", "Published")
       .eq("is_active", true)
       .order("created_at", { ascending: false })
 
@@ -55,7 +62,6 @@ export async function getPublishedQuests() {
     throw error
   }
 }
-
 
 export async function getSkills(): Promise<Skill[]> {
   const supabase = await createClient()
@@ -148,22 +154,28 @@ export async function createQuest(formData: {
     title: string
     description: string
   }>
-  xp_reward: number | null
-  skill_id: string | null
+  xp_reward?: number | null
+  skill_id?: string | null
 }) {
   try {
-    console.log("📝 Creating quest with data:", { title: formData.title, difficulty: formData.difficulty })
+    console.log("📝 Creating quest:", { 
+      title: formData.title, 
+      difficulty: formData.difficulty, 
+      status: formData.status 
+    })
 
     const supabase = await createClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
-    // Use a development user ID if not authenticated (for development/testing)
     const userId = user?.id || "dev-user-admin"
-    console.log("👤 Using userId:", userId)
+    console.log("👤 Creating quest as user:", userId)
 
-    const { data: quest, error } = await supabase
+    // Use admin client for consistent behavior
+    const adminClient = getAdminClient()
+
+    const { data: quest, error } = await adminClient
       .from("quests")
       .insert({
         title: formData.title,
@@ -182,13 +194,14 @@ export async function createQuest(formData: {
         is_active: true,
       })
       .select()
+      .single()
 
     if (error) {
       console.error("❌ Database insert error:", error)
       throw new Error(error.message)
     }
 
-    console.log("✅ Quest created successfully:", quest)
+    console.log("✅ Quest created successfully:", quest.title)
     revalidatePath("/facilitator/quests")
     return quest
   } catch (error) {
@@ -213,55 +226,87 @@ export async function updateQuest(
       title: string
       description: string
     }>
-    xp_reward: number | null
-    skill_id: string | null
+    xp_reward?: number | null
+    skill_id?: string | null
   }
 ) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    console.log("📝 Updating quest:", questId, "with status:", formData.status)
+    
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  // Use a development user ID if not authenticated (for development/testing)
-  const userId = user?.id || "dev-user-admin"
+    const userId = user?.id || "dev-user-admin"
+    console.log("👤 Updating as user:", userId)
 
-  const { data: quest, error } = await supabase
-    .from("quests")
-    .update({
-      title: formData.title,
-      description: formData.description,
-      difficulty: formData.difficulty,
-      scheduled_date: formData.scheduled_date,
-      badge_image_url: formData.badge_image_url,
-      certificate_image_url: formData.certificate_image_url,
-      status: formData.status,
-      materials_needed: formData.materials_needed,
-      general_instructions: formData.general_instructions,
-      levels: formData.levels,
-      xp_reward: formData.xp_reward || 0,
-      skill_id: formData.skill_id || null,
-    })
-    .eq("id", questId)
-    .eq("created_by", userId)
-    .select()
+    // Verify quest exists first
+    const { data: existingQuest, error: fetchError } = await supabase
+      .from("quests")
+      .select("id, created_by, title")
+      .eq("id", questId)
+      .single()
 
-  if (error) {
-    throw new Error(error.message)
+    if (fetchError || !existingQuest) {
+      console.error("❌ Quest not found:", fetchError)
+      throw new Error("Quest not found")
+    }
+
+    console.log("📋 Found quest to update:", existingQuest.title)
+
+    // Use admin client to bypass RLS
+    const adminClient = getAdminClient()
+
+    const { data: quest, error } = await adminClient
+      .from("quests")
+      .update({
+        title: formData.title,
+        description: formData.description,
+        difficulty: formData.difficulty,
+        scheduled_date: formData.scheduled_date,
+        badge_image_url: formData.badge_image_url,
+        certificate_image_url: formData.certificate_image_url,
+        status: formData.status,
+        materials_needed: formData.materials_needed,
+        general_instructions: formData.general_instructions,
+        levels: formData.levels,
+        xp_reward: formData.xp_reward || 0,
+        skill_id: formData.skill_id || null,
+      })
+      .eq("id", questId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error("❌ Update error:", error)
+      throw new Error(error.message)
+    }
+
+    console.log("✅ Quest updated successfully:", quest.title)
+    revalidatePath("/facilitator/quests")
+    return quest
+  } catch (error) {
+    console.error("🔥 Error in updateQuest:", error)
+    throw error
   }
-
-  revalidatePath("/facilitator/quests")
-  return quest
 }
 
 export async function deleteQuest(questId: string) {
   try {
     console.log("🗑️ Deleting quest:", questId)
 
-    // Use admin client to ensure delete works regardless of RLS
-    const adminClient = getAdminClient()
+    // Use regular client with user authentication
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    // Delete by ID only (most reliable)
-    const { error, data } = await adminClient
+    // Use a development user ID if not authenticated (for development/testing)
+    const userId = user?.id || "dev-user-admin"
+
+    // Any facilitator can delete any quest - just delete by ID
+    const { error, data } = await supabase
       .from("quests")
       .delete()
       .eq("id", questId)
@@ -270,6 +315,10 @@ export async function deleteQuest(questId: string) {
     if (error) {
       console.error("❌ Delete error:", error)
       throw new Error(error.message)
+    }
+
+    if (!data || data.length === 0) {
+      throw new Error("Quest not found")
     }
 
     console.log("✅ Quest deleted successfully:", data)
@@ -281,46 +330,123 @@ export async function deleteQuest(questId: string) {
 }
 
 export async function publishQuest(questId: string) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    console.log("📢 Publishing quest:", questId)
+    
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  // Use a development user ID if not authenticated (for development/testing)
-  const userId = user?.id || "dev-user-admin"
+    const userId = user?.id || "dev-user-admin"
+    console.log("👤 Attempting publish as user:", userId)
 
-  const { error } = await supabase
-    .from("quests")
-    .update({ status: "published" })
-    .eq("id", questId)
-    .eq("created_by", userId)
+    // First, verify the quest exists
+    const { data: existingQuest, error: fetchError } = await supabase
+      .from("quests")
+      .select("id, created_by, title, status")
+      .eq("id", questId)
+      .single()
 
-  if (error) {
-    throw new Error(error.message)
+    if (fetchError || !existingQuest) {
+      console.error("❌ Quest not found:", fetchError)
+      throw new Error("Quest not found")
+    }
+
+    console.log("📋 Found quest:", {
+      id: existingQuest.id,
+      title: existingQuest.title,
+      current_status: existingQuest.status,
+      created_by: existingQuest.created_by,
+      current_user: userId,
+      match: existingQuest.created_by === userId
+    })
+
+    // Use admin client to bypass RLS
+    const adminClient = getAdminClient()
+
+    const { data, error } = await adminClient
+      .from("quests")
+      .update({ status: "Published" })
+      .eq("id", questId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error("❌ Publish error:", error)
+      throw new Error(error.message)
+    }
+
+    if (!data) {
+      throw new Error("Failed to publish quest")
+    }
+
+    console.log("✅ Quest published successfully:", data.title)
+    revalidatePath("/facilitator/quests")
+    return data
+  } catch (error) {
+    console.error("🔥 Error in publishQuest:", error)
+    throw error
   }
-
-  revalidatePath("/facilitator/quests")
 }
 
-
 export async function archiveQuest(questId: string) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    console.log("📦 Archiving quest:", questId)
+    
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  // Use a development user ID if not authenticated (for development/testing)
-  const userId = user?.id || "dev-user-admin"
+    const userId = user?.id || "dev-user-admin"
+    console.log("👤 Attempting archive as user:", userId)
 
-  const { error } = await supabase
-    .from("quests")
-    .update({ status: "archived" })
-    .eq("id", questId)
-    .eq("created_by", userId)
+    // First, verify the quest exists
+    const { data: existingQuest, error: fetchError } = await supabase
+      .from("quests")
+      .select("id, created_by, title, status")
+      .eq("id", questId)
+      .single()
 
-  if (error) {
-    throw new Error(error.message)
+    if (fetchError || !existingQuest) {
+      console.error("❌ Quest not found:", fetchError)
+      throw new Error("Quest not found")
+    }
+
+    console.log("📋 Found quest:", {
+      id: existingQuest.id,
+      title: existingQuest.title,
+      current_status: existingQuest.status,
+      created_by: existingQuest.created_by,
+      current_user: userId,
+      match: existingQuest.created_by === userId
+    })
+
+    // Use admin client to bypass RLS
+    const adminClient = getAdminClient()
+
+    const { data, error } = await adminClient
+      .from("quests")
+      .update({ status: "Archived" })
+      .eq("id", questId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error("❌ Archive error:", error)
+      throw new Error(error.message)
+    }
+
+    if (!data) {
+      throw new Error("Failed to archive quest")
+    }
+
+    console.log("✅ Quest archived successfully:", data.title)
+    revalidatePath("/facilitator/quests")
+    return data
+  } catch (error) {
+    console.error("🔥 Error in archiveQuest:", error)
+    throw error
   }
-
-  revalidatePath("/facilitator/quests")
 }
