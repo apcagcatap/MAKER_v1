@@ -553,7 +553,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-gray-900">Review & Publish</h2>
 
-            <div className="bg-white rounded-lg p-4 space-y-2 text-sm">
+            <div className="bg-white rounded-lg p-4 space-y-2 text-sm text-black">
               <div>
                 <span className="font-medium">Quest Name:</span> {title}
               </div>

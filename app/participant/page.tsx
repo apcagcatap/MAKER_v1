@@ -215,7 +215,7 @@ export default async function ParticipantDashboard() {
 
         {inProgressQuests.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Continue Learning</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">Continue Learning</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {inProgressQuests.map((userQuest) => (
                 <QuestCard key={userQuest.id} quest={userQuest.quest} userQuest={userQuest} />
