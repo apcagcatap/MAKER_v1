@@ -32,7 +32,15 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
       return
     }
 
-    // If stories exist and not completed, show story
+    // CRITICAL FIX: Check if user has already progressed to levels
+    // If current_level > 0, they've already gone through story/instructions/materials
+    if (userProgress.current_level > 0) {
+      setCurrentStep('level')
+      setCurrentLevelIndex(userProgress.current_level)
+      return
+    }
+
+    // If current_level is 0, follow the normal flow
     if (quest.stories?.length > 0 && !userProgress.story_completed) {
       setCurrentStep('story')
     } else if (!userProgress.instructions_viewed) {
@@ -40,8 +48,9 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
     } else if (!userProgress.materials_viewed) {
       setCurrentStep('materials')
     } else {
+      // They've viewed everything but haven't started level 1 yet
       setCurrentStep('level')
-      setCurrentLevelIndex(userProgress.current_level || 0)
+      setCurrentLevelIndex(0)
     }
   }, [userProgress, quest.stories])
 
@@ -68,11 +77,45 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
     }
   }
 
-  const handleInstructionsComplete = () => {
+  const handleInstructionsComplete = async () => {
+    try {
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        // Mark instructions as viewed
+        await supabase
+          .from('user_quests')
+          .update({ instructions_viewed: true })
+          .eq('quest_id', quest.id)
+          .eq('user_id', user.id)
+      }
+    } catch (error) {
+      console.error('Error marking instructions as viewed:', error)
+    }
+    
     setCurrentStep('materials')
   }
 
-  const handleMaterialsComplete = () => {
+  const handleMaterialsComplete = async () => {
+    try {
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        // Mark materials as viewed
+        await supabase
+          .from('user_quests')
+          .update({ materials_viewed: true })
+          .eq('quest_id', quest.id)
+          .eq('user_id', user.id)
+      }
+    } catch (error) {
+      console.error('Error marking materials as viewed:', error)
+    }
+    
     setCurrentStep('level')
     setCurrentLevelIndex(0)
   }
@@ -82,22 +125,40 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
     const newCompletionTimes = [...levelCompletionTimes, new Date()]
     setLevelCompletionTimes(newCompletionTimes)
 
-    // Check if there are more levels
-    if (currentLevelIndex < quest.levels.length - 1) {
-      setCurrentLevelIndex(currentLevelIndex + 1)
-    } else {
-      // All levels completed - mark quest as completed
-      try {
-        const { createClient } = await import('@/lib/supabase/client')
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-        
-        if (user) {
+    const nextLevelIndex = currentLevelIndex + 1
+
+    try {
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        // Check if there are more levels
+        if (nextLevelIndex < quest.levels.length) {
+          // Update current_level to track progress
+          const { error } = await supabase
+            .from('user_quests')
+            .update({
+              current_level: nextLevelIndex
+            })
+            .eq('quest_id', quest.id)
+            .eq('user_id', user.id)
+
+          if (error) {
+            console.error('Error updating level progress:', error)
+          } else {
+            console.log(`✅ Progress saved: Level ${nextLevelIndex + 1}`)
+            setCurrentLevelIndex(nextLevelIndex)
+            router.refresh()
+          }
+        } else {
+          // All levels completed - mark quest as completed
           const { error } = await supabase
             .from('user_quests')
             .update({
               status: 'completed',
-              completed_at: new Date().toISOString()
+              completed_at: new Date().toISOString(),
+              current_level: quest.levels.length
             })
             .eq('quest_id', quest.id)
             .eq('user_id', user.id)
@@ -107,13 +168,13 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
           } else {
             console.log('✅ Quest marked as completed!')
           }
+          
+          setCurrentStep('completed')
+          router.refresh()
         }
-      } catch (error) {
-        console.error('Error marking quest as completed:', error)
       }
-      
-      setCurrentStep('completed')
-      router.refresh()
+    } catch (error) {
+      console.error('Error saving progress:', error)
     }
   }
 
@@ -230,6 +291,10 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
   if (currentStep === 'level' && quest.levels && quest.levels[currentLevelIndex]) {
     const currentLevel = quest.levels[currentLevelIndex]
     const levelNumber = currentLevelIndex + 1
+    
+    // Calculate progress: currentLevelIndex represents completed levels, not the current one
+    const completedLevels = currentLevelIndex
+    const progressPercentage = Math.round((completedLevels / quest.levels.length) * 100)
 
     return (
       <div className="max-w-4xl mx-auto">
@@ -240,13 +305,13 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
               Level {levelNumber} of {quest.levels.length}
             </span>
             <span className="text-sm font-medium text-gray-600">
-              {Math.round((levelNumber / quest.levels.length) * 100)}% Complete
+              {progressPercentage}% Complete
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
               className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(levelNumber / quest.levels.length) * 100}%` }}
+              style={{ width: `${progressPercentage}%` }}
             ></div>
           </div>
         </div>
