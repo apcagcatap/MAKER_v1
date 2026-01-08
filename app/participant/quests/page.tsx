@@ -2,8 +2,69 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { ParticipantNav } from "@/components/layout/participant-nav"
 import { QuestCard } from "@/components/participant/quest-card"
+import { FeaturedQuestCard } from "@/components/participant/featured-quest-card"
+import { FastestCompletions } from "@/components/participant/fastest-completions"
+import { ResourceCard } from "@/components/participant/resource-card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { getPublishedQuests } from "@/lib/actions/quests"
+
+async function getQuestData(supabase: any, questId: string) {
+  // Fetch learning resources for quest (will be empty if table doesn't exist yet)
+  let learningResources: any[] = []
+  try {
+    const { data } = await supabase
+      .from("learning_resources")
+      .select("*")
+      .eq("quest_id", questId)
+      .order("order_index", { ascending: true })
+    learningResources = data || []
+  } catch (error) {
+    // Table doesn't exist yet - this is expected
+  }
+
+  // Fetch fastest completions for quest
+  let fastestCompletions: any[] = []
+  try {
+    const { data: completionsData } = await supabase
+      .from("user_quests")
+      .select(`
+        completed_at,
+        started_at,
+        user_id,
+        users!user_quests_user_id_fkey (
+          id,
+          full_name,
+          avatar_url
+        )
+      `)
+      .eq("quest_id", questId)
+      .eq("status", "completed")
+      .not("completed_at", "is", null)
+      .order("completed_at", { ascending: true })
+      .limit(3)
+
+    // Calculate duration for completions
+    fastestCompletions = completionsData?.map((completion: any) => {
+      const started = new Date(completion.started_at)
+      const completed = new Date(completion.completed_at)
+      const durationMinutes = Math.round((completed.getTime() - started.getTime()) / (1000 * 60))
+
+      return {
+        user: completion.users || { 
+          id: completion.user_id, 
+          full_name: "Unknown User", 
+          avatar_url: null 
+        },
+        completed_at: completion.completed_at,
+        duration_minutes: durationMinutes > 0 ? durationMinutes : undefined,
+      }
+    }) || []
+  } catch (error) {
+    console.log("Error fetching completions:", error)
+  }
+
+  return { learningResources, fastestCompletions }
+}
 
 export default async function QuestsPage() {
   const supabase = await createClient()
@@ -15,8 +76,9 @@ export default async function QuestsPage() {
     redirect("/auth/login")
   }
 
-
   const allQuests = await getPublishedQuests()
+  
+  console.log("🚀 Total published quests:", allQuests?.length)
 
   // Fetch user's quest progress
   const { data: userQuests } = await supabase.from("user_quests").select("*").eq("user_id", user.id)
@@ -27,58 +89,74 @@ export default async function QuestsPage() {
   const inProgress = allQuests?.filter((q) => userQuestsMap.get(q.id)?.status === "in_progress") || []
   const completed = allQuests?.filter((q) => userQuestsMap.get(q.id)?.status === "completed") || []
 
+  // Fetch data for all quests
+  const questsWithData = await Promise.all(
+    (allQuests || []).map(async (quest) => {
+      const data = await getQuestData(supabase, quest.id)
+      return {
+        quest,
+        ...data,
+        userQuest: userQuestsMap.get(quest.id)
+      }
+    })
+  )
+
   return (
     <div className="min-h-screen">
       <ParticipantNav />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Quests</h1>
-          <p className="text-white">Complete quests to earn XP and level up your skills</p>
-        </div>
+        {/* Featured Quest Sections - One for each published quest */}
+        {questsWithData.length > 0 ? (
+          <div className="space-y-16 mb-16">
+            {questsWithData.map((item, index) => (
+              <div key={item.quest.id}>
+                {/* Featured Quest Section */}
+                <div className="mb-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <div className="lg:col-span-2">
+                      <FeaturedQuestCard
+                        quest={item.quest}
+                        userQuest={item.userQuest}
+                      />
+                    </div>
+                    <div>
+                      <FastestCompletions completions={item.fastestCompletions} />
+                    </div>
+                  </div>
 
-        <Tabs defaultValue="all" className="w-full">
-          <TabsList className="mb-6">
-            <TabsTrigger value="all">All Quests ({allQuests?.length || 0})</TabsTrigger>
-            <TabsTrigger value="in-progress">In Progress ({inProgress.length})</TabsTrigger>
-            <TabsTrigger value="completed">Completed ({completed.length})</TabsTrigger>
-          </TabsList>
+                  {/* Explore Resources Section - Only shows if learning_resources table exists and has data */}
+                  {item.learningResources.length > 0 && (
+                    <div>
+                      <h2 className="text-2xl font-bold text-white mb-6">Explore Resources</h2>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {item.learningResources.map((resource: any) => (
+                          <ResourceCard key={resource.id} resource={resource} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
-          <TabsContent value="all">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {allQuests?.map((quest) => (
-                <QuestCard key={quest.id} quest={quest} userQuest={userQuestsMap.get(quest.id)} />
-              ))}
+                {/* Separator between quests (not on last item) */}
+                {index < questsWithData.length - 1 && (
+                  <div className="border-t border-white/10 pt-8"></div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 mb-16">
+            <div className="w-16 h-16 bg-blue-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-3xl">🎯</span>
             </div>
-          </TabsContent>
-
-          <TabsContent value="in-progress">
-            {inProgress.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {inProgress.map((quest) => (
-                  <QuestCard key={quest.id} quest={quest} userQuest={userQuestsMap.get(quest.id)} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-500">No quests in progress. Start a new quest to begin learning!</p>
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="completed">
-            {completed.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {completed.map((quest) => (
-                  <QuestCard key={quest.id} quest={quest} userQuest={userQuestsMap.get(quest.id)} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-500">No completed quests yet. Keep working on your active quests!</p>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+            <h3 className="text-xl font-bold text-white mb-2">
+              No Quests Available
+            </h3>
+            <p className="text-blue-200">
+              Check back soon for exciting new challenges!
+            </p>
+          </div>
+        )}
       </main>
     </div>
   )

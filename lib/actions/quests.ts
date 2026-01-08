@@ -63,6 +63,154 @@ export async function getPublishedQuests() {
   }
 }
 
+/**
+ * Get a single quest with all related data (stories, resources)
+ * Used when participant starts a quest
+ */
+export async function getQuestWithDetails(questId: string) {
+  try {
+    const supabase = await createClient()
+    
+    const { data: quest, error } = await supabase
+      .from("quests")
+      .select(`
+        *,
+        skill:skills(*),
+        stories(*),
+        learning_resources(*)
+      `)
+      .eq("id", questId)
+      .single()
+
+    if (error) {
+      console.error("Error fetching quest details:", error)
+      throw new Error(error.message)
+    }
+
+    // Sort stories and resources by order_index
+    if (quest.stories) {
+      quest.stories.sort((a: any, b: any) => a.order_index - b.order_index)
+    }
+    if (quest.learning_resources) {
+      quest.learning_resources.sort((a: any, b: any) => a.order_index - b.order_index)
+    }
+
+    return quest
+  } catch (error) {
+    console.error("Error in getQuestWithDetails:", error)
+    throw error
+  }
+}
+
+/**
+ * Check if user has started a quest and get their progress
+ */
+export async function getUserQuestProgress(questId: string, userId: string) {
+  try {
+    const supabase = await createClient()
+    
+    const { data, error } = await supabase
+      .from("user_quests")
+      .select("*")
+      .eq("quest_id", questId)
+      .eq("user_id", userId)
+      .single()
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 = not found
+      console.error("Error fetching user quest progress:", error)
+      throw new Error(error.message)
+    }
+
+    return data
+  } catch (error) {
+    console.error("Error in getUserQuestProgress:", error)
+    return null
+  }
+}
+
+/**
+ * Start a quest for a user
+ */
+export async function startQuest(questId: string) {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      throw new Error("User not authenticated")
+    }
+
+    // Check if user already has this quest
+    const existingQuest = await getUserQuestProgress(questId, user.id)
+
+    if (existingQuest) {
+      return existingQuest
+    }
+
+    // Create new user quest
+    const { data, error } = await supabase
+      .from("user_quests")
+      .insert({
+        user_id: user.id,
+        quest_id: questId,
+        status: "in_progress",
+        started_at: new Date().toISOString(),
+        story_completed: false,
+        instructions_viewed: false,
+        materials_viewed: false,
+        current_level: 0
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error("Error starting quest:", error)
+      throw new Error(error.message)
+    }
+
+    revalidatePath("/participant/quests")
+    return data
+  } catch (error) {
+    console.error("Error in startQuest:", error)
+    throw error
+  }
+}
+
+/**
+ * Mark story as completed for user
+ */
+export async function completeStory(questId: string) {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      throw new Error("User not authenticated")
+    }
+
+    const { data, error } = await supabase
+      .from("user_quests")
+      .update({
+        story_completed: true
+      })
+      .eq("quest_id", questId)
+      .eq("user_id", user.id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error("Error completing story:", error)
+      throw new Error(error.message)
+    }
+
+    revalidatePath(`/participant/quests/${questId}`)
+    return data
+  } catch (error) {
+    console.error("Error in completeStory:", error)
+    throw error
+  }
+}
+
 export async function getSkills(): Promise<Skill[]> {
   const supabase = await createClient()
 
@@ -85,34 +233,27 @@ export async function uploadImage(file: Blob, type: "badge" | "certificate") {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Use a development user ID if not authenticated (for development/testing)
   const userId = user?.id || "dev-user-" + Math.random().toString(36).substring(7)
 
-  // Validate file
   if (!file || file.size === 0) {
     throw new Error("No file selected")
   }
 
-  // Check file size (max 5MB)
   const maxFileSize = 5 * 1024 * 1024
   if (file.size > maxFileSize) {
     throw new Error("File size must be less than 5MB")
   }
 
-  // Validate file type
   if (!file.type.startsWith("image/")) {
     throw new Error("File must be an image (PNG, JPG, GIF, etc.)")
   }
 
-  // Generate a unique filename
   const timestamp = Date.now()
   const random = Math.random().toString(36).substring(7)
   const filename = `${type}/${userId}/${timestamp}-${random}.png`
 
-  // Use admin client for storage operations (bypasses RLS)
   const adminClient = getAdminClient()
 
-  // Upload to Supabase storage
   const { data, error } = await adminClient.storage
     .from("quest-images")
     .upload(filename, file, {
@@ -121,14 +262,12 @@ export async function uploadImage(file: Blob, type: "badge" | "certificate") {
     })
 
   if (error) {
-    // Check if it's a bucket not found error
     if (error.message.includes("Bucket not found") || error.message.includes("not found")) {
       throw new Error("Storage bucket 'quest-images' not found. Please ask your administrator to create it in the Supabase dashboard.")
     }
     throw new Error(`Failed to upload image: ${error.message}`)
   }
 
-  // Get the public URL using admin client
   const { data: urlData } = adminClient.storage
     .from("quest-images")
     .getPublicUrl(data.path)
@@ -172,7 +311,6 @@ export async function createQuest(formData: {
     const userId = user?.id || "dev-user-admin"
     console.log("👤 Creating quest as user:", userId)
 
-    // Use admin client for consistent behavior
     const adminClient = getAdminClient()
 
     const { data: quest, error } = await adminClient
@@ -203,6 +341,7 @@ export async function createQuest(formData: {
 
     console.log("✅ Quest created successfully:", quest.title)
     revalidatePath("/facilitator/quests")
+    revalidatePath("/participant/quests")
     return quest
   } catch (error) {
     console.error("🔥 Error in createQuest:", error)
@@ -241,7 +380,6 @@ export async function updateQuest(
     const userId = user?.id || "dev-user-admin"
     console.log("👤 Updating as user:", userId)
 
-    // Verify quest exists first
     const { data: existingQuest, error: fetchError } = await supabase
       .from("quests")
       .select("id, created_by, title")
@@ -255,7 +393,6 @@ export async function updateQuest(
 
     console.log("📋 Found quest to update:", existingQuest.title)
 
-    // Use admin client to bypass RLS
     const adminClient = getAdminClient()
 
     const { data: quest, error } = await adminClient
@@ -285,6 +422,7 @@ export async function updateQuest(
 
     console.log("✅ Quest updated successfully:", quest.title)
     revalidatePath("/facilitator/quests")
+    revalidatePath("/participant/quests")
     return quest
   } catch (error) {
     console.error("🔥 Error in updateQuest:", error)
@@ -296,16 +434,13 @@ export async function deleteQuest(questId: string) {
   try {
     console.log("🗑️ Deleting quest:", questId)
 
-    // Use regular client with user authentication
     const supabase = await createClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
-    // Use a development user ID if not authenticated (for development/testing)
     const userId = user?.id || "dev-user-admin"
 
-    // Any facilitator can delete any quest - just delete by ID
     const { error, data } = await supabase
       .from("quests")
       .delete()
@@ -323,6 +458,7 @@ export async function deleteQuest(questId: string) {
 
     console.log("✅ Quest deleted successfully:", data)
     revalidatePath("/facilitator/quests")
+    revalidatePath("/participant/quests")
   } catch (error) {
     console.error("🔥 Error in deleteQuest:", error)
     throw error
@@ -341,7 +477,6 @@ export async function publishQuest(questId: string) {
     const userId = user?.id || "dev-user-admin"
     console.log("👤 Attempting publish as user:", userId)
 
-    // First, verify the quest exists
     const { data: existingQuest, error: fetchError } = await supabase
       .from("quests")
       .select("id, created_by, title, status")
@@ -362,7 +497,6 @@ export async function publishQuest(questId: string) {
       match: existingQuest.created_by === userId
     })
 
-    // Use admin client to bypass RLS
     const adminClient = getAdminClient()
 
     const { data, error } = await adminClient
@@ -383,6 +517,7 @@ export async function publishQuest(questId: string) {
 
     console.log("✅ Quest published successfully:", data.title)
     revalidatePath("/facilitator/quests")
+    revalidatePath("/participant/quests")
     return data
   } catch (error) {
     console.error("🔥 Error in publishQuest:", error)
@@ -402,7 +537,6 @@ export async function archiveQuest(questId: string) {
     const userId = user?.id || "dev-user-admin"
     console.log("👤 Attempting archive as user:", userId)
 
-    // First, verify the quest exists
     const { data: existingQuest, error: fetchError } = await supabase
       .from("quests")
       .select("id, created_by, title, status")
@@ -423,7 +557,6 @@ export async function archiveQuest(questId: string) {
       match: existingQuest.created_by === userId
     })
 
-    // Use admin client to bypass RLS
     const adminClient = getAdminClient()
 
     const { data, error } = await adminClient
@@ -444,6 +577,7 @@ export async function archiveQuest(questId: string) {
 
     console.log("✅ Quest archived successfully:", data.title)
     revalidatePath("/facilitator/quests")
+    revalidatePath("/participant/quests")
     return data
   } catch (error) {
     console.error("🔥 Error in archiveQuest:", error)
