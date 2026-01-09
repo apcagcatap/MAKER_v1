@@ -32,32 +32,56 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
       return
     }
 
-    // CRITICAL FIX: Check if user has already progressed to levels
-    // If current_level > 0, they've already gone through story/instructions/materials
+    // If user has progressed to levels
     if (userProgress.current_level > 0) {
       setCurrentStep('level')
       setCurrentLevelIndex(userProgress.current_level)
       return
     }
 
-    // If current_level is 0, follow the normal flow
+    // Story flow: Only show story if it exists AND hasn't been completed
     if (quest.stories?.length > 0 && !userProgress.story_completed) {
       setCurrentStep('story')
-    } else if (!userProgress.instructions_viewed) {
-      setCurrentStep('instructions')
-    } else if (!userProgress.materials_viewed) {
-      setCurrentStep('materials')
-    } else {
-      // They've viewed everything but haven't started level 1 yet
-      setCurrentStep('level')
-      setCurrentLevelIndex(0)
+      return
     }
+
+    // After story (or if no story), show instructions
+    if (!userProgress.instructions_viewed) {
+      setCurrentStep('instructions')
+      return
+    }
+
+    // After instructions, show materials
+    if (!userProgress.materials_viewed) {
+      setCurrentStep('materials')
+      return
+    }
+
+    // After materials, show levels
+    setCurrentStep('level')
+    setCurrentLevelIndex(0)
   }, [userProgress, quest.stories])
 
   const handleStartQuest = async () => {
     try {
       setIsStarting(true)
       await startQuest(quest.id)
+      
+      // If no stories, mark story as complete immediately
+      if (!quest.stories || quest.stories.length === 0) {
+        const { createClient } = await import('@/lib/supabase/client')
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (user) {
+          await supabase
+            .from('user_quests')
+            .update({ story_completed: true })
+            .eq('quest_id', quest.id)
+            .eq('user_id', user.id)
+        }
+      }
+      
       router.refresh()
     } catch (error) {
       console.error('Error starting quest:', error)
@@ -70,8 +94,10 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
   const handleStoryComplete = async () => {
     try {
       await completeStory(quest.id)
+      // Directly set to instructions, don't wait for refresh
       setCurrentStep('instructions')
-      router.refresh()
+      // Then refresh in background
+      setTimeout(() => router.refresh(), 100)
     } catch (error) {
       console.error('Error completing story:', error)
     }
@@ -178,12 +204,7 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
     }
   }
 
-  // Show story view if stories exist and user hasn't completed them
-  if (currentStep === 'story' && quest.stories?.length > 0) {
-    return <StoryView stories={quest.stories} onComplete={handleStoryComplete} />
-  }
-
-  // If user hasn't started the quest yet
+  // If user hasn't started the quest yet, show start button
   if (!userProgress) {
     return (
       <div className="max-w-4xl mx-auto">
@@ -217,6 +238,11 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
         </div>
       </div>
     )
+  }
+
+  // Show story view ONLY if stories exist and user hasn't completed them
+  if (currentStep === 'story' && quest.stories?.length > 0 && !userProgress?.story_completed) {
+    return <StoryView stories={quest.stories} onComplete={handleStoryComplete} />
   }
 
   // Instructions Step
