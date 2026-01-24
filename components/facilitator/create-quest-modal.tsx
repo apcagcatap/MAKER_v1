@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Trash2, Plus, Upload, X } from "lucide-react"
+import { Trash2, Plus, Upload, X, Sparkles } from "lucide-react"
 import { createQuest, updateQuest, uploadImage } from "@/lib/actions/quests"
+import { generateQuestStory } from "@/lib/actions/ai-story"
 import { toast } from "sonner"
 
 interface QuestLevel {
@@ -44,6 +45,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
   const certificateInputRef = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
+  const [isGeneratingStory, setIsGeneratingStory] = useState(false)
 
   // Step 1: Basic Details
   const [title, setTitle] = useState(editingQuest?.title || "")
@@ -59,6 +61,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
   const [status, setStatus] = useState(editingQuest?.status || "Draft")
 
   // Step 2: Story
+  const [storyContext, setStoryContext] = useState("")
   const [stories, setStories] = useState<Story[]>(
     editingQuest?.stories?.map((s: any, i: number) => ({ title: s.title, content: s.content, order_index: i })) || []
   )
@@ -186,6 +189,41 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
     if (certificateInputRef.current) certificateInputRef.current.value = ""
   }
 
+  const handleGenerateStory = async () => {
+    if (!title.trim()) {
+      toast.error("Please enter a quest title first")
+      return
+    }
+
+    if (!description.trim()) {
+      toast.error("Please enter a quest description first")
+      return
+    }
+
+    setIsGeneratingStory(true)
+    try {
+      const generatedStories = await generateQuestStory({
+        title,
+        description,
+        difficulty,
+        storyContext: storyContext.trim() || undefined,
+      })
+
+      const newStories = generatedStories.map((story, index) => ({
+        title: story.title,
+        content: story.content,
+        order_index: index,
+      }))
+
+      setStories(newStories)
+      toast.success(`Generated ${newStories.length} story segments!`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to generate story")
+    } finally {
+      setIsGeneratingStory(false)
+    }
+  }
+
   const addStory = () => setStories([...stories, { title: "", content: "", order_index: stories.length }])
   const removeStory = (index: number) => setStories(stories.filter((_, i) => i !== index).map((s, i) => ({ ...s, order_index: i })))
   const updateStory = (index: number, field: keyof Story, value: string | number) => {
@@ -291,6 +329,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
     setBadgeImagePreview(null)
     setCertificateImagePreview(null)
     setStatus("Draft")
+    setStoryContext("")
     setStories([])
     setLearningResources([])
     setMaterialsNeeded("")
@@ -416,10 +455,52 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
         {/* Step 2: Story */}
         {step === 2 && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600">Add story segments to engage participants at the start of the quest</p>
-              <Button onClick={addStory} variant="outline" size="sm" className="gap-2"><Plus className="w-4 h-4" />Add Story</Button>
+            {/* AI Story Context Input */}
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 rounded-lg p-4">
+              <Label className="text-gray-900 font-semibold flex items-center gap-2 mb-2">
+                <Sparkles className="w-5 h-5 text-purple-600" />
+                AI Story Settings (Optional)
+              </Label>
+              <Textarea
+                placeholder="Describe the setting, tone, or vibe for your story... 
+e.g., 'A futuristic space adventure', 'Medieval fantasy kingdom', 'Modern city mystery', 'Tropical island survival'"
+                value={storyContext}
+                onChange={(e) => setStoryContext(e.target.value)}
+                rows={3}
+                className="text-gray-900 placeholder:text-gray-400 bg-white"
+              />
+              <p className="text-xs text-gray-600 mt-2">
+                This helps the AI create a story that matches your desired theme and atmosphere
+              </p>
             </div>
+
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm text-gray-600">Add story segments to engage participants at the start of the quest</p>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleGenerateStory}
+                  disabled={isGeneratingStory || !title.trim() || !description.trim()}
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600 border-0"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  {isGeneratingStory ? "Generating..." : "Generate with AI"}
+                </Button>
+                <Button onClick={addStory} variant="outline" size="sm" className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  Add Story
+                </Button>
+              </div>
+            </div>
+
+            {(!title.trim() || !description.trim()) && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
+                <p className="font-medium mb-1">💡 Tip: Complete Step 1 first</p>
+                <p>Fill in the quest title and description in Step 1, then come back here to generate AI stories.</p>
+              </div>
+            )}
+
             {stories.map((story, index) => (
               <div key={index} className={`bg-white rounded-lg p-6 border-2 space-y-4 ${errors[`story_${index}_title`] || errors[`story_${index}_content`] ? "border-red-300" : "border-gray-200"}`}>
                 <div className="flex items-center justify-between">
@@ -438,9 +519,12 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
                 </div>
               </div>
             ))}
+
             {stories.length === 0 && (
               <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
-                <p>No stories added yet. Stories are optional but help engage participants.</p>
+                <Sparkles className="w-12 h-12 mx-auto mb-3 text-purple-400" />
+                <p className="font-medium mb-1">No stories added yet</p>
+                <p className="text-sm">Use AI to generate engaging stories or add them manually</p>
               </div>
             )}
           </div>
@@ -515,80 +599,79 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
           </div>
         )}
 
-{step === 5 && (
-  <div className="space-y-4">
-    <div className="flex items-center justify-between">
-      <p className="text-sm text-gray-600">Define the levels/tasks participants must complete</p>
-      <Button onClick={addLevel} variant="outline" size="sm" className="gap-2">
-        <Plus className="w-4 h-4" />Add Level
-      </Button>
-    </div>
+        {/* Step 5: Quest Levels */}
+        {step === 5 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-600">Define the levels/tasks participants must complete</p>
+              <Button onClick={addLevel} variant="outline" size="sm" className="gap-2">
+                <Plus className="w-4 h-4" />Add Level
+              </Button>
+            </div>
 
-    {errors.levels && <p className="text-red-500 text-sm">{errors.levels}</p>}
+            {errors.levels && <p className="text-red-500 text-sm">{errors.levels}</p>}
 
-    {levels.map((level, index) => (
-      <div key={index} className={`bg-white rounded-lg p-6 border-2 space-y-4 ${errors[`level_${index}_title`] || errors[`level_${index}_desc`] ? "border-red-300" : "border-gray-200"}`}>
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold text-gray-900">Level {index + 1}</h3>
-          <button onClick={() => removeLevel(index)} className="text-red-500 hover:text-red-700">
-            <Trash2 className="w-5 h-5" />
-          </button>
+            {levels.map((level, index) => (
+              <div key={index} className={`bg-white rounded-lg p-6 border-2 space-y-4 ${errors[`level_${index}_title`] || errors[`level_${index}_desc`] ? "border-red-300" : "border-gray-200"}`}>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-gray-900">Level {index + 1}</h3>
+                  <button onClick={() => removeLevel(index)} className="text-red-500 hover:text-red-700">
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+                <div>
+                  <Label className="text-gray-900 font-medium">Task Title *</Label>
+                  <Input placeholder="e.g., Connect the LED circuit" value={level.title} onChange={(e) => { updateLevel(index, "title", e.target.value); if (errors[`level_${index}_title`]) setErrors({ ...errors, [`level_${index}_title`]: "" }) }} className={`mt-2 h-10 text-gray-900 placeholder:text-gray-400 ${errors[`level_${index}_title`] ? "border-red-500" : ""}`} />
+                  {errors[`level_${index}_title`] && <p className="text-red-500 text-sm mt-1">{errors[`level_${index}_title`]}</p>}
+                </div>
+                <div>
+                  <Label className="text-gray-900 font-medium">Task Description *</Label>
+                  <Textarea placeholder="Describe what the participant needs to do in this level" value={level.description} onChange={(e) => { updateLevel(index, "description", e.target.value); if (errors[`level_${index}_desc`]) setErrors({ ...errors, [`level_${index}_desc`]: "" }) }} rows={4} className={`text-gray-900 placeholder:text-gray-400 ${errors[`level_${index}_desc`] ? "border-red-500" : ""}`} />
+                  {errors[`level_${index}_desc`] && <p className="text-red-500 text-sm mt-1">{errors[`level_${index}_desc`]}</p>}
+                </div>
+              </div>
+            ))}
+
+            {levels.length === 0 && (
+              <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
+                <p>No levels added yet. Click "Add Level" to create one.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Step 6: Review & Publish */}
+        {step === 6 && (
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg p-4 space-y-2 text-sm text-gray-900">
+              <div><span className="font-medium text-gray-900">Quest Name:</span> {title}</div>
+              <div><span className="font-medium text-gray-900">Difficulty:</span> {difficulty}</div>
+              <div><span className="font-medium text-gray-900">Status:</span> {status}</div>
+              <div><span className="font-medium text-gray-900">Stories:</span> {stories.filter(s => s.title && s.content).length} segment{stories.filter(s => s.title && s.content).length !== 1 ? "s" : ""}</div>
+              <div><span className="font-medium text-gray-900">Learning Resources:</span> {learningResources.filter(r => r.title && r.external_url).length} resource{learningResources.filter(r => r.title && r.external_url).length !== 1 ? "s" : ""}</div>
+              <div><span className="font-medium text-gray-900">Levels:</span> {levels.length} level{levels.length !== 1 ? "s" : ""}</div>
+            </div>
+            <p className="text-gray-900 text-sm">Review the quest details above. Click "Create Quest" to save, or "Back" to make changes.</p>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between gap-3 pt-6 border-t border-gray-200">
+          <div className="flex gap-3">
+            {step > 1 && <Button onClick={() => setStep(step - 1)} variant="outline">Back</Button>}
+          </div>
+
+          <div className="flex gap-3">
+            <Button onClick={() => onOpenChange(false)} variant="cancel">Cancel</Button>
+            {step < 6 ? (
+              <Button onClick={handleNextStep} className="bg-blue-600 hover:bg-blue-700">Next</Button>
+            ) : (
+              <Button onClick={handleSubmit} disabled={isLoading} className="bg-blue-600 hover:bg-blue-700">
+                {isLoading ? "Saving..." : editingQuest ? "Update Quest" : "Create Quest"}
+              </Button>
+            )}
+          </div>
         </div>
-        <div>
-          <Label className="text-gray-900 font-medium">Task Title *</Label>
-          <Input placeholder="e.g., Connect the LED circuit" value={level.title} onChange={(e) => { updateLevel(index, "title", e.target.value); if (errors[`level_${index}_title`]) setErrors({ ...errors, [`level_${index}_title`]: "" }) }} className={`mt-2 h-10 text-gray-900 placeholder:text-gray-400 ${errors[`level_${index}_title`] ? "border-red-500" : ""}`} />
-          {errors[`level_${index}_title`] && <p className="text-red-500 text-sm mt-1">{errors[`level_${index}_title`]}</p>}
-        </div>
-        <div>
-          <Label className="text-gray-900 font-medium">Task Description *</Label>
-          <Textarea placeholder="Describe what the participant needs to do in this level" value={level.description} onChange={(e) => { updateLevel(index, "description", e.target.value); if (errors[`level_${index}_desc`]) setErrors({ ...errors, [`level_${index}_desc`]: "" }) }} rows={4} className={`text-gray-900 placeholder:text-gray-400 ${errors[`level_${index}_desc`] ? "border-red-500" : ""}`} />
-          {errors[`level_${index}_desc`] && <p className="text-red-500 text-sm mt-1">{errors[`level_${index}_desc`]}</p>}
-        </div>
-      </div>
-    ))}
-
-    {levels.length === 0 && (
-      <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
-        <p>No levels added yet. Click "Add Level" to create one.</p>
-      </div>
-    )}
-  </div>
-)}
-
-{/* Step 6: Review & Publish */}
-{step === 6 && (
-  <div className="space-y-4">
-    <div className="bg-white rounded-lg p-4 space-y-2 text-sm text-gray-900">
-      <div><span className="font-medium text-gray-900">Quest Name:</span> {title}</div>
-      <div><span className="font-medium text-gray-900">Difficulty:</span> {difficulty}</div>
-      <div><span className="font-medium text-gray-900">Status:</span> {status}</div>
-      <div><span className="font-medium text-gray-900">Stories:</span> {stories.filter(s => s.title && s.content).length} segment{stories.filter(s => s.title && s.content).length !== 1 ? "s" : ""}</div>
-      <div><span className="font-medium text-gray-900">Learning Resources:</span> {learningResources.filter(r => r.title && r.external_url).length} resource{learningResources.filter(r => r.title && r.external_url).length !== 1 ? "s" : ""}</div>
-      <div><span className="font-medium text-gray-900">Levels:</span> {levels.length} level{levels.length !== 1 ? "s" : ""}</div>
-    </div>
-    <p className="text-gray-900 text-sm">Review the quest details above. Click "Create Quest" to save, or "Back" to make changes.</p>
-  </div>
-)}
-
-{/* Action Buttons */}
-<div className="flex items-center justify-between gap-3 pt-6 border-t border-gray-200">
-  <div className="flex gap-3">
-    {step > 1 && <Button onClick={() => setStep(step - 1)} variant="outline">Back</Button>}
-  </div>
-
-  <div className="flex gap-3">
-    <Button onClick={() => onOpenChange(false)} variant="cancel">Cancel</Button>
-    {step < 6 ? (
-      <Button onClick={handleNextStep} className="bg-blue-600 hover:bg-blue-700">Next</Button>
-    ) : (
-      <Button onClick={handleSubmit} disabled={isLoading} className="bg-blue-600 hover:bg-blue-700">
-        {isLoading ? "Saving..." : editingQuest ? "Update Quest" : "Create Quest"}
-      </Button>
-    )}
-  </div>
-</div>
-
-{/* Close the DialogContent and Dialog tags */}
       </DialogContent>
     </Dialog>
   )
