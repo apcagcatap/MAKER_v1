@@ -5,7 +5,11 @@ import { Trophy, TrendingUp, Target, Award, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { Progress } from "@/components/ui/progress"
 
-export default async function ParticipantDetailPage({ params }: { params: { id: string } }) {
+export default async function ParticipantDetailPage({ 
+  params 
+}: { 
+  params: Promise<{ id: string }>  // ✅ Changed to Promise
+}) {
   const supabase = await createClient()
   const {
     data: { user },
@@ -15,7 +19,7 @@ export default async function ParticipantDetailPage({ params }: { params: { id: 
     redirect("/auth/login")
   }
 
-  const { id } = await params
+  const { id } = await params  // ✅ Await params
 
   // Fetch participant profile
   const { data: participant } = await supabase.from("profiles").select("*").eq("id", id).single()

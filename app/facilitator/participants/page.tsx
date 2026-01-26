@@ -1,9 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { FacilitatorNav } from "@/components/layout/facilitator-nav"
-import { ParticipantCard } from "@/components/facilitator/participant-card"
-import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
+import { ParticipantsList } from "@/components/facilitator/participants-list"
 
 export default async function FacilitatorParticipantsPage() {
   const supabase = await createClient()
@@ -44,32 +42,22 @@ export default async function FacilitatorParticipantsPage() {
 
       <main className="relative -mt-16 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-white rounded-lg shadow-lg">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Participants</h1>
-          <p className="text-gray-600">Monitor participant progress and engagement</p>
-        </div>
-
-        <div className="mb-6">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <Input placeholder="Search participants..." className="pl-10" />
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">Participants</h1>
+              <p className="text-gray-600">Monitor participant progress and engagement</p>
+            </div>
+            <div className="bg-gradient-to-br from-blue-500 to-purple-500 text-white px-6 py-4 rounded-xl shadow-lg">
+              <p className="text-sm opacity-90">Total Participants</p>
+              <p className="text-4xl font-bold">{participants?.length || 0}</p>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {participants?.map((participant) => (
-            <ParticipantCard
-              key={participant.id}
-              participant={participant}
-              questsCompleted={questCountMap.get(participant.id) || 0}
-            />
-          ))}
-        </div>
-
-        {participants?.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No participants yet.</p>
-          </div>
-        )}
+        <ParticipantsList 
+          participants={participants || []} 
+          questCountMap={questCountMap}
+        />
       </main>
     </div>
   )
