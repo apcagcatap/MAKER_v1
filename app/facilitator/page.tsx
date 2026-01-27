@@ -78,12 +78,18 @@ export default async function FacilitatorDashboard() {
         </div>
         <div className="relative z-10">
           <FacilitatorNav />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
-            <div className="flex items-center justify-center gap-6 mb-8">
-              <div className="relative">
-                <Image src="/hismarty.png" alt="Owl" width={180} height={180} className="w-44 h-44 object-contain" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-8 sm:pb-12">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mb-6 sm:mb-8">
+              <div className="relative flex-shrink-0">
+                <Image 
+                  src="/hismarty.png" 
+                  alt="Owl" 
+                  width={180} 
+                  height={180} 
+                  className="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 object-contain" 
+                />
               </div>
-              <h1 className="text-5xl font-bold text-white drop-shadow-lg">
+              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white drop-shadow-lg text-center sm:text-left break-words max-w-full px-2 sm:px-0">
                 Hi there, {profile.display_name || "Facilitator"}!
               </h1>
             </div>
@@ -91,24 +97,24 @@ export default async function FacilitatorDashboard() {
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Combined Card Section */} 
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-8 flex flex-col lg:flex-row gap-8">
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8 flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Left Side: Department Info and Quest Card */} 
-          <div className="lg:w-1/2 flex flex-col gap-8">
+          <div className="lg:w-1/2 flex flex-col gap-6 lg:gap-8">
             {/* Department Info - Top Left */} 
-            <div className="p-4 bg-blue-600 text-white rounded-xl max-w-xs">
+            <div className="p-4 bg-blue-600 text-white rounded-xl w-full sm:max-w-xs">
               <p className="text-xs opacity-80">DEPARTMENT OF SCIENCE AND TECHNOLOGY</p>
-              <h3 className="text-lg font-bold">Science and Technology</h3>
+              <h3 className="text-base sm:text-lg font-bold">Science and Technology</h3>
               <p className="text-sm">Information Institute</p>
             </div>
 
             {/* Left Section: Light The Tower Card */} 
-            <div className="bg-blue-600 rounded-xl p-6 text-white flex flex-col justify-between flex-grow">
+            <div className="bg-blue-600 rounded-xl p-4 sm:p-6 text-white flex flex-col justify-between flex-grow">
               <div>
-                <h2 className="text-3xl font-bold mb-4">Light The Tower</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-4">Light The Tower</h2>
                 <div className="flex items-center mb-4">
-                  <div className="bg-white rounded-full p-3 mr-4">
+                  <div className="bg-white rounded-full p-2 sm:p-3 mr-3 sm:mr-4">
                     {/* Icon placeholder */} 
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -126,7 +132,7 @@ export default async function FacilitatorDashboard() {
                       <path d="M12 6v6l4 2" />
                     </svg>
                   </div>
-                  <p className="text-lg">Will you be a keeper of the Tower Flame?</p>
+                  <p className="text-base sm:text-lg">Will you be a keeper of the Tower Flame?</p>
                 </div>
                 <span className="bg-red-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">Beginner</span>
               </div>
@@ -138,10 +144,10 @@ export default async function FacilitatorDashboard() {
           </div>
 
           {/* Right Section: Goal Of This Quest */} 
-          <div className="lg:w-1/2 bg-white rounded-xl p-8 shadow-lg flex flex-col justify-between">
+          <div className="lg:w-1/2 bg-white rounded-xl p-4 sm:p-6 lg:p-8 shadow-lg flex flex-col justify-between">
             <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Goal Of This Quest</h2>
-              <p className="text-gray-700 leading-relaxed">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Goal Of This Quest</h2>
+              <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
                 Design and build a functional sensor array using an Arduino that can detect motion or environmental
                 changes, triggering a signal to light up a watchtower. This quest introduces the basics of physical
                 computing, wiring, and sensor integration your mission is to bring the tower to life and guard the
@@ -149,7 +155,7 @@ export default async function FacilitatorDashboard() {
               </p>
             </div>
             <div className="flex justify-end mt-6">
-              <Button className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded">
+              <Button className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded w-full sm:w-auto">
                 Edit
               </Button>
             </div>
@@ -157,7 +163,7 @@ export default async function FacilitatorDashboard() {
         </div>
 
         {/* Stats Grid */} 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <StatsCard
             title="Total Participants"
             value={totalParticipants || 0}
@@ -187,9 +193,9 @@ export default async function FacilitatorDashboard() {
         {/* Recent Quests */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-cyan-100">Recent Quests</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-cyan-100">Recent Quests</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {recentQuests?.map((quest) => (
               <QuestManagementCard key={quest.id} quest={quest} />
             ))}

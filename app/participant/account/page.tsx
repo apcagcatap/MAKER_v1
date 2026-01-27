@@ -1,16 +1,3 @@
-/**
- * Participant Account Settings Page
- *
- * This page allows participants to view and edit their account information including:
- * - Display name
- * - Email address
- * - Profile picture
- * - Password change
- *
- * The page fetches the current user's profile from Supabase and provides
- * a form to update their information.
- */
-
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { ParticipantNav } from "@/components/layout/participant-nav"
@@ -41,18 +28,18 @@ export default async function AccountPage() {
     <div className="min-h-screen">
       <ParticipantNav />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Account Settings</h1>
-          <p className="text-gray-600">Manage your profile and account preferences</p>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Account Settings</h1>
+          <p className="text-sm sm:text-base text-gray-600">Manage your profile and account preferences</p>
         </div>
 
         {/* Account Information Card */}
-        <Card>
+        <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Profile Information</CardTitle>
-            <CardDescription>Update your account details and personal information</CardDescription>
+            <CardTitle className="text-lg sm:text-xl">Profile Information</CardTitle>
+            <CardDescription className="text-sm sm:text-base">Update your account details and personal information</CardDescription>
           </CardHeader>
           <CardContent>
             <AccountForm user={user} profile={profile} />
@@ -60,28 +47,28 @@ export default async function AccountPage() {
         </Card>
 
         {/* Stats Summary Card */}
-        <Card className="mt-6">
+        <Card>
           <CardHeader>
-            <CardTitle>Your Progress</CardTitle>
-            <CardDescription>Overview of your learning journey</CardDescription>
+            <CardTitle className="text-lg sm:text-xl">Your Progress</CardTitle>
+            <CardDescription className="text-sm sm:text-base">Overview of your learning journey</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg">
-                <div className="text-3xl font-bold text-purple-600">{profile.level}</div>
-                <div className="text-sm text-gray-600 mt-1">Level</div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg">
+                <div className="text-2xl sm:text-3xl font-bold text-purple-600">{profile.level}</div>
+                <div className="text-xs sm:text-sm text-gray-600 mt-1">Level</div>
               </div>
-              <div className="text-center p-4 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg">
-                <div className="text-3xl font-bold text-orange-600">{profile.xp}</div>
-                <div className="text-sm text-gray-600 mt-1">Total XP</div>
+              <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg">
+                <div className="text-2xl sm:text-3xl font-bold text-orange-600">{profile.xp}</div>
+                <div className="text-xs sm:text-sm text-gray-600 mt-1">Total XP</div>
               </div>
-              <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
-                <div className="text-3xl font-bold text-green-600">0</div>
-                <div className="text-sm text-gray-600 mt-1">Quests</div>
+              <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
+                <div className="text-2xl sm:text-3xl font-bold text-green-600">0</div>
+                <div className="text-xs sm:text-sm text-gray-600 mt-1">Quests</div>
               </div>
-              <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg">
-                <div className="text-3xl font-bold text-blue-600">0</div>
-                <div className="text-sm text-gray-600 mt-1">Skills</div>
+              <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg">
+                <div className="text-2xl sm:text-3xl font-bold text-blue-600">0</div>
+                <div className="text-xs sm:text-sm text-gray-600 mt-1">Skills</div>
               </div>
             </div>
           </CardContent>

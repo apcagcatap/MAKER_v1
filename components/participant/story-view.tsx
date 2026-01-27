@@ -40,9 +40,9 @@ export function StoryView({ stories, onComplete }: StoryViewProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+    <div className="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 overflow-y-auto">
       {/* Scenic Background Layer */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Mountains */}
         <div className="absolute bottom-0 left-0 right-0 h-2/3">
           <svg className="absolute bottom-0 w-full h-full" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMax slice">
@@ -66,7 +66,7 @@ export function StoryView({ stories, onComplete }: StoryViewProps) {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 py-12">
         <div className="max-w-3xl w-full">
           {/* Character/Owl Icon */}
           <div className="flex justify-center mb-6">
@@ -90,9 +90,12 @@ export function StoryView({ stories, onComplete }: StoryViewProps) {
 
             {/* Content */}
             <div className="p-8 md:p-12">
-              <p className="text-gray-800 text-lg md:text-xl leading-relaxed text-center mb-8">
-                {currentStory.content}
-              </p>
+              {/* Scrollable content area with visible scrollbar */}
+              <div className="max-h-[60vh] overflow-y-scroll mb-8 pr-4 story-content">
+                <p className="text-gray-800 text-lg md:text-xl leading-relaxed text-center">
+                  {currentStory.content}
+                </p>
+              </div>
 
               {/* Navigation Buttons */}
               <div className="flex gap-4 justify-center items-center">
@@ -132,7 +135,7 @@ export function StoryView({ stories, onComplete }: StoryViewProps) {
           </div>
 
           {/* Story Counter */}
-          <div className="text-center mt-6">
+          <div className="text-center mt-6 mb-6">
             <p className="text-white/80 text-sm font-medium">
               Story {currentIndex + 1} of {stories.length}
             </p>
@@ -170,6 +173,30 @@ export function StoryView({ stories, onComplete }: StoryViewProps) {
         }
         .animate-bounce-gentle {
           animation: bounce-gentle 3s ease-in-out infinite;
+        }
+
+        /* Custom scrollbar for content area - always visible */
+        .story-content::-webkit-scrollbar {
+          width: 12px;
+        }
+        .story-content::-webkit-scrollbar-track {
+          background: #e2e8f0;
+          border-radius: 10px;
+          margin: 4px 0;
+        }
+        .story-content::-webkit-scrollbar-thumb {
+          background: #94a3b8;
+          border-radius: 10px;
+          border: 2px solid #e2e8f0;
+        }
+        .story-content::-webkit-scrollbar-thumb:hover {
+          background: #64748b;
+        }
+        
+        /* For Firefox */
+        .story-content {
+          scrollbar-width: auto;
+          scrollbar-color: #94a3b8 #e2e8f0;
         }
       `}</style>
     </div>

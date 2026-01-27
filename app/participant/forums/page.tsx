@@ -28,7 +28,7 @@ export default async function ForumsPage() {
     <div className="min-h-screen bg-gradient-page-bg flex flex-col">
       <ParticipantNav />
 
-      <div className="relative h-48">
+      <div className="relative h-40 sm:h-48">
         <Image
           src="/navbarBg.png"
           alt="Background"
@@ -37,27 +37,27 @@ export default async function ForumsPage() {
           quality={100}
           className="absolute inset-0 z-0"
         />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 text-white">
-          <h1 className="text-4xl font-bold mb-2">Community Forums</h1>
-          <p className="text-on-blue">Connect with other makers and share your journey</p>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-6 sm:pb-8 text-white">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-2">Community Forums</h1>
+          <p className="text-on-blue text-sm sm:text-base">Connect with other makers and share your journey</p>
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-grow">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {forums?.map((forum) => (
             <div
               key={forum.id}
-              className="bg-card rounded-xl border p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col"
+              className="bg-card rounded-xl border p-4 sm:p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col"
             >
               <Link href={`/participant/forums/${forum.id}`} className="block mb-3">
-                <h3 className="text-xl font-bold text-card-foreground hover:text-interactive-primary transition-colors">
+                <h3 className="text-lg sm:text-xl font-bold text-card-foreground hover:text-interactive-primary transition-colors">
                   {forum.title}
                 </h3>
               
-              <p className="text-muted-foreground mb-4 flex-grow line-clamp-2">{forum.description}</p>
+              <p className="text-muted-foreground mb-4 flex-grow line-clamp-2 text-sm sm:text-base">{forum.description}</p>
 
-              <div className="flex items-center justify-between text-sm text-muted-foreground border-t pt-4">
+              <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground border-t pt-4">
                 <div className="flex items-center gap-2">
                   <MessageSquare className="w-4 h-4" />
                   <span>{forum.posts?.[0]?.count || 0} posts</span>
@@ -73,7 +73,7 @@ export default async function ForumsPage() {
 
         {forums?.length === 0 && (
           <div className="col-span-full text-center py-12 bg-card rounded-xl shadow-lg">
-            <p className="text-muted-foreground">No forums available yet. Check back soon!</p>
+            <p className="text-muted-foreground text-sm sm:text-base">No forums available yet. Check back soon!</p>
           </div>
         )}
       </main>
