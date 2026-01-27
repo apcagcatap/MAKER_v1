@@ -48,7 +48,7 @@ export function CreateUserDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+        <Button className="bg-[#ED262A] hover:bg-[#c41e22] text-white">
           <Plus className="mr-2 h-4 w-4" />
           Add User
         </Button>

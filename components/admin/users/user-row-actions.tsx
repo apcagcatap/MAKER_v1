@@ -84,7 +84,7 @@ export function UserRowActions({ userId, currentRole }: UserRowActionsProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem 
           onClick={handleDelete}
-          className="text-red-600 focus:text-red-600"
+          className="text-[#ED262A] focus:text-[#ED262A]"
         >
           <Trash2 className="mr-2 h-4 w-4" />
           Delete User

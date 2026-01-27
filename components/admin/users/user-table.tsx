@@ -53,7 +53,7 @@ export function UserTable({ users, sortOrder }: UserTableProps) {
                 <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
+                      <div className="h-9 w-9 rounded-full bg-[#ED262A]/10 flex items-center justify-center text-[#ED262A] font-bold text-xs">
                         {user.avatar_url ? (
                           <img src={user.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
                         ) : (
@@ -73,10 +73,10 @@ export function UserTable({ users, sortOrder }: UserTableProps) {
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
                         ${
                           user.role === "admin"
-                            ? "bg-purple-100 text-purple-800"
+                            ? "bg-[#ED262A]/10 text-[#ED262A]"
                             : user.role === "facilitator"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-green-100 text-green-800"
+                            ? "bg-[#004A98]/10 text-[#004A98]"
+                            : "bg-[#1E1E1E]/10 text-[#1E1E1E]"
                         }`}
                     >
                       {user.role}

@@ -38,17 +38,17 @@ export function AdminSidebar() {
   }
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="admin-sidebar-theme border-r-0">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-2">
-          <SidebarTrigger />
+          <SidebarTrigger className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
           <div className="flex items-center gap-2 group-data-[collapsible=icon]:hidden">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[#ED262A]">
               <Shield className="size-4" />
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">MAKER Admin</span>
-              <span className="truncate text-xs">System Administration</span>
+              <span className="truncate text-xs text-sidebar-foreground/80">System Administration</span>
             </div>
           </div>
         </div>

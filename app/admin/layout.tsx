@@ -1,4 +1,5 @@
 import React from "react"
+import "@/app/admin/admin.css"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AdminSidebar } from "@/components/layout/admin-sidebar"
 import { createClient } from "@/lib/supabase/server"

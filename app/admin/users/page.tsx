@@ -1,3 +1,4 @@
+import "@/app/admin/admin.css"
 import { createClient } from "@/lib/supabase/server"
 import { UserTable } from "@/components/admin/users/user-table"
 import { UserToolbar } from "@/components/admin/users/user-toolbar"
@@ -36,18 +37,19 @@ export default async function AdminUsersPage({
   const { data: users } = await query
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="admin-wrapper p-6 md:p-8 max-w-7xl mx-auto">
+      <div className="admin-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">User Management</h1>
-          <p className="text-gray-500 mt-1">Manage facilitators, participants, and system access.</p>
+          <h1 className="admin-title">User Management</h1>
+          <p className="admin-subtitle">Manage facilitators, participants, and system access.</p>
         </div>
         <CreateUserDialog />
       </div>
       
-      <UserToolbar />
-      
-      <UserTable users={users || []} sortOrder={params.sort} />
+      <div className="space-y-6">
+        <UserToolbar />
+        <UserTable users={users || []} sortOrder={params.sort} />
+      </div>
     </div>
   )
 }
