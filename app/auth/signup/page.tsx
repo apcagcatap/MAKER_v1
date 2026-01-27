@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 
 export default function SignupPage() {
   const [email, setEmail] = useState("")
@@ -18,18 +18,10 @@ export default function SignupPage() {
   const searchParams = useSearchParams()
 
   // Get role from URL parameter
-  const role = searchParams.get("role") as "participant" | "facilitator" | "admin" | null
-
-  // Redirect to role selection if no role is provided
-  useEffect(() => {
-    if (!role) {
-      router.push("/auth/select-role")
-    }
-  }, [role, router])
+  const role = (searchParams.get("role") as "participant" | "facilitator" | "admin") || "participant"
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!role) return
 
     const supabase = createClient()
     setIsLoading(true)
@@ -85,10 +77,6 @@ export default function SignupPage() {
     }
   }
 
-  if (!role) {
-    return null // Will redirect in useEffect
-  }
-
   // Capitalize role for display
   const roleDisplay = role.charAt(0).toUpperCase() + role.slice(1)
 
@@ -97,15 +85,12 @@ export default function SignupPage() {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <h1 className="text-5xl font-bold text-white mb-2">MAKER</h1>
-          <p className="text-white/90 text-lg">Create your {roleDisplay} account</p>
+          <p className="text-white/90 text-lg">Create your account</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Create Account</h2>
-            <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-              {roleDisplay}
-            </span>
           </div>
 
           <form onSubmit={handleSignup} className="space-y-6">
@@ -162,19 +147,13 @@ export default function SignupPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold text-lg"
+              className="w-full h-12 bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold text-lg"
             >
               {isLoading ? "Creating account..." : "Sign Up"}
             </Button>
           </form>
 
           <div className="mt-6 space-y-3">
-            <button
-              onClick={() => router.push("/auth/select-role")}
-              className="w-full text-purple-600 hover:text-purple-700 font-medium text-sm"
-            >
-              Change role selection
-            </button>
             <div className="text-center">
               <a href="/auth/login" className="text-purple-600 hover:text-purple-700 font-medium">
                 Already have an account? Sign in
