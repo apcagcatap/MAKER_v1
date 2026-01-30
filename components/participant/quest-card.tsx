@@ -26,7 +26,6 @@ export function QuestCard({ quest, userQuest, isLocked = false }: QuestCardProps
 
   const getProgressPercentage = () => {
     if (!userQuest || !quest.levels) return 0
-    // Calculate based on current_level if available
     const currentLevel = userQuest.current_level || 0
     const totalLevels = quest.levels.length || 1
     return Math.round((currentLevel / totalLevels) * 100)
@@ -34,22 +33,25 @@ export function QuestCard({ quest, userQuest, isLocked = false }: QuestCardProps
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow flex flex-col h-full">
-      <div className="p-6 flex-1 flex flex-col">
+      {/* Main Content Area - Everything in one section */}
+      <div className="p-4 sm:p-6 flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <h3 className="text-xl font-bold text-gray-900 flex-1">{quest.title}</h3>
-          <span className="px-3 py-1 bg-red-50 text-red-600 rounded-full text-xs font-medium whitespace-nowrap ml-2">
+        <div className="flex items-start justify-between mb-3 sm:mb-4">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex-1 break-words pr-2">{quest.title}</h3>
+          <span className="px-3 py-1 bg-red-50 text-red-600 rounded-full text-xs font-medium whitespace-nowrap ml-2 flex-shrink-0">
             {quest.difficulty}
           </span>
         </div>
 
-        {/* Description */}
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-1">
-          {quest.description}
-        </p>
+        {/* Description - scrollable with fixed height */}
+        <div className="mb-3 sm:mb-4 h-[4.5rem] overflow-y-auto">
+          <p className="text-gray-600 text-sm">
+            {quest.description}
+          </p>
+        </div>
 
         {/* XP and Skill */}
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4 flex-wrap">
           {quest.xp_reward > 0 && (
             <div className="flex items-center gap-1 text-yellow-600">
               <Trophy className="w-4 h-4" />
@@ -66,12 +68,15 @@ export function QuestCard({ quest, userQuest, isLocked = false }: QuestCardProps
           )}
         </div>
 
+        {/* Spacer to push progress bar and button to bottom */}
+        <div className="flex-1"></div>
+
         {/* Progress Bar (if in progress) */}
         {userQuest && userQuest.status === "in_progress" && (
-          <div className="mb-4">
+          <div className="mb-3">
             <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
               <span>Progress</span>
-              <span>{getProgressPercentage()}%</span>
+              <span className="font-semibold">{getProgressPercentage()}%</span>
             </div>
             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
@@ -82,22 +87,19 @@ export function QuestCard({ quest, userQuest, isLocked = false }: QuestCardProps
           </div>
         )}
 
-        {/* Spacer to push button to bottom */}
-        <div className="flex-1 min-h-2"></div>
-
-        {/* Button - Fixed at bottom */}
-        <div className="mt-auto pt-4">
+        {/* Button */}
+        <div>
           {isLocked ? (
             <button
               disabled
-              className="w-full py-2.5 bg-gray-400 text-white rounded-lg font-medium cursor-not-allowed"
+              className="w-full py-2.5 bg-gray-400 text-white rounded-lg font-medium cursor-not-allowed text-sm sm:text-base"
             >
               {getButtonText()}
             </button>
           ) : (
             <Link
               href={`/participant/quests/${quest.id}`}
-              className={`block w-full py-2.5 ${getButtonColor()} text-white text-center rounded-lg font-medium transition-colors`}
+              className={`block w-full py-2.5 ${getButtonColor()} text-white text-center rounded-lg font-medium transition-colors text-sm sm:text-base`}
             >
               {getButtonText()}
             </Link>

@@ -62,27 +62,27 @@ export default async function SkillsPage() {
         <ParticipantNav />
 
         {/* Header + Progress inside banner */}
-        <div className="relative w-full px-4 sm:px-6 lg:px-8 py-12">
+        <div className="relative w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-10">
             {/* 🖼️ Left: Image */}
             <div className="flex justify-center md:justify-start w-full md:w-auto">
               <img
                 src="/standsmarty.png"
                 alt="Mascot"
-                className="w-76 h-76 object-contain drop-shadow-xl"
+                className="w-48 h-48 sm:w-64 sm:h-64 md:w-76 md:h-76 object-contain drop-shadow-xl"
               />
             </div>
 
             {/* 📊 Right: Overall Progress Card */}
-            <div className="w-full md:flex-1 bg-gradient-to-br from-[#80BEFF] to-blue-600 rounded-2xl p-8 text-white shadow-lg mx-auto md:mx-0">
+            <div className="w-full md:flex-1 bg-gradient-to-br from-[#80BEFF] to-blue-600 rounded-2xl p-6 sm:p-8 text-white shadow-lg mx-auto md:mx-0">
               <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
                 <div>
-                  <h2 className="text-3xl font-bold mb-2">Level {profile?.level || 1}</h2>
-                  <p className="text-white/90">Total XP: {profile?.xp || 0}</p>
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-2">Level {profile?.level || 1}</h2>
+                  <p className="text-white/90 text-sm sm:text-base">Total XP: {profile?.xp || 0}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-white/90 text-sm mb-1">Skills Progress</p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-white/90 text-xs sm:text-sm mb-1">Skills Progress</p>
+                  <p className="text-xl sm:text-2xl font-bold">
                     {learnedSkills} / {totalSkills}
                   </p>
                 </div>
@@ -94,13 +94,13 @@ export default async function SkillsPage() {
       </div>
 
       {/* 🧭 Skills List Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-5xl text-white font-bold drop-shadow-lg mb-4">Skills</h1>
-        <p className="text-white/80 text-lg mb-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl text-white font-bold drop-shadow-lg mb-3 sm:mb-4">Skills</h1>
+        <p className="text-white/80 text-base sm:text-lg mb-8 sm:mb-10">
           Track your progress across different skills
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {allSkills?.map((skill) => (
             <SkillCard key={skill.id} skill={skill} userSkill={userSkillsMap.get(skill.id)} />
           ))}

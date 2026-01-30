@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { StoryView } from '@/components/participant/story-view'
 import { ResourceCard } from '@/components/participant/resource-card'
 import { startQuest, completeStory } from '@/lib/actions/quests'
-import { CheckCircle2, Book, ListChecks, Trophy, ArrowRight, Clock } from 'lucide-react'
+import { CheckCircle2, Book, ListChecks, Trophy, ArrowRight, ArrowLeft, Clock, Download } from 'lucide-react'
 
 interface QuestContentViewProps {
   quest: any
@@ -204,6 +204,17 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
     }
   }
 
+  // Back button handler
+  const handleBack = () => {
+    if (currentStep === 'materials') {
+      setCurrentStep('instructions')
+    } else if (currentStep === 'level' && currentLevelIndex === 0) {
+      setCurrentStep('materials')
+    } else if (currentStep === 'level' && currentLevelIndex > 0) {
+      setCurrentLevelIndex(currentLevelIndex - 1)
+    }
+  }
+
   // If user hasn't started the quest yet, show start button
   if (!userProgress) {
     return (
@@ -301,13 +312,25 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
             </p>
           </div>
 
-          <button
-            onClick={handleMaterialsComplete}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg transition-colors flex items-center justify-center gap-2"
-          >
-            Start Level 1
-            <ArrowRight className="w-5 h-5" />
-          </button>
+          <div className="flex gap-4">
+            {/* Back Button */}
+            <button
+              onClick={handleBack}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-8 rounded-lg transition-colors flex items-center justify-center gap-2"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Back
+            </button>
+
+            {/* Continue Button */}
+            <button
+              onClick={handleMaterialsComplete}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg transition-colors flex items-center justify-center gap-2"
+            >
+              Start Level 1
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -375,22 +398,34 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
             </div>
           )}
 
-          <button
-            onClick={handleLevelComplete}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg transition-colors flex items-center justify-center gap-2"
-          >
-            {currentLevelIndex < quest.levels.length - 1 ? (
-              <>
-                Complete Level {levelNumber}
-                <ArrowRight className="w-5 h-5" />
-              </>
-            ) : (
-              <>
-                Complete Quest
-                <Trophy className="w-5 h-5" />
-              </>
-            )}
-          </button>
+          <div className="flex gap-4">
+            {/* Back Button */}
+            <button
+              onClick={handleBack}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-8 rounded-lg transition-colors flex items-center justify-center gap-2"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              {currentLevelIndex === 0 ? 'Back to Materials' : `Back to Level ${levelNumber - 1}`}
+            </button>
+
+            {/* Complete Button */}
+            <button
+              onClick={handleLevelComplete}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg transition-colors flex items-center justify-center gap-2"
+            >
+              {currentLevelIndex < quest.levels.length - 1 ? (
+                <>
+                  Complete Level {levelNumber}
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              ) : (
+                <>
+                  Complete Quest
+                  <Trophy className="w-5 h-5" />
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -406,7 +441,7 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
               <Trophy className="w-16 h-16 text-yellow-500" />
             </div>
             <h1 className="text-5xl font-bold mb-4">Congratulations! 🎉</h1>
-            <p className="text-2xl mb-8">You've completed the quest!</p>
+            <p className="text-2xl mb-8">You&apos;ve completed the quest!</p>
           </div>
 
           <div className="bg-white/20 backdrop-blur rounded-lg p-6 mb-8">
@@ -477,14 +512,12 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
                     />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Achievement Badge</h3>
-                  <a
+                  
                     href={quest.badge_image_url}
                     download={`${quest.title}-badge.png`}
                     className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
+                  <a>
+                    <Download className="w-5 h-5" />
                     Download Badge
                   </a>
                 </div>
@@ -501,14 +534,12 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
                     />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Certificate of Completion</h3>
-                  <a
+                  
                     href={quest.certificate_image_url}
                     download={`${quest.title}-certificate.png`}
                     className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
+                  <a>
+                    <Download className="w-5 h-5" />
                     Download Certificate
                   </a>
                 </div>
