@@ -2,12 +2,24 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai"
 
-export async function generateQuestStory(questContext: {
+export interface StoryGenerationOptions {
   title: string
   description: string
   difficulty: string
-  storyContext?: string
-}): Promise<{ title: string; content: string }[]> {
+  genre: string
+  topic: string
+  setting: string
+  temperature: number
+}
+
+const GENRE_GUIDANCE: Record<string, string> = {
+  Adventure: "Create an exciting journey with challenges, exploration, and discovery. Include elements of bravery and problem-solving.",
+  "Sci-Fi": "Incorporate futuristic technology and scientific concepts. Blend education with innovation and imagination.",
+  Fantasy: "Weave magical elements, mythical creatures, and enchanted worlds. Make learning feel like a magical quest.",
+  "Real-World": "Use contemporary, relatable scenarios students might actually encounter. Ground the learning in practical everyday contexts.",
+}
+
+export async function generateQuestStory(options: StoryGenerationOptions): Promise<{ title: string; content: string }[]> {
   try {
     const apiKey = process.env.GOOGLE_AI_API_KEY
 
@@ -33,7 +45,10 @@ export async function generateQuestStory(questContext: {
     for (const modelName of modelNames) {
       try {
         console.log(`🔄 Trying model: ${modelName}`)
-        model = genAI.getGenerativeModel({ model: modelName })
+        model = genAI.getGenerativeModel({
+          model: modelName,
+          generationConfig: { temperature: options.temperature },
+        })
         
         // Quick test to see if model is accessible
         await model.generateContent("test")
@@ -50,23 +65,27 @@ export async function generateQuestStory(questContext: {
       throw new Error(`No available models found. Last error: ${lastError}. Please check Google AI Studio for available models in your region.`)
     }
 
-    const customContext = questContext.storyContext 
-      ? `\n\nStory Setting/Vibe: ${questContext.storyContext}`
-      : ""
+    const genreGuide = GENRE_GUIDANCE[options.genre] || "Create an engaging narrative that supports the learning objectives."
 
-    const prompt = `You are a creative storyteller for educational quests. Create an engaging story for a quest with the following details:
+    const prompt = `You are a creative storyteller for educational quests. Create an engaging story with the following specifications:
 
-Quest Title: ${questContext.title}
-Description: ${questContext.description}
-Difficulty Level: ${questContext.difficulty}${customContext}
+Quest Title: ${options.title}
+Quest Description: ${options.description}
+Difficulty Level: ${options.difficulty}
+
+STORY SPECIFICATIONS:
+Genre: ${options.genre}
+Genre Guidance: ${genreGuide}
+Learning Topic / Context: ${options.topic}
+Setting: ${options.setting || "Not specified — choose something fitting for the genre and topic."}
 
 Generate 2-3 story segments that will engage learners and set the context for this quest. Each segment should:
 - Be 100-200 words long
 - Build excitement and curiosity
-- Connect to the learning objectives
-- Use an adventure/quest narrative style
-- Be appropriate for learners
-${questContext.storyContext ? `- Follow the story setting/vibe: "${questContext.storyContext}"` : ""}
+- Connect directly to the learning topic: "${options.topic}"
+- Match the ${options.genre} genre style described above
+- Be appropriate for learners at ${options.difficulty} level
+${options.setting ? `- Take place in: ${options.setting}` : ""}
 
 IMPORTANT: Return ONLY valid JSON in this exact format, with no markdown formatting, no code blocks, no extra text:
 {
@@ -78,7 +97,7 @@ IMPORTANT: Return ONLY valid JSON in this exact format, with no markdown formatt
   ]
 }
 
-Make it exciting and relevant to the quest topic!`
+Make it exciting, educational, and perfectly tailored to the specifications above!`
 
     const result = await model.generateContent(prompt)
     const response = await result.response

@@ -7,8 +7,8 @@ import { CreateQuestModal } from "@/components/facilitator/create-quest-modal"
 import { ImageViewerModal } from "@/components/facilitator/image-viewer-modal"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Trash2 } from "lucide-react"
-import { deleteQuest, publishQuest, archiveQuest } from "@/lib/actions/quests"
+import { Search } from "lucide-react"
+import { publishQuest, archiveQuest } from "@/lib/actions/quests"
 import { toast } from "sonner"
 
 interface Quest {
@@ -69,24 +69,6 @@ export function QuestsTable({
   const handleOpenModal = (quest?: Quest) => {
     setEditingQuest(quest || null)
     setModalOpen(true)
-  }
-
-  const handleDeleteQuest = async (questId: string) => {
-    if (!confirm("Are you sure you want to delete this quest? This action cannot be undone.")) return
-
-    setIsLoading(true)
-    try {
-      await deleteQuest(questId)
-      setQuests(prevQuests => prevQuests.filter((q) => q.id !== questId))
-      toast.success("Quest deleted successfully")
-      router.refresh()
-    } catch (error) {
-      console.error("Delete quest error:", error)
-      toast.error(error instanceof Error ? error.message : "Failed to delete quest")
-      router.refresh()
-    } finally {
-      setIsLoading(false)
-    }
   }
 
   const handleViewImage = (imageUrl: string | null, title: string, alt: string) => {
@@ -189,79 +171,84 @@ export function QuestsTable({
           </div>
           <Button
             onClick={() => handleOpenModal()}
-            className="h-12 sm:h-14 px-6 sm:px-8 bg-blue-600 hover:bg-blue-700 text-white font-bold whitespace-nowrap w-full sm:w-auto"
+            className="h-12 sm:h-14 px-6 sm:px-8 bg-[#4A90E2] hover:bg-[#357ABD] text-white font-medium rounded-xl transition-colors"
+            style={{ fontFamily: "Poppins, sans-serif" }}
           >
-            Add New Quests
+            Add New Quest
           </Button>
         </div>
 
-        {/* Mobile Card View (visible only on small screens) */}
-        <div className="lg:hidden space-y-4">
+        {/* Mobile Card View (visible only on small and medium screens) */}
+        <div className="grid gap-4 lg:hidden">
           {filteredQuests?.map((quest) => (
-            <div key={quest.id} className="bg-white rounded-xl shadow-lg p-4 space-y-3">
-              {/* Quest Name */}
-              <div className="border-b pb-2">
-                <h3 className="font-semibold text-gray-900 text-base" style={{ fontFamily: "Poppins, sans-serif" }}>
+            <div
+              key={quest.id}
+              className="bg-white rounded-xl shadow-lg p-4 sm:p-6 space-y-4"
+            >
+              {/* Quest Title */}
+              <div className="border-b pb-3">
+                <h3 className="text-lg sm:text-xl font-semibold text-black" style={{ fontFamily: "Poppins, sans-serif" }}>
                   {quest.title}
                 </h3>
               </div>
 
-              {/* Details Grid */}
-              <div className="space-y-3 text-sm">
-                {/* Badge & Certificate */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <p className="text-gray-500 text-xs mb-1" style={{ fontFamily: "Poppins, sans-serif" }}>Badge</p>
-                    <Button
-                      onClick={() => handleViewImage(quest.badge_image_url, `${quest.title} Badge`, "Badge")}
-                      variant="ghost"
-                      size="sm"
-                      className="w-full h-auto py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs"
-                      style={{ fontFamily: "Poppins, sans-serif" }}
-                    >
-                      View Badge
-                    </Button>
-                  </div>
-                  <div>
-                    <p className="text-gray-500 text-xs mb-1" style={{ fontFamily: "Poppins, sans-serif" }}>Certificate</p>
-                    <Button
-                      onClick={() => handleViewImage(quest.certificate_image_url, `${quest.title} Certificate`, "Certificate")}
-                      variant="ghost"
-                      size="sm"
-                      className="w-full h-auto py-2 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-lg text-xs"
-                      style={{ fontFamily: "Poppins, sans-serif" }}
-                    >
-                      View Certificate
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Difficulty & Scheduled */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <p className="text-gray-500 text-xs" style={{ fontFamily: "Poppins, sans-serif" }}>Difficulty</p>
-                    <p className="text-gray-900 font-light" style={{ fontFamily: "Poppins, sans-serif" }}>
-                      {quest.difficulty && quest.difficulty.charAt(0).toUpperCase() + quest.difficulty.slice(1).toLowerCase() || "Beginner"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500 text-xs" style={{ fontFamily: "Poppins, sans-serif" }}>Scheduled For</p>
-                    <p className="text-gray-900 font-light" style={{ fontFamily: "Poppins, sans-serif" }}>
-                      {quest.scheduled_date ? new Date(quest.scheduled_date).toLocaleDateString() : "N/A"}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Status */}
+              {/* Quest Details Grid */}
+              <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <p className="text-gray-500 text-xs mb-1" style={{ fontFamily: "Poppins, sans-serif" }}>Status</p>
+                  <p className="text-gray-500 font-medium mb-1" style={{ fontFamily: "Poppins, sans-serif" }}>Badge</p>
+                  <Button
+                    onClick={() =>
+                      handleViewImage(quest.badge_image_url, `${quest.title} Badge`, "Badge")
+                    }
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto py-2 px-3 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
+                    View Badge
+                  </Button>
+                </div>
+
+                <div>
+                  <p className="text-gray-500 font-medium mb-1" style={{ fontFamily: "Poppins, sans-serif" }}>Certificate</p>
+                  <Button
+                    onClick={() =>
+                      handleViewImage(quest.certificate_image_url, `${quest.title} Certificate`, "Certificate")
+                    }
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto py-2 px-3 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-lg text-xs"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
+                    View Cert
+                  </Button>
+                </div>
+
+                <div>
+                  <p className="text-gray-500 font-medium mb-1" style={{ fontFamily: "Poppins, sans-serif" }}>Difficulty</p>
+                  <p className="text-black" style={{ fontFamily: "Poppins, sans-serif" }}>
+                    {quest.difficulty && quest.difficulty.charAt(0).toUpperCase() + quest.difficulty.slice(1).toLowerCase() || "Beginner - Intermediate"}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-gray-500 font-medium mb-1" style={{ fontFamily: "Poppins, sans-serif" }}>Scheduled</p>
+                  <p className="text-black" style={{ fontFamily: "Poppins, sans-serif" }}>
+                    {quest.scheduled_date ? new Date(quest.scheduled_date).toLocaleDateString() : "N/A"}
+                  </p>
+                </div>
+
+                <div className="col-span-2">
+                  <p className="text-gray-500 font-medium mb-1" style={{ fontFamily: "Poppins, sans-serif" }}>Status</p>
                   <span
                     className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
                       quest.status === "Published"
                         ? "bg-green-100 text-green-700"
                         : quest.status === "Draft"
                           ? "bg-yellow-100 text-yellow-700"
-                          : "bg-gray-100 text-gray-700"
+                          : quest.status === "Archived"
+                            ? "bg-gray-100 text-gray-700"
+                            : "bg-gray-100 text-gray-700"
                     }`}
                     style={{ fontFamily: "Poppins, sans-serif" }}
                   >
@@ -270,8 +257,8 @@ export function QuestsTable({
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-2 pt-2 border-t">
+              {/* Action Buttons */}
+              <div className="flex gap-2 pt-2">
                 <Button
                   onClick={() => handleOpenModal(quest)}
                   disabled={isLoading}
@@ -293,6 +280,17 @@ export function QuestsTable({
                   >
                     Archive
                   </Button>
+                ) : quest.status === "Archived" ? (
+                  <Button
+                    onClick={() => handlePublishQuest(quest.id)}
+                    disabled={isLoading}
+                    variant="ghost"
+                    size="sm"
+                    className="flex-1 h-auto py-2 bg-green-50 hover:bg-green-100 text-green-600 rounded-lg"
+                    style={{ fontFamily: "Poppins, sans-serif" }}
+                  >
+                    Publish
+                  </Button>
                 ) : (
                   <Button
                     onClick={() => handlePublishQuest(quest.id)}
@@ -305,13 +303,6 @@ export function QuestsTable({
                     Publish
                   </Button>
                 )}
-                <button
-                  onClick={() => handleDeleteQuest(quest.id)}
-                  disabled={isLoading}
-                  className="px-3 py-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
               </div>
             </div>
           ))}
@@ -441,13 +432,6 @@ export function QuestsTable({
                             {isLoading ? "..." : "Publish"}
                           </Button>
                         )}
-                        <button
-                          onClick={() => handleDeleteQuest(quest.id)}
-                          disabled={isLoading}
-                          className="text-red-600 hover:text-red-800 transition-colors disabled:opacity-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
                       </div>
                     </td>
                   </tr>
