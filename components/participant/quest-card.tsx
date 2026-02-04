@@ -36,11 +36,13 @@ export function QuestCard({ quest, userQuest, isLocked = false }: QuestCardProps
       {/* Main Content Area - Everything in one section */}
       <div className="p-4 sm:p-6 flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-start justify-between mb-3 sm:mb-4">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex-1 break-words pr-2">{quest.title}</h3>
-          <span className="px-3 py-1 bg-red-50 text-red-600 rounded-full text-xs font-medium whitespace-nowrap ml-2 flex-shrink-0">
-            {quest.difficulty}
-          </span>
+        <div className="mb-3 sm:mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 break-words flex-1">{quest.title}</h3>
+            <span className="inline-block px-3 py-1 bg-red-50 text-red-600 rounded-full text-xs font-medium whitespace-nowrap w-fit sm:ml-2 sm:flex-shrink-0">
+              {quest.difficulty}
+            </span>
+          </div>
         </div>
 
         {/* Description - scrollable with fixed height */}

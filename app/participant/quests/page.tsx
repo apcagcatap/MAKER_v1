@@ -30,33 +30,31 @@ async function getQuestData(supabase: any, questId: string) {
       .select(`
         completed_at,
         started_at,
+        completion_time,
         user_id,
-        users!user_quests_user_id_fkey (
+        profiles!user_quests_user_id_fkey (
           id,
-          full_name,
+          display_name,
           avatar_url
         )
       `)
       .eq("quest_id", questId)
       .eq("status", "completed")
       .not("completed_at", "is", null)
-      .order("completed_at", { ascending: true })
+      .not("completion_time", "is", null)
+      .order("completion_time", { ascending: true })
       .limit(3)
 
-    // Calculate duration for completions
+    // Map completions to the format expected by FastestCompletions component
     fastestCompletions = completionsData?.map((completion: any) => {
-      const started = new Date(completion.started_at)
-      const completed = new Date(completion.completed_at)
-      const durationMinutes = Math.round((completed.getTime() - started.getTime()) / (1000 * 60))
-
       return {
-        user: completion.users || { 
-          id: completion.user_id, 
-          full_name: "Unknown User", 
-          avatar_url: null 
+        user: {
+          id: completion.user_id,
+          full_name: completion.profiles?.display_name || "Unknown User",
+          avatar_url: completion.profiles?.avatar_url || null
         },
         completed_at: completion.completed_at,
-        duration_minutes: durationMinutes > 0 ? durationMinutes : undefined,
+        duration_minutes: completion.completion_time || undefined,
       }
     }) || []
   } catch (error) {

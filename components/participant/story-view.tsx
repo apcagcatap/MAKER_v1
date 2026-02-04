@@ -40,7 +40,7 @@ export function StoryView({ stories, onComplete }: StoryViewProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center overflow-hidden">
       {/* Scenic Background Layer */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Mountains */}
@@ -65,81 +65,78 @@ export function StoryView({ stories, onComplete }: StoryViewProps) {
         <div className="absolute bottom-20 right-1/3 w-20 h-40 bg-gray-800 opacity-40 rounded-t-lg"></div>
       </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 py-12">
-        <div className="max-w-3xl w-full">
-          {/* Character/Owl Icon */}
-          <div className="flex justify-center mb-6">
-            <div className="w-32 h-32 rounded-full flex items-center justify-center shadow-2xl border-4 border-white animate-bounce-gentle overflow-hidden">
-              <img 
-                src="/hismarty.png" 
-                alt="Marty the Owl" 
-                className="w-full h-full object-cover"
-              />
-            </div>
+      {/* Main Content - Fixed Height Container */}
+      <div className="relative z-10 w-full max-w-3xl px-4 flex flex-col items-center h-full py-4 sm:py-8">
+        {/* Character/Owl Icon */}
+        <div className="flex justify-center mb-4 sm:mb-6 flex-shrink-0">
+          <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center shadow-2xl border-4 border-white animate-bounce-gentle overflow-hidden">
+            <img 
+              src="/hismarty.png" 
+              alt="Marty the Owl" 
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+
+        {/* Story Card - Flexible Height */}
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden transform transition-all duration-300 hover:scale-[1.02] flex flex-col w-full max-h-[calc(100vh-12rem)] sm:max-h-[calc(100vh-14rem)]">
+          {/* Title Badge */}
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-4 sm:px-6 py-2 sm:py-3 text-center flex-shrink-0">
+            <h2 className="text-lg sm:text-xl font-bold text-white tracking-wide">
+              {currentStory.title}
+            </h2>
           </div>
 
-          {/* Story Card */}
-          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden transform transition-all duration-300 hover:scale-[1.02]">
-            {/* Title Badge */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-center">
-              <h2 className="text-xl font-bold text-white tracking-wide">
-                {currentStory.title}
-              </h2>
-            </div>
-
-            {/* Content */}
-            <div className="p-8 md:p-12">
-              {/* Scrollable content area with visible scrollbar */}
-              <div className="max-h-[60vh] overflow-y-scroll mb-8 pr-4 story-content">
-                <p className="text-gray-800 text-lg md:text-xl leading-relaxed text-center">
-                  {currentStory.content}
-                </p>
-              </div>
-
-              {/* Navigation Buttons */}
-              <div className="flex gap-4 justify-center items-center">
-                {currentIndex > 0 && (
-                  <button
-                    onClick={handlePrevious}
-                    className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
-                  >
-                    Previous
-                  </button>
-                )}
-                
-                <button
-                  onClick={handleNext}
-                  className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-                >
-                  {isLastStory ? 'Start Quest' : 'Proceed'}
-                </button>
-              </div>
-
-              {/* Progress Indicator */}
-              <div className="mt-8 flex justify-center gap-2">
-                {stories.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`h-2.5 rounded-full transition-all duration-300 ${
-                      index === currentIndex
-                        ? 'w-10 bg-blue-600'
-                        : index < currentIndex
-                        ? 'w-2.5 bg-blue-400'
-                        : 'w-2.5 bg-gray-300'
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Story Counter */}
-          <div className="text-center mt-6 mb-6">
-            <p className="text-white/80 text-sm font-medium">
-              Story {currentIndex + 1} of {stories.length}
+          {/* Content - Scrollable */}
+          <div className="flex-1 overflow-y-auto story-content p-6 sm:p-8 md:p-12">
+            <p className="text-gray-800 text-base sm:text-lg md:text-xl leading-relaxed text-center">
+              {currentStory.content}
             </p>
           </div>
+
+          {/* Navigation Buttons - Fixed at Bottom */}
+          <div className="flex-shrink-0 p-6 sm:p-8 pt-4 sm:pt-6 border-t border-gray-100">
+            <div className="flex gap-3 sm:gap-4 justify-center items-center mb-4 sm:mb-6">
+              {currentIndex > 0 && (
+                <button
+                  onClick={handlePrevious}
+                  className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base"
+                >
+                  Previous
+                </button>
+              )}
+              
+              <button
+                onClick={handleNext}
+                className="px-6 sm:px-8 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base"
+              >
+                {isLastStory ? 'Start Quest' : 'Proceed'}
+              </button>
+            </div>
+
+            {/* Progress Indicator */}
+            <div className="flex justify-center gap-2">
+              {stories.map((_, index) => (
+                <div
+                  key={index}
+                  className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 ${
+                    index === currentIndex
+                      ? 'w-8 sm:w-10 bg-blue-600'
+                      : index < currentIndex
+                      ? 'w-2 sm:w-2.5 bg-blue-400'
+                      : 'w-2 sm:w-2.5 bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Story Counter */}
+        <div className="text-center mt-4 sm:mt-6 flex-shrink-0">
+          <p className="text-white/80 text-xs sm:text-sm font-medium">
+            Story {currentIndex + 1} of {stories.length}
+          </p>
         </div>
       </div>
 
@@ -177,7 +174,7 @@ export function StoryView({ stories, onComplete }: StoryViewProps) {
 
         /* Custom scrollbar for content area - always visible */
         .story-content::-webkit-scrollbar {
-          width: 12px;
+          width: 10px;
         }
         .story-content::-webkit-scrollbar-track {
           background: #e2e8f0;
