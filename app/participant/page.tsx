@@ -23,7 +23,7 @@ export default async function ParticipantDashboard() {
     redirect("/auth/login")
   }
 
-  // Fetch user quests with quest details
+  // Fetch user quests with quest details - ONLY PUBLISHED QUESTS
   const { data: userQuests } = await supabase
     .from("user_quests")
     .select(`
@@ -34,6 +34,8 @@ export default async function ParticipantDashboard() {
       )
     `)
     .eq("user_id", user.id)
+    .eq("quest.status", "Published")
+    .eq("quest.is_active", true)
     .order("created_at", { ascending: false })
 
   // Fetch upcoming scheduled quests
@@ -51,8 +53,13 @@ export default async function ParticipantDashboard() {
     .order("scheduled_date", { ascending: true })
     .limit(3)
 
-  const inProgressQuests = userQuests?.filter((uq) => uq.status === "in_progress") || []
-  const completedQuests = userQuests?.filter((uq) => uq.status === "completed") || []
+  // Filter out any quests that might have slipped through if the query didn't work perfectly
+  const publishedUserQuests = userQuests?.filter(
+    (uq) => uq.quest && uq.quest.status === "Published" && uq.quest.is_active === true
+  ) || []
+
+  const inProgressQuests = publishedUserQuests.filter((uq) => uq.status === "in_progress")
+  const completedQuests = publishedUserQuests.filter((uq) => uq.status === "completed")
 
   // Get featured quest - prioritize the most recently accessed quest
   // Sort by started_at (which updates when you open a quest) to get the most recent
@@ -63,7 +70,7 @@ export default async function ParticipantDashboard() {
   })
   
   // Use most recently accessed in-progress quest, or most recent quest overall
-  const featuredUserQuest = sortedInProgressQuests[0] || userQuests?.[0]
+  const featuredUserQuest = sortedInProgressQuests[0] || publishedUserQuests[0]
   const featuredQuest = featuredUserQuest?.quest
 
   // Calculate featured quest progress
