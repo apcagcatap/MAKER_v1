@@ -55,7 +55,11 @@ export async function updateSession(request: NextRequest) {
     }
  
     // Redirect authenticated users away from /auth pages
-    if (user && request.nextUrl.pathname.startsWith("/auth")) {
+    if (user && 
+        request.nextUrl.pathname.startsWith("/auth") && 
+        !request.nextUrl.pathname.startsWith("/auth/update-password") &&
+        !request.nextUrl.pathname.startsWith("/auth/callback")
+    ) {
       console.log("👤 User logged in, checking profile role...")
  
       const { data: profile, error: profileError } = await supabase
