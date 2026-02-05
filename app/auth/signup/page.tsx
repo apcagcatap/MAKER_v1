@@ -5,13 +5,16 @@ import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { TermsAgreement } from "@/components/auth/terms-agreement"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
+import "../auth.css"
 
 export default function SignupPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [displayName, setDisplayName] = useState("")
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -26,6 +29,12 @@ export default function SignupPage() {
     const supabase = createClient()
     setIsLoading(true)
     setError(null)
+
+    if (!termsAccepted) {
+      setError("You must accept the Terms and Conditions to create an account.")
+      setIsLoading(false)
+      return
+    }
 
     try {
       // Sign up the user with role in metadata
@@ -81,21 +90,21 @@ export default function SignupPage() {
   const roleDisplay = role.charAt(0).toUpperCase() + role.slice(1)
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <h1 className="text-5xl font-bold text-white mb-2">MAKER</h1>
-          <p className="text-white/90 text-lg">Create your account</p>
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="auth-header">
+          <h1 className="auth-brand">MAKER</h1>
+          <p className="auth-tagline">Create your account</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+        <div className="auth-card">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Create Account</h2>
+            <h2 className="auth-card-title">Create Account</h2>
           </div>
 
-          <form onSubmit={handleSignup} className="space-y-6">
+          <form onSubmit={handleSignup} className="auth-form">
             <div className="space-y-2">
-              <Label htmlFor="displayName" className="text-gray-700">
+              <Label htmlFor="displayName" className="auth-label">
                 Display Name
               </Label>
               <Input
@@ -105,12 +114,12 @@ export default function SignupPage() {
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 required
-                className="h-12"
+                className="auth-input"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-700">
+              <Label htmlFor="email" className="auth-label">
                 Email
               </Label>
               <Input
@@ -120,12 +129,12 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-12"
+                className="auth-input"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-700">
+              <Label htmlFor="password" className="auth-label">
                 Password
               </Label>
               <Input
@@ -136,26 +145,32 @@ export default function SignupPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="h-12"
+                className="auth-input"
               />
             </div>
 
+            <TermsAgreement
+              checked={termsAccepted}
+              onCheckedChange={setTermsAccepted}
+              error={error && error.includes("Terms") ? error : undefined}
+            />
+
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+              <div className="auth-error">{error}</div>
             )}
 
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold text-lg"
+              className="auth-button"
             >
               {isLoading ? "Creating account..." : "Sign Up"}
             </Button>
           </form>
 
-          <div className="mt-6 space-y-3">
+          <div className="auth-footer">
             <div className="text-center">
-              <a href="/auth/login" className="text-purple-600 hover:text-purple-700 font-medium">
+              <a href="/auth/login" className="auth-link">
                 Already have an account? Sign in
               </a>
             </div>
