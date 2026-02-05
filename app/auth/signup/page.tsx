@@ -162,8 +162,8 @@ export default function SignupPage() {
 
             <Button
               type="submit"
-              disabled={isLoading}
-              className="w-full h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-xl shadow-lg shadow-red-900/20 hover:shadow-red-900/40 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer border border-red-500/20"
+              disabled={isLoading || !termsAccepted}
+              className="w-full h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-xl shadow-lg shadow-red-900/20 hover:shadow-red-900/40 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer border border-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-red-600 disabled:hover:translate-y-0 disabled:hover:shadow-none"
             >
               {isLoading ? "Creating account..." : "Sign Up"}
             </Button>
