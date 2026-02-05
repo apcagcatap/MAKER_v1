@@ -33,15 +33,16 @@ export function TermsAgreement({ checked, onCheckedChange, error }: TermsAgreeme
           checked={checked} 
           onCheckedChange={(c) => onCheckedChange(c as boolean)} 
           name="termsAccepted"
+          className="border-blue-400 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 text-white"
         />
         <div className="grid gap-1.5 leading-none">
           <Label
             htmlFor="terms"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-blue-100"
           >
             I agree to the{" "}
             <span
-              className="text-primary underline cursor-pointer hover:text-primary/80"
+              className="text-blue-300 underline cursor-pointer hover:text-white"
               onClick={(e) => {
                 e.preventDefault();
                 setIsOpen(true);
@@ -50,16 +51,17 @@ export function TermsAgreement({ checked, onCheckedChange, error }: TermsAgreeme
               terms and conditions
             </span>
           </Label>
-          {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+          {error && <p className="text-sm font-medium text-red-300">{error}</p>}
         </div>
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] bg-blue-900 border-blue-700 text-white">
           <DialogTitle className="sr-only">{terms.title}</DialogTitle>
           <TermsOfService />
           <div className="flex justify-end">
             <Button 
+              className="bg-blue-600 hover:bg-blue-500 text-white border border-blue-400/30"
               onClick={() => {
                 onCheckedChange(true);
                 setIsOpen(false);

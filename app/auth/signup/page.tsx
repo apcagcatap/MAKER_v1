@@ -5,10 +5,10 @@ import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TermsAgreement } from "@/components/auth/terms-agreement"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
-import "../auth.css"
 
 export default function SignupPage() {
   const [email, setEmail] = useState("")
@@ -90,21 +90,22 @@ export default function SignupPage() {
   const roleDisplay = role.charAt(0).toUpperCase() + role.slice(1)
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <div className="auth-header">
-          <h1 className="auth-brand">MAKER</h1>
-          <p className="auth-tagline">Create your account</p>
+    <div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">
+      <div className="w-full max-w-md animate-in fade-in zoom-in-95 duration-500">
+        <div className="mb-8 text-center">
+          <h1 className="text-5xl font-bold text-white mb-2 tracking-tight drop-shadow-md">MAKER</h1>
+          <p className="text-blue-100 text-lg font-light">Create your account</p>
         </div>
 
-        <div className="auth-card">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="auth-card-title">Create Account</h2>
-          </div>
+        <Card className="bg-blue-900 border-blue-800 shadow-2xl shadow-blue-900/50 rounded-2xl">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-white text-center">Create Account</CardTitle>
+          </CardHeader>
 
-          <form onSubmit={handleSignup} className="auth-form">
+          <CardContent className="space-y-6">
+            <form onSubmit={handleSignup} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="displayName" className="auth-label">
+              <Label htmlFor="displayName" className="text-sm font-medium text-blue-100 ml-1">
                 Display Name
               </Label>
               <Input
@@ -114,12 +115,12 @@ export default function SignupPage() {
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 required
-                className="auth-input"
+                className="h-12 bg-blue-950/50 border-blue-700 text-white placeholder:text-blue-400 focus:border-blue-400 focus:ring-blue-400/20 transition-all duration-200"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="auth-label">
+              <Label htmlFor="email" className="text-sm font-medium text-blue-100 ml-1">
                 Email
               </Label>
               <Input
@@ -129,12 +130,12 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="auth-input"
+                className="h-12 bg-blue-950/50 border-blue-700 text-white placeholder:text-blue-400 focus:border-blue-400 focus:ring-blue-400/20 transition-all duration-200"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="auth-label">
+              <Label htmlFor="password" className="text-sm font-medium text-blue-100 ml-1">
                 Password
               </Label>
               <Input
@@ -145,7 +146,7 @@ export default function SignupPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="auth-input"
+                className="h-12 bg-blue-950/50 border-blue-700 text-white placeholder:text-blue-400 focus:border-blue-400 focus:ring-blue-400/20 transition-all duration-200"
               />
             </div>
 
@@ -156,26 +157,27 @@ export default function SignupPage() {
             />
 
             {error && (
-              <div className="auth-error">{error}</div>
+              <div className="bg-red-950/30 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-2">{error}</div>
             )}
 
             <Button
               type="submit"
               disabled={isLoading}
-              className="auth-button"
+              className="w-full h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-xl shadow-lg shadow-red-900/20 hover:shadow-red-900/40 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer border border-red-500/20"
             >
               {isLoading ? "Creating account..." : "Sign Up"}
             </Button>
           </form>
 
-          <div className="auth-footer">
+          <div className="mt-6 text-center space-y-4">
             <div className="text-center">
-              <a href="/auth/login" className="auth-link">
+              <a href="/auth/login" className="text-blue-300 hover:text-white font-medium hover:underline underline-offset-4 transition-colors">
                 Already have an account? Sign in
               </a>
             </div>
           </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
