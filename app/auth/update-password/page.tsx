@@ -7,32 +7,36 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import Link from "next/link"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("")
+export default function UpdatePasswordPage() {
   const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
 
+    if (password !== confirmPassword) {
+      setError("Passwords do not match")
+      setIsLoading(false)
+      return
+    }
+
     const supabase = createClient()
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const { error } = await supabase.auth.updateUser({
+        password: password,
       })
 
       if (error) throw error
 
-      router.refresh()
+      // Redirect to dashboard or home after success
       router.push("/")
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -50,46 +54,44 @@ export default function LoginPage() {
       <div className="w-full max-w-md animate-in fade-in zoom-in-95 duration-500">
         <div className="mb-8 text-center">
           <h1 className="text-5xl font-bold text-white mb-2 tracking-tight drop-shadow-md">MAKER</h1>
-          <p className="text-blue-100 text-lg font-light">Welcome back</p>
+          <p className="text-blue-100 text-lg font-light">Secure your account</p>
         </div>
 
         <Card className="bg-blue-900 border-blue-800 shadow-2xl shadow-blue-900/50 rounded-2xl">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-white text-center">Sign In</CardTitle>
+            <CardTitle className="text-2xl font-bold text-white text-center">Update Password</CardTitle>
+            <CardDescription className="text-blue-200 text-center">
+              Enter your new password below.
+            </CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-6">
-            <form onSubmit={handleLogin} className="space-y-5">
+            <form onSubmit={handleUpdatePassword} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-blue-100 ml-1">
-                  Email
+                <Label htmlFor="password" className="text-sm font-medium text-blue-100 ml-1">
+                  New Password
                 </Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="password"
+                  type="password"
+                  placeholder="Enter new password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                   className="h-12 bg-blue-950/50 border-blue-700 text-white placeholder:text-blue-400 focus:border-blue-400 focus:ring-blue-400/20 transition-all duration-200"
                 />
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-sm font-medium text-blue-100 ml-1">
-                    Password
-                  </Label>
-                  <Link href="/auth/forgot-password" className="text-xs text-blue-300 hover:text-white hover:underline transition-colors">
-                    Forgot password?
-                  </Link>
-                </div>
+                <Label htmlFor="confirmPassword" className="text-sm font-medium text-blue-100 ml-1">
+                  Confirm Password
+                </Label>
                 <Input
-                  id="password"
+                  id="confirmPassword"
                   type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   className="h-12 bg-blue-950/50 border-blue-700 text-white placeholder:text-blue-400 focus:border-blue-400 focus:ring-blue-400/20 transition-all duration-200"
                 />
@@ -106,17 +108,9 @@ export default function LoginPage() {
                 disabled={isLoading}
                 className="w-full h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-xl shadow-lg shadow-red-900/20 hover:shadow-red-900/40 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer border border-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-red-600 disabled:hover:translate-y-0 disabled:hover:shadow-none"
               >
-                {isLoading ? "Signing in..." : "Sign In"}
+                {isLoading ? "Updating..." : "Update Password"}
               </Button>
             </form>
-
-            <div className="mt-6 text-center space-y-4">
-              <div className="text-center">
-                <a href="/auth/signup" className="text-blue-300 hover:text-white font-medium hover:underline underline-offset-4 transition-colors">
-                  Don&apos;t have an account? Sign up
-                </a>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>
