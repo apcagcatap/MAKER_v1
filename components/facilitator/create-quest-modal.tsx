@@ -428,23 +428,24 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-blue-50">
+      <DialogContent className="max-w-[calc(100%-1rem)] sm:max-w-[calc(100%-2rem)] md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto bg-blue-50 p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="text-3xl font-bold text-gray-900">
+          <DialogTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
             {editingQuest ? "Edit Quest" : "Create New Quest"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex items-center justify-between px-4 my-8">
+        {/* Step Indicator */}
+        <div className="flex items-center justify-between px-0 sm:px-4 my-4 sm:my-6 md:my-8 overflow-x-auto pb-2">
           {[1, 2, 3, 4, 5, 6].map((stepNum) => (
-            <div key={stepNum} className="flex items-center flex-1">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-colors flex-shrink-0 ${
+            <div key={stepNum} className="flex items-center flex-1 min-w-0">
+              <div className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold text-sm sm:text-base md:text-lg transition-colors flex-shrink-0 ${
                 step >= stepNum ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-600"
               }`}>
                 {stepNum}
               </div>
               {stepNum < 6 && (
-                <div className={`flex-1 h-1 mx-3 ${
+                <div className={`flex-1 h-0.5 sm:h-1 mx-1 sm:mx-2 md:mx-3 ${
                   step > stepNum ? "bg-blue-600" : "bg-gray-300"
                 }`} />
               )}
@@ -452,28 +453,28 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
           ))}
         </div>
 
-        <div className="text-center mb-6">
-          <h3 className="text-xl font-semibold text-gray-900">{stepTitles[step - 1]}</h3>
+        <div className="text-center mb-4 sm:mb-6">
+          <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900">{stepTitles[step - 1]}</h3>
         </div>
 
         {/* Step 1: Basic Details */}
         {step === 1 && (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <div>
-              <Label className="text-gray-900 font-medium">Quest Name *</Label>
-              <Input placeholder="Enter quest name" value={title} onChange={(e) => { setTitle(e.target.value); if (errors.title) setErrors({ ...errors, title: "" }) }} className={`mt-2 h-10 text-gray-900 placeholder:text-gray-400 ${errors.title ? "border-red-500" : ""}`} />
-              {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+              <Label className="text-gray-900 font-medium text-sm sm:text-base">Quest Name *</Label>
+              <Input placeholder="Enter quest name" value={title} onChange={(e) => { setTitle(e.target.value); if (errors.title) setErrors({ ...errors, title: "" }) }} className={`mt-1 sm:mt-2 h-9 sm:h-10 text-sm sm:text-base text-gray-900 placeholder:text-gray-400 ${errors.title ? "border-red-500" : ""}`} />
+              {errors.title && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.title}</p>}
             </div>
             <div>
-              <Label className="text-gray-900 font-medium">Description *</Label>
-              <Textarea placeholder="Enter quest description" value={description} onChange={(e) => { setDescription(e.target.value); if (errors.description) setErrors({ ...errors, description: "" }) }} className={`text-gray-900 placeholder:text-gray-400 ${errors.description ? "border-red-500" : ""}`} />
-              {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+              <Label className="text-gray-900 font-medium text-sm sm:text-base">Description *</Label>
+              <Textarea placeholder="Enter quest description" value={description} onChange={(e) => { setDescription(e.target.value); if (errors.description) setErrors({ ...errors, description: "" }) }} className={`mt-1 sm:mt-2 text-sm sm:text-base text-gray-900 placeholder:text-gray-400 ${errors.description ? "border-red-500" : ""}`} rows={3} />
+              {errors.description && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.description}</p>}
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <Label className="text-gray-900 font-medium">Difficulty</Label>
+                <Label className="text-gray-900 font-medium text-sm sm:text-base">Difficulty</Label>
                 <Select value={difficulty} onValueChange={setDifficulty}>
-                  <SelectTrigger className="mt-2 h-10 text-gray-900"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="mt-1 sm:mt-2 h-9 sm:h-10 text-sm sm:text-base text-gray-900 w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Beginner">Beginner</SelectItem>
                     <SelectItem value="Beginner - Intermediate">Beginner - Intermediate</SelectItem>
@@ -484,8 +485,8 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
                 </Select>
               </div>
               <div>
-                <Label className="text-gray-900 font-medium">Scheduled Date</Label>
-                <Input type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} className="mt-2 h-10 text-gray-900" />
+                <Label className="text-gray-900 font-medium text-sm sm:text-base">Scheduled Date</Label>
+                <Input type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} className="mt-1 sm:mt-2 h-9 sm:h-10 text-sm sm:text-base text-gray-900" />
               </div>
             </div>
             
@@ -510,40 +511,40 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-gray-900 font-medium">Badge Image *</Label>
+                <Label className="text-gray-900 font-medium text-sm sm:text-base">Badge Image *</Label>
                 {badgeImagePreview ? (
-                  <div className="mt-2 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-100 relative group">
+                  <div className="mt-1 sm:mt-2 h-24 sm:h-28 md:h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-100 relative group">
                     <img src={badgeImagePreview} alt="Badge" className="h-full object-contain p-2" />
-                    <button onClick={removeBadgeImage} className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4" /></button>
+                    <button onClick={removeBadgeImage} className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-red-500 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-3 h-3 sm:w-4 sm:h-4" /></button>
                   </div>
                 ) : (
-                  <button type="button" onClick={() => badgeInputRef.current?.click()} disabled={badgeImageUploading} className={`mt-2 w-full h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors ${badgeImageUploading ? "opacity-50" : ""}`}>
-                    <div className="text-center"><Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" /><p className="text-sm text-gray-500">{badgeImageUploading ? "Uploading..." : "Upload Badge Image"}</p></div>
+                  <button type="button" onClick={() => badgeInputRef.current?.click()} disabled={badgeImageUploading} className={`mt-1 sm:mt-2 w-full h-24 sm:h-28 md:h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors ${badgeImageUploading ? "opacity-50" : ""}`}>
+                    <div className="text-center"><Upload className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mx-auto mb-1 sm:mb-2" /><p className="text-xs sm:text-sm text-gray-500">{badgeImageUploading ? "Uploading..." : "Upload Badge"}</p></div>
                   </button>
                 )}
                 <input ref={badgeInputRef} type="file" accept="image/*" onChange={handleBadgeImageUpload} className="hidden" />
-                {errors.badgeImage && <p className="text-red-500 text-sm mt-1">{errors.badgeImage}</p>}
+                {errors.badgeImage && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.badgeImage}</p>}
               </div>
               <div>
-                <Label className="text-gray-900 font-medium">Certificate Image *</Label>
+                <Label className="text-gray-900 font-medium text-sm sm:text-base">Certificate Image *</Label>
                 {certificateImagePreview ? (
-                  <div className="mt-2 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-100 relative group">
+                  <div className="mt-1 sm:mt-2 h-24 sm:h-28 md:h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-100 relative group">
                     <img src={certificateImagePreview} alt="Certificate" className="h-full object-contain p-2" />
-                    <button onClick={removeCertificateImage} className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4" /></button>
+                    <button onClick={removeCertificateImage} className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-red-500 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-3 h-3 sm:w-4 sm:h-4" /></button>
                   </div>
                 ) : (
-                  <button type="button" onClick={() => certificateInputRef.current?.click()} disabled={certificateImageUploading} className={`mt-2 w-full h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors ${certificateImageUploading ? "opacity-50" : ""}`}>
-                    <div className="text-center"><Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" /><p className="text-sm text-gray-500">{certificateImageUploading ? "Uploading..." : "Upload Certificate Image"}</p></div>
+                  <button type="button" onClick={() => certificateInputRef.current?.click()} disabled={certificateImageUploading} className={`mt-1 sm:mt-2 w-full h-24 sm:h-28 md:h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors ${certificateImageUploading ? "opacity-50" : ""}`}>
+                    <div className="text-center"><Upload className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mx-auto mb-1 sm:mb-2" /><p className="text-xs sm:text-sm text-gray-500">{certificateImageUploading ? "Uploading..." : "Upload Certificate"}</p></div>
                   </button>
                 )}
                 <input ref={certificateInputRef} type="file" accept="image/*" onChange={handleCertificateImageUpload} className="hidden" />
-                {errors.certificateImage && <p className="text-red-500 text-sm mt-1">{errors.certificateImage}</p>}
+                {errors.certificateImage && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.certificateImage}</p>}
               </div>
             </div>
             <div>
-              <Label className="text-gray-900 font-medium">Status</Label>
+              <Label className="text-gray-900 font-medium text-sm sm:text-base">Status</Label>
               <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger className="mt-2 h-10 text-gray-900"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="mt-1 sm:mt-2 h-9 sm:h-10 text-sm sm:text-base text-gray-900 w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Draft">Draft</SelectItem>
                   <SelectItem value="Published">Published</SelectItem>
@@ -558,9 +559,9 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
           <div className="space-y-4">
             {/* Step 1 incomplete warning */}
             {(!title.trim() || !description.trim()) && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 sm:p-4 text-xs sm:text-sm text-amber-800">
                 <p className="font-medium mb-1">💡 Tip: Complete Step 1 first</p>
-                <p>Fill in the quest title and description in Step 1, then come back here to generate AI stories.</p>
+                <p>Fill in the quest title and description in Step 1.</p>
               </div>
             )}
 
@@ -670,29 +671,29 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
 
             {/* Story segments list */}
             {stories.map((story, index) => (
-              <div key={index} className={`bg-white rounded-lg p-6 border-2 space-y-4 ${errors[`story_${index}_title`] || errors[`story_${index}_content`] ? "border-red-300" : "border-gray-200"}`}>
+              <div key={index} className={`bg-white rounded-lg p-3 sm:p-4 md:p-6 border-2 space-y-3 sm:space-y-4 ${errors[`story_${index}_title`] || errors[`story_${index}_content`] ? "border-red-300" : "border-gray-200"}`}>
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-gray-900">Story Segment {index + 1}</h3>
-                  <button onClick={() => removeStory(index)} className="text-red-500 hover:text-red-700"><Trash2 className="w-5 h-5" /></button>
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base">Story Segment {index + 1}</h3>
+                  <button onClick={() => removeStory(index)} className="text-red-500 hover:text-red-700"><Trash2 className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                 </div>
                 <div>
-                  <Label className="text-gray-900 font-medium">Story Title</Label>
-                  <Input placeholder="e.g., The Beginning of Your Journey" value={story.title} onChange={(e) => { updateStory(index, "title", e.target.value); if (errors[`story_${index}_title`]) setErrors({ ...errors, [`story_${index}_title`]: "" }) }} className={`mt-2 h-10 text-gray-900 placeholder:text-gray-400 ${errors[`story_${index}_title`] ? "border-red-500" : ""}`} />
-                  {errors[`story_${index}_title`] && <p className="text-red-500 text-sm mt-1">{errors[`story_${index}_title`]}</p>}
+                  <Label className="text-gray-900 font-medium text-sm sm:text-base">Story Title</Label>
+                  <Input placeholder="e.g., The Beginning of Your Journey" value={story.title} onChange={(e) => { updateStory(index, "title", e.target.value); if (errors[`story_${index}_title`]) setErrors({ ...errors, [`story_${index}_title`]: "" }) }} className={`mt-1 sm:mt-2 h-9 sm:h-10 text-sm sm:text-base text-gray-900 placeholder:text-gray-400 ${errors[`story_${index}_title`] ? "border-red-500" : ""}`} />
+                  {errors[`story_${index}_title`] && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors[`story_${index}_title`]}</p>}
                 </div>
                 <div>
-                  <Label className="text-gray-900 font-medium">Story Content</Label>
-                  <Textarea placeholder="Write the story content here..." value={story.content} onChange={(e) => { updateStory(index, "content", e.target.value); if (errors[`story_${index}_content`]) setErrors({ ...errors, [`story_${index}_content`]: "" }) }} rows={6} className={`text-gray-900 placeholder:text-gray-400 ${errors[`story_${index}_content`] ? "border-red-500" : ""}`} />
-                  {errors[`story_${index}_content`] && <p className="text-red-500 text-sm mt-1">{errors[`story_${index}_content`]}</p>}
+                  <Label className="text-gray-900 font-medium text-sm sm:text-base">Story Content</Label>
+                  <Textarea placeholder="Write the story content here..." value={story.content} onChange={(e) => { updateStory(index, "content", e.target.value); if (errors[`story_${index}_content`]) setErrors({ ...errors, [`story_${index}_content`]: "" }) }} rows={4} className={`text-sm sm:text-base text-gray-900 placeholder:text-gray-400 ${errors[`story_${index}_content`] ? "border-red-500" : ""}`} />
+                  {errors[`story_${index}_content`] && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors[`story_${index}_content`]}</p>}
                 </div>
               </div>
             ))}
 
             {stories.length === 0 && (
-              <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
-                <Sparkles className="w-12 h-12 mx-auto mb-3 text-purple-400" />
-                <p className="font-medium mb-1">No stories added yet</p>
-                <p className="text-sm">Use AI to generate engaging stories or add them manually</p>
+              <div className="text-center py-6 sm:py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
+                <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 sm:mb-3 text-purple-400" />
+                <p className="font-medium mb-1 text-sm sm:text-base">No stories added yet</p>
+                <p className="text-xs sm:text-sm">Use AI to generate stories or add them manually</p>
               </div>
             )}
           </div>
@@ -700,31 +701,33 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
 
         {/* Step 3: Learning Resources */}
         {step === 3 && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600">Add learning resources to help participants</p>
-              <Button onClick={addLearningResource} variant="outline" size="sm" className="gap-2"><Plus className="w-4 h-4" />Add Resource</Button>
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3">
+              <p className="text-xs sm:text-sm text-gray-600">Add learning resources to help participants</p>
+              <Button onClick={addLearningResource} variant="outline" size="sm" className="gap-2 text-xs sm:text-sm h-8 sm:h-9">
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4" />Add Resource
+              </Button>
             </div>
             {learningResources.map((resource, index) => (
-              <div key={index} className={`bg-white rounded-lg p-6 border-2 space-y-4 ${errors[`resource_${index}_title`] || errors[`resource_${index}_url`] || errors[`resource_${index}_type`] ? "border-red-300" : "border-gray-200"}`}>
+              <div key={index} className={`bg-white rounded-lg p-3 sm:p-4 md:p-6 border-2 space-y-3 sm:space-y-4 ${errors[`resource_${index}_title`] || errors[`resource_${index}_url`] || errors[`resource_${index}_type`] ? "border-red-300" : "border-gray-200"}`}>
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-gray-900">Resource {index + 1}</h3>
-                  <button onClick={() => removeLearningResource(index)} className="text-red-500 hover:text-red-700"><Trash2 className="w-5 h-5" /></button>
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base">Resource {index + 1}</h3>
+                  <button onClick={() => removeLearningResource(index)} className="text-red-500 hover:text-red-700"><Trash2 className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                 </div>
                 <div>
-                  <Label className="text-gray-900 font-medium">Resource Title</Label>
-                  <Input placeholder="e.g., Introduction to Arduino" value={resource.title} onChange={(e) => { updateLearningResource(index, "title", e.target.value); if (errors[`resource_${index}_title`]) setErrors({ ...errors, [`resource_${index}_title`]: "" }) }} className={`mt-2 h-10 text-gray-900 placeholder:text-gray-400 ${errors[`resource_${index}_title`] ? "border-red-500" : ""}`} />
-                  {errors[`resource_${index}_title`] && <p className="text-red-500 text-sm mt-1">{errors[`resource_${index}_title`]}</p>}
+                  <Label className="text-gray-900 font-medium text-sm sm:text-base">Resource Title</Label>
+                  <Input placeholder="e.g., Introduction to Arduino" value={resource.title} onChange={(e) => { updateLearningResource(index, "title", e.target.value); if (errors[`resource_${index}_title`]) setErrors({ ...errors, [`resource_${index}_title`]: "" }) }} className={`mt-1 sm:mt-2 h-9 sm:h-10 text-sm sm:text-base text-gray-900 placeholder:text-gray-400 ${errors[`resource_${index}_title`] ? "border-red-500" : ""}`} />
+                  {errors[`resource_${index}_title`] && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors[`resource_${index}_title`]}</p>}
                 </div>
                 <div>
-                  <Label className="text-gray-900 font-medium">Description (Optional)</Label>
-                  <Textarea placeholder="Brief description of this resource" value={resource.description} onChange={(e) => updateLearningResource(index, "description", e.target.value)} className="text-gray-900 placeholder:text-gray-400" />
+                  <Label className="text-gray-900 font-medium text-sm sm:text-base">Description (Optional)</Label>
+                  <Textarea placeholder="Brief description of this resource" value={resource.description} onChange={(e) => updateLearningResource(index, "description", e.target.value)} className="text-sm sm:text-base text-gray-900 placeholder:text-gray-400" rows={2} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <Label className="text-gray-900 font-medium">Resource Type</Label>
+                    <Label className="text-gray-900 font-medium text-sm sm:text-base">Resource Type</Label>
                     <Select value={resource.type} onValueChange={(value) => { updateLearningResource(index, "type", value); if (errors[`resource_${index}_type`]) setErrors({ ...errors, [`resource_${index}_type`]: "" }) }}>
-                      <SelectTrigger className={`mt-2 h-10 text-gray-900 ${errors[`resource_${index}_type`] ? "border-red-500" : ""}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger className={`mt-1 sm:mt-2 h-9 sm:h-10 text-sm sm:text-base text-gray-900 w-full ${errors[`resource_${index}_type`] ? "border-red-500" : ""}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="video">Video</SelectItem>
                         <SelectItem value="article">Article</SelectItem>
@@ -733,19 +736,19 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
                         <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>
-                    {errors[`resource_${index}_type`] && <p className="text-red-500 text-sm mt-1">{errors[`resource_${index}_type`]}</p>}
+                    {errors[`resource_${index}_type`] && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors[`resource_${index}_type`]}</p>}
                   </div>
                   <div>
-                    <Label className="text-gray-900 font-medium">Resource URL</Label>
-                    <Input placeholder="https://..." value={resource.external_url} onChange={(e) => { updateLearningResource(index, "external_url", e.target.value); if (errors[`resource_${index}_url`]) setErrors({ ...errors, [`resource_${index}_url`]: "" }) }} className={`mt-2 h-10 text-gray-900 placeholder:text-gray-400 ${errors[`resource_${index}_url`] ? "border-red-500" : ""}`} />
-                    {errors[`resource_${index}_url`] && <p className="text-red-500 text-sm mt-1">{errors[`resource_${index}_url`]}</p>}
+                    <Label className="text-gray-900 font-medium text-sm sm:text-base">Resource URL</Label>
+                    <Input placeholder="https://..." value={resource.external_url} onChange={(e) => { updateLearningResource(index, "external_url", e.target.value); if (errors[`resource_${index}_url`]) setErrors({ ...errors, [`resource_${index}_url`]: "" }) }} className={`mt-1 sm:mt-2 h-9 sm:h-10 text-sm sm:text-base text-gray-900 placeholder:text-gray-400 ${errors[`resource_${index}_url`] ? "border-red-500" : ""}`} />
+                    {errors[`resource_${index}_url`] && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors[`resource_${index}_url`]}</p>}
                   </div>
                 </div>
               </div>
             ))}
             {learningResources.length === 0 && (
-              <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
-                <p>No learning resources added yet. Resources are optional but helpful for participants.</p>
+              <div className="text-center py-6 sm:py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
+                <p className="text-xs sm:text-sm">No learning resources added yet. Resources are optional but helpful.</p>
               </div>
             )}
           </div>
@@ -753,56 +756,56 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
 
         {/* Step 4: Materials & Instructions */}
         {step === 4 && (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <div>
-              <Label className="text-gray-900 font-medium">Materials Needed *</Label>
-              <Textarea placeholder="List all materials needed for this quest" value={materialsNeeded} onChange={(e) => { setMaterialsNeeded(e.target.value); if (errors.materials) setErrors({ ...errors, materials: "" }) }} rows={5} className={`text-gray-900 placeholder:text-gray-400 ${errors.materials ? "border-red-500 mt-2" : "mt-2"}`} />
-              {errors.materials && <p className="text-red-500 text-sm mt-1">{errors.materials}</p>}
+              <Label className="text-gray-900 font-medium text-sm sm:text-base">Materials Needed *</Label>
+              <Textarea placeholder="List all materials needed for this quest" value={materialsNeeded} onChange={(e) => { setMaterialsNeeded(e.target.value); if (errors.materials) setErrors({ ...errors, materials: "" }) }} rows={4} className={`text-sm sm:text-base text-gray-900 placeholder:text-gray-400 ${errors.materials ? "border-red-500 mt-1 sm:mt-2" : "mt-1 sm:mt-2"}`} />
+              {errors.materials && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.materials}</p>}
             </div>
             <div>
-              <Label className="text-gray-900 font-medium">General Instructions *</Label>
-              <Textarea placeholder="Provide general instructions or guidelines" value={generalInstructions} onChange={(e) => { setGeneralInstructions(e.target.value); if (errors.instructions) setErrors({ ...errors, instructions: "" }) }} rows={5} className={`text-gray-900 placeholder:text-gray-400 ${errors.instructions ? "border-red-500 mt-2" : "mt-2"}`} />
-              {errors.instructions && <p className="text-red-500 text-sm mt-1">{errors.instructions}</p>}
+              <Label className="text-gray-900 font-medium text-sm sm:text-base">General Instructions *</Label>
+              <Textarea placeholder="Provide general instructions or guidelines" value={generalInstructions} onChange={(e) => { setGeneralInstructions(e.target.value); if (errors.instructions) setErrors({ ...errors, instructions: "" }) }} rows={4} className={`text-sm sm:text-base text-gray-900 placeholder:text-gray-400 ${errors.instructions ? "border-red-500 mt-1 sm:mt-2" : "mt-1 sm:mt-2"}`} />
+              {errors.instructions && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.instructions}</p>}
             </div>
           </div>
         )}
 
         {/* Step 5: Quest Levels */}
         {step === 5 && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600">Define the levels/tasks participants must complete</p>
-              <Button onClick={addLevel} variant="outline" size="sm" className="gap-2">
-                <Plus className="w-4 h-4" />Add Level
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3">
+              <p className="text-xs sm:text-sm text-gray-600">Define the levels/tasks participants must complete</p>
+              <Button onClick={addLevel} variant="outline" size="sm" className="gap-2 text-xs sm:text-sm h-8 sm:h-9">
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4" />Add Level
               </Button>
             </div>
 
-            {errors.levels && <p className="text-red-500 text-sm">{errors.levels}</p>}
+            {errors.levels && <p className="text-red-500 text-xs sm:text-sm">{errors.levels}</p>}
 
             {levels.map((level, index) => (
-              <div key={index} className={`bg-white rounded-lg p-6 border-2 space-y-4 ${errors[`level_${index}_title`] || errors[`level_${index}_desc`] ? "border-red-300" : "border-gray-200"}`}>
+              <div key={index} className={`bg-white rounded-lg p-3 sm:p-4 md:p-6 border-2 space-y-3 sm:space-y-4 ${errors[`level_${index}_title`] || errors[`level_${index}_desc`] ? "border-red-300" : "border-gray-200"}`}>
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-gray-900">Level {index + 1}</h3>
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base">Level {index + 1}</h3>
                   <button onClick={() => removeLevel(index)} className="text-red-500 hover:text-red-700">
-                    <Trash2 className="w-5 h-5" />
+                    <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
                 <div>
-                  <Label className="text-gray-900 font-medium">Task Title *</Label>
-                  <Input placeholder="e.g., Connect the LED circuit" value={level.title} onChange={(e) => { updateLevel(index, "title", e.target.value); if (errors[`level_${index}_title`]) setErrors({ ...errors, [`level_${index}_title`]: "" }) }} className={`mt-2 h-10 text-gray-900 placeholder:text-gray-400 ${errors[`level_${index}_title`] ? "border-red-500" : ""}`} />
-                  {errors[`level_${index}_title`] && <p className="text-red-500 text-sm mt-1">{errors[`level_${index}_title`]}</p>}
+                  <Label className="text-gray-900 font-medium text-sm sm:text-base">Task Title *</Label>
+                  <Input placeholder="e.g., Connect the LED circuit" value={level.title} onChange={(e) => { updateLevel(index, "title", e.target.value); if (errors[`level_${index}_title`]) setErrors({ ...errors, [`level_${index}_title`]: "" }) }} className={`mt-1 sm:mt-2 h-9 sm:h-10 text-sm sm:text-base text-gray-900 placeholder:text-gray-400 ${errors[`level_${index}_title`] ? "border-red-500" : ""}`} />
+                  {errors[`level_${index}_title`] && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors[`level_${index}_title`]}</p>}
                 </div>
                 <div>
-                  <Label className="text-gray-900 font-medium">Task Description *</Label>
-                  <Textarea placeholder="Describe what the participant needs to do in this level" value={level.description} onChange={(e) => { updateLevel(index, "description", e.target.value); if (errors[`level_${index}_desc`]) setErrors({ ...errors, [`level_${index}_desc`]: "" }) }} rows={4} className={`text-gray-900 placeholder:text-gray-400 ${errors[`level_${index}_desc`] ? "border-red-500" : ""}`} />
-                  {errors[`level_${index}_desc`] && <p className="text-red-500 text-sm mt-1">{errors[`level_${index}_desc`]}</p>}
+                  <Label className="text-gray-900 font-medium text-sm sm:text-base">Task Description *</Label>
+                  <Textarea placeholder="Describe what the participant needs to do in this level" value={level.description} onChange={(e) => { updateLevel(index, "description", e.target.value); if (errors[`level_${index}_desc`]) setErrors({ ...errors, [`level_${index}_desc`]: "" }) }} rows={3} className={`text-sm sm:text-base text-gray-900 placeholder:text-gray-400 ${errors[`level_${index}_desc`] ? "border-red-500" : ""}`} />
+                  {errors[`level_${index}_desc`] && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors[`level_${index}_desc`]}</p>}
                 </div>
               </div>
             ))}
 
             {levels.length === 0 && (
-              <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
-                <p>No levels added yet. Click "Add Level" to create one.</p>
+              <div className="text-center py-6 sm:py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
+                <p className="text-xs sm:text-sm">No levels added yet. Click "Add Level" to create one.</p>
               </div>
             )}
           </div>
@@ -810,8 +813,8 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
 
         {/* Step 6: Review & Publish */}
         {step === 6 && (
-          <div className="space-y-4">
-            <div className="bg-white rounded-lg p-4 space-y-2 text-sm text-gray-900">
+          <div className="space-y-3 sm:space-y-4">
+            <div className="bg-white rounded-lg p-3 sm:p-4 space-y-2 text-xs sm:text-sm text-gray-900">
               <div><span className="font-medium text-gray-900">Quest Name:</span> {title}</div>
               <div><span className="font-medium text-gray-900">Difficulty:</span> {difficulty}</div>
               <div><span className="font-medium text-gray-900">Status:</span> {status}</div>
@@ -820,22 +823,22 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
               <div><span className="font-medium text-gray-900">Learning Resources:</span> {learningResources.filter(r => r.title && r.external_url).length} resource{learningResources.filter(r => r.title && r.external_url).length !== 1 ? "s" : ""}</div>
               <div><span className="font-medium text-gray-900">Levels:</span> {levels.length} level{levels.length !== 1 ? "s" : ""}</div>
             </div>
-            <p className="text-gray-900 text-sm">Review the quest details above. Click "Create Quest" to save, or "Back" to make changes.</p>
+            <p className="text-gray-900 text-xs sm:text-sm">Review the quest details above. Click "Create Quest" to save, or "Back" to make changes.</p>
           </div>
         )}
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between gap-3 pt-6 border-t border-gray-200">
-          <div className="flex gap-3">
-            {step > 1 && <Button onClick={() => setStep(step - 1)} variant="outline">Back</Button>}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-gray-200">
+          <div className="flex gap-2 sm:gap-3 order-2 sm:order-1">
+            {step > 1 && <Button onClick={() => setStep(step - 1)} variant="outline" className="flex-1 sm:flex-none text-xs sm:text-sm h-9 sm:h-10">Back</Button>}
           </div>
 
-          <div className="flex gap-3">
-            <Button onClick={() => onOpenChange(false)} variant="cancel">Cancel</Button>
+          <div className="flex gap-2 sm:gap-3 order-1 sm:order-2">
+            <Button onClick={() => onOpenChange(false)} variant="cancel" className="flex-1 sm:flex-none text-xs sm:text-sm h-9 sm:h-10">Cancel</Button>
             {step < 6 ? (
-              <Button onClick={handleNextStep} className="bg-blue-600 hover:bg-blue-700">Next</Button>
+              <Button onClick={handleNextStep} className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm h-9 sm:h-10">Next</Button>
             ) : (
-              <Button onClick={handleSubmit} disabled={isLoading} className="bg-blue-600 hover:bg-blue-700">
+              <Button onClick={handleSubmit} disabled={isLoading} className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm h-9 sm:h-10">
                 {isLoading ? "Saving..." : editingQuest ? "Update Quest" : "Create Quest"}
               </Button>
             )}

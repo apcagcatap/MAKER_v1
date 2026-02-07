@@ -23,6 +23,15 @@ export function FastestCompletions({ completions }: FastestCompletionsProps) {
     <Medal className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" key="bronze" />
   ];
 
+  const formatDuration = (minutes: number) => {
+    if (minutes < 60) {
+      return `${minutes}m`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+  };
+
   return (
     <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-gray-100">
       <h3 className="font-bold text-gray-900 mb-4 text-sm sm:text-base">Fastest Completions</h3>
@@ -60,12 +69,9 @@ export function FastestCompletions({ completions }: FastestCompletionsProps) {
                   <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">
                     {completion.user.full_name}
                   </p>
-                  {completion.duration_minutes && (
+                  {completion.duration_minutes !== undefined && (
                     <p className="text-xs text-gray-500">
-                      {completion.duration_minutes < 60 
-                        ? `${completion.duration_minutes}m`
-                        : `${Math.floor(completion.duration_minutes / 60)}h ${completion.duration_minutes % 60}m`
-                      }
+                      {formatDuration(completion.duration_minutes)}
                     </p>
                   )}
                 </div>

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { StoryView } from '@/components/participant/story-view'
 import { ResourceCard } from '@/components/participant/resource-card'
 import { startQuest, completeStory } from '@/lib/actions/quests'
-import { CheckCircle2, Book, ListChecks, Trophy, ArrowRight, ArrowLeft, Clock, Download } from 'lucide-react'
+import { CheckCircle2, Book, ListChecks, Trophy, ArrowRight, ArrowLeft, Clock, Download, X, ChevronDown, ChevronUp, FileText, Package } from 'lucide-react'
 
 interface QuestContentViewProps {
   quest: any
@@ -14,12 +14,60 @@ interface QuestContentViewProps {
 
 type QuestStep = 'story' | 'instructions' | 'materials' | 'level' | 'completed'
 
+interface LevelCompletion {
+  level: number
+  completedAt: Date
+}
+
 export function QuestContentView({ quest, userProgress }: QuestContentViewProps) {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState<QuestStep>('story')
   const [currentLevelIndex, setCurrentLevelIndex] = useState(0)
   const [isStarting, setIsStarting] = useState(false)
-  const [levelCompletionTimes, setLevelCompletionTimes] = useState<Date[]>([])
+  const [isCompletingLevel, setIsCompletingLevel] = useState(false)
+  const [levelCompletions, setLevelCompletions] = useState<LevelCompletion[]>([])
+  const [completionsLoaded, setCompletionsLoaded] = useState(false)
+  
+  // Dropdown states for level page
+  const [showInstructions, setShowInstructions] = useState(false)
+  const [showMaterials, setShowMaterials] = useState(false)
+  
+  // State for the image pop-up (enlarged view)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+
+  // Load existing level completions from database
+  useEffect(() => {
+    const loadLevelCompletions = async () => {
+      if (!userProgress) {
+        setCompletionsLoaded(true)
+        return
+      }
+
+      try {
+        const { createClient } = await import('@/lib/supabase/client')
+        const supabase = createClient()
+        
+        const { data: completions } = await supabase
+          .from('level_completions')
+          .select('*')
+          .eq('user_quest_id', userProgress.id)
+          .order('level', { ascending: true })
+
+        if (completions) {
+          setLevelCompletions(completions.map((c: any) => ({
+            level: c.level,
+            completedAt: new Date(c.completed_at)
+          })))
+        }
+        setCompletionsLoaded(true)
+      } catch (error) {
+        console.error('Error loading level completions:', error)
+        setCompletionsLoaded(true)
+      }
+    }
+
+    loadLevelCompletions()
+  }, [userProgress])
 
   useEffect(() => {
     // Determine which step the user should see
@@ -27,39 +75,28 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
       return // Show start button
     }
 
-    if (userProgress.status === 'completed') {
+    if (userProgress.status === 'completed' && currentStep === 'story') {
       setCurrentStep('completed')
       return
     }
 
-    // If user has progressed to levels
-    if (userProgress.current_level > 0) {
-      setCurrentStep('level')
-      setCurrentLevelIndex(userProgress.current_level)
-      return
-    }
-
     // Story flow: Only show story if it exists AND hasn't been completed
-    if (quest.stories?.length > 0 && !userProgress.story_completed) {
+    if (quest.stories?.length > 0 && !userProgress.story_completed && currentStep === 'story') {
       setCurrentStep('story')
       return
     }
 
-    // After story (or if no story), show instructions
-    if (!userProgress.instructions_viewed) {
-      setCurrentStep('instructions')
-      return
+    // We only want to auto-sync the step if we are initializing or if the status just changed to completed
+    if (currentStep === 'story') {
+        if (!userProgress.instructions_viewed) {
+          setCurrentStep('instructions')
+        } else if (!userProgress.materials_viewed) {
+          setCurrentStep('materials')
+        } else {
+          setCurrentStep('level')
+          setCurrentLevelIndex(userProgress.current_level || 0)
+        }
     }
-
-    // After instructions, show materials
-    if (!userProgress.materials_viewed) {
-      setCurrentStep('materials')
-      return
-    }
-
-    // After materials, show levels
-    setCurrentStep('level')
-    setCurrentLevelIndex(0)
   }, [userProgress, quest.stories])
 
   const handleStartQuest = async () => {
@@ -67,7 +104,6 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
       setIsStarting(true)
       await startQuest(quest.id)
       
-      // If no stories, mark story as complete immediately
       if (!quest.stories || quest.stories.length === 0) {
         const { createClient } = await import('@/lib/supabase/client')
         const supabase = createClient()
@@ -94,9 +130,7 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
   const handleStoryComplete = async () => {
     try {
       await completeStory(quest.id)
-      // Directly set to instructions, don't wait for refresh
       setCurrentStep('instructions')
-      // Then refresh in background
       setTimeout(() => router.refresh(), 100)
     } catch (error) {
       console.error('Error completing story:', error)
@@ -110,7 +144,6 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
       const { data: { user } } = await supabase.auth.getUser()
       
       if (user) {
-        // Mark instructions as viewed
         await supabase
           .from('user_quests')
           .update({ instructions_viewed: true })
@@ -131,10 +164,24 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
       const { data: { user } } = await supabase.auth.getUser()
       
       if (user) {
-        // Mark materials as viewed
+        // Check if started_at is already set (user is resuming)
+        const { data: currentUserQuest } = await supabase
+          .from('user_quests')
+          .select('started_at')
+          .eq('quest_id', quest.id)
+          .eq('user_id', user.id)
+          .single()
+
+        // Only set started_at if it's null (first time starting Level 1)
+        const updateData: any = { materials_viewed: true }
+        
+        if (!currentUserQuest?.started_at) {
+          updateData.started_at = new Date().toISOString() // Start timer only on first Level 1 start
+        }
+
         await supabase
           .from('user_quests')
-          .update({ materials_viewed: true })
+          .update(updateData)
           .eq('quest_id', quest.id)
           .eq('user_id', user.id)
       }
@@ -147,11 +194,12 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
   }
 
   const handleLevelComplete = async () => {
-    // Record completion time
-    const newCompletionTimes = [...levelCompletionTimes, new Date()]
-    setLevelCompletionTimes(newCompletionTimes)
+    if (isCompletingLevel) return
+
+    setIsCompletingLevel(true)
 
     const nextLevelIndex = currentLevelIndex + 1
+    const completionTime = new Date()
 
     try {
       const { createClient } = await import('@/lib/supabase/client')
@@ -159,9 +207,43 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
       const { data: { user } } = await supabase.auth.getUser()
       
       if (user) {
-        // Check if there are more levels
+        // Record this level's completion time
+        const { data: userQuestData } = await supabase
+          .from('user_quests')
+          .select('id, started_at')
+          .eq('quest_id', quest.id)
+          .eq('user_id', user.id)
+          .single()
+
+        if (userQuestData) {
+          // Check if this level completion already exists
+          const { data: existingCompletion } = await supabase
+            .from('level_completions')
+            .select('id')
+            .eq('user_quest_id', userQuestData.id)
+            .eq('level', currentLevelIndex + 1) // level is 1-indexed
+            .single()
+
+          if (!existingCompletion) {
+            // Only insert if it doesn't exist (prevents duplicates)
+            await supabase
+              .from('level_completions')
+              .insert({
+                user_quest_id: userQuestData.id,
+                level: currentLevelIndex + 1,
+                completed_at: completionTime.toISOString()
+              })
+
+            // Update local state
+            setLevelCompletions([...levelCompletions, {
+              level: currentLevelIndex + 1,
+              completedAt: completionTime
+            }])
+          }
+        }
+
         if (nextLevelIndex < quest.levels.length) {
-          // Update current_level to track progress
+          // Progressing to next level
           const { error } = await supabase
             .from('user_quests')
             .update({
@@ -173,38 +255,55 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
           if (error) {
             console.error('Error updating level progress:', error)
           } else {
-            console.log(`✅ Progress saved: Level ${nextLevelIndex + 1}`)
             setCurrentLevelIndex(nextLevelIndex)
+            setCurrentStep('level')
             router.refresh()
           }
         } else {
-          // All levels completed - mark quest as completed
+          // Final level completion - Calculate ACCURATE completion time
+          const { data: userQuest } = await supabase
+            .from('user_quests')
+            .select('started_at')
+            .eq('quest_id', quest.id)
+            .eq('user_id', user.id)
+            .single()
+
+          // Calculate time difference between start and now
+          const startedAt = userQuest?.started_at ? new Date(userQuest.started_at) : completionTime
+          const completionTimeMinutes = Math.round((completionTime.getTime() - startedAt.getTime()) / (1000 * 60))
+
+          console.log('🕒 Quest Completion Time Calculation:', {
+            started_at: startedAt.toISOString(),
+            completed_at: completionTime.toISOString(),
+            duration_minutes: completionTimeMinutes
+          })
+
           const { error } = await supabase
             .from('user_quests')
             .update({
               status: 'completed',
-              completed_at: new Date().toISOString(),
-              current_level: quest.levels.length
+              completed_at: completionTime.toISOString(),
+              current_level: quest.levels.length,
+              completion_time: completionTimeMinutes
             })
             .eq('quest_id', quest.id)
             .eq('user_id', user.id)
 
-          if (error) {
-            console.error('Error updating quest status:', error)
-          } else {
-            console.log('✅ Quest marked as completed!')
+          if (!error) {
+            setCurrentStep('completed')
           }
-          
-          setCurrentStep('completed')
           router.refresh()
         }
       }
     } catch (error) {
       console.error('Error saving progress:', error)
+    } finally {
+      setTimeout(() => {
+        setIsCompletingLevel(false)
+      }, 1000)
     }
   }
 
-  // Back button handler
   const handleBack = () => {
     if (currentStep === 'materials') {
       setCurrentStep('instructions')
@@ -215,25 +314,27 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
     }
   }
 
-  // If user hasn't started the quest yet, show start button
   if (!userProgress) {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">{quest.title}</h1>
-          <p className="text-lg text-gray-600 mb-6">{quest.description}</p>
-          
-          <div className="flex items-center gap-4 mb-8">
-            <span className="px-4 py-2 bg-red-50 text-red-600 rounded-lg font-medium">
+      <div className="max-w-4xl mx-auto px-4 sm:px-0">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3 sm:mb-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 flex-1">{quest.title}</h1>
+            <span className="inline-block px-3 py-1.5 sm:px-4 sm:py-2 bg-red-50 text-red-600 rounded-lg font-medium text-sm sm:text-base w-fit sm:flex-shrink-0">
               {quest.difficulty}
             </span>
+          </div>
+          
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-4 sm:mb-6">{quest.description}</p>
+          
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
             {quest.skill && (
-              <span className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium">
+              <span className="px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-50 text-blue-600 rounded-lg font-medium text-sm sm:text-base">
                 {quest.skill.name}
               </span>
             )}
             {quest.xp_reward > 0 && (
-              <span className="px-4 py-2 bg-yellow-50 text-yellow-600 rounded-lg font-medium">
+              <span className="px-3 py-1.5 sm:px-4 sm:py-2 bg-yellow-50 text-yellow-600 rounded-lg font-medium text-sm sm:text-base">
                 {quest.xp_reward} XP
               </span>
             )}
@@ -242,7 +343,7 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
           <button
             onClick={handleStartQuest}
             disabled={isStarting}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg transition-colors disabled:opacity-50"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-colors disabled:opacity-50 text-sm sm:text-base"
           >
             {isStarting ? 'Starting...' : 'Start Quest'}
           </button>
@@ -251,32 +352,29 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
     )
   }
 
-  // Show story view ONLY if stories exist and user hasn't completed them
   if (currentStep === 'story' && quest.stories?.length > 0 && !userProgress?.story_completed) {
     return <StoryView stories={quest.stories} onComplete={handleStoryComplete} />
   }
 
-  // Instructions Step
   if (currentStep === 'instructions') {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="flex items-center gap-3 mb-6">
-            <Book className="w-8 h-8 text-blue-600" />
-            <h1 className="text-4xl font-bold text-gray-900">Instructions</h1>
+      <div className="max-w-4xl mx-auto px-4 sm:px-0">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <Book className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Instructions</h1>
           </div>
           
-          <div className="prose prose-lg max-w-none mb-8">
-            <p className="text-gray-700 whitespace-pre-wrap text-lg leading-relaxed">
+          <div className="prose prose-sm sm:prose-base lg:prose-lg max-w-none mb-6 sm:mb-8">
+            <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base md:text-lg leading-relaxed">
               {quest.general_instructions || 'No instructions provided.'}
             </p>
           </div>
 
-          {/* Learning Resources */}
           {quest.learning_resources && quest.learning_resources.length > 0 && (
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Learning Resources</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Learning Resources</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {quest.learning_resources.map((resource: any) => (
                   <ResourceCard key={resource.id} resource={resource} />
                 ))}
@@ -286,49 +384,46 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
 
           <button
             onClick={handleInstructionsComplete}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
           >
             Continue to Materials
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
       </div>
     )
   }
 
-  // Materials Step
   if (currentStep === 'materials') {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="flex items-center gap-3 mb-6">
-            <ListChecks className="w-8 h-8 text-blue-600" />
-            <h1 className="text-4xl font-bold text-gray-900">Materials You Would Need</h1>
+      <div className="max-w-4xl mx-auto px-4 sm:px-0">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <ListChecks className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Materials You Would Need</h1>
           </div>
           
-          <div className="prose prose-lg max-w-none mb-8">
-            <p className="text-gray-700 whitespace-pre-wrap text-lg leading-relaxed">
+          <div className="prose prose-sm sm:prose-base lg:prose-lg max-w-none mb-6 sm:mb-8">
+            <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base md:text-lg leading-relaxed">
               {quest.materials_needed || 'No materials specified.'}
             </p>
           </div>
 
-          <div className="flex gap-4">
-            {/* Back Button */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <button
               onClick={handleBack}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-8 rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="w-full sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-2 sm:order-1"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               Back
             </button>
 
-            {/* Continue Button */}
             <button
               onClick={handleMaterialsComplete}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-1 sm:order-2"
             >
               Start Level 1
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
@@ -336,24 +431,19 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
     )
   }
 
-  // Level Step
   if (currentStep === 'level' && quest.levels && quest.levels[currentLevelIndex]) {
     const currentLevel = quest.levels[currentLevelIndex]
     const levelNumber = currentLevelIndex + 1
-    
-    // Calculate progress: currentLevelIndex represents completed levels, not the current one
-    const completedLevels = currentLevelIndex
-    const progressPercentage = Math.round((completedLevels / quest.levels.length) * 100)
+    const progressPercentage = Math.round((currentLevelIndex / quest.levels.length) * 100)
 
     return (
-      <div className="max-w-4xl mx-auto">
-        {/* Progress Indicator */}
-        <div className="mb-6 bg-white rounded-lg shadow p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600">
+      <div className="max-w-4xl mx-auto px-4 sm:px-0">
+        <div className="mb-4 sm:mb-6 bg-white rounded-lg shadow p-3 sm:p-4">
+          <div className="flex items-center justify-between mb-2 text-xs sm:text-sm">
+            <span className="font-medium text-gray-600">
               Level {levelNumber} of {quest.levels.length}
             </span>
-            <span className="text-sm font-medium text-gray-600">
+            <span className="font-medium text-gray-600">
               {progressPercentage}% Complete
             </span>
           </div>
@@ -365,63 +455,116 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
           </div>
         </div>
 
-        {/* Level Content */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="mb-6">
-            <div className="inline-block px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium mb-4">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+          <div className="mb-4 sm:mb-6">
+            <div className="inline-block px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-50 text-blue-600 rounded-lg font-medium mb-3 sm:mb-4 text-sm sm:text-base">
               Level {levelNumber}
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">{currentLevel.title}</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">{currentLevel.title}</h1>
           </div>
           
-          <div className="prose prose-lg max-w-none mb-8">
-            <p className="text-gray-700 whitespace-pre-wrap text-lg leading-relaxed">
+          <div className="prose prose-sm sm:prose-base lg:prose-lg max-w-none mb-6 sm:mb-8">
+            <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base md:text-lg leading-relaxed">
               {currentLevel.description}
             </p>
           </div>
 
-          {/* Show previous completion times */}
-          {levelCompletionTimes.length > 0 && (
-            <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
-              <div className="flex items-center gap-2 mb-3">
-                <Trophy className="w-5 h-5 text-green-600" />
-                <h3 className="font-bold text-green-900">Your Progress</h3>
+          {/* Quick Reference Dropdowns */}
+          <div className="mb-6 sm:mb-8 space-y-3">
+            {/* Instructions Dropdown */}
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <button
+                onClick={() => setShowInstructions(!showInstructions)}
+                className="w-full flex items-center justify-between p-3 sm:p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                  <span className="font-semibold text-gray-900 text-sm sm:text-base">General Instructions</span>
+                </div>
+                {showInstructions ? (
+                  <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                )}
+              </button>
+              {showInstructions && (
+                <div className="p-4 sm:p-6 bg-white border-t border-gray-200">
+                  <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base leading-relaxed">
+                    {quest.general_instructions || 'No instructions provided.'}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Materials Dropdown */}
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <button
+                onClick={() => setShowMaterials(!showMaterials)}
+                className="w-full flex items-center justify-between p-3 sm:p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Package className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                  <span className="font-semibold text-gray-900 text-sm sm:text-base">Materials Needed</span>
+                </div>
+                {showMaterials ? (
+                  <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                )}
+              </button>
+              {showMaterials && (
+                <div className="p-4 sm:p-6 bg-white border-t border-gray-200">
+                  <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base leading-relaxed">
+                    {quest.materials_needed || 'No materials specified.'}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Your Progress Section - ONLY shown on level pages */}
+          {completionsLoaded && levelCompletions.length > 0 && (
+            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 rounded-lg border border-green-200">
+              <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+                <h3 className="font-bold text-green-900 text-sm sm:text-base">Your Progress</h3>
               </div>
-              <div className="space-y-2">
-                {levelCompletionTimes.map((time, index) => (
-                  <div key={index} className="flex items-center gap-2 text-sm text-green-700">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Level {index + 1} completed at {time.toLocaleTimeString()}</span>
+              <div className="space-y-1 sm:space-y-2">
+                {levelCompletions.map((completion) => (
+                  <div key={completion.level} className="flex items-center gap-2 text-xs sm:text-sm text-green-700">
+                    <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span>Level {completion.level} completed at {completion.completedAt.toLocaleTimeString()}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          <div className="flex gap-4">
-            {/* Back Button */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <button
               onClick={handleBack}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-8 rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="w-full sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-2 sm:order-1"
             >
-              <ArrowLeft className="w-5 h-5" />
-              {currentLevelIndex === 0 ? 'Back to Materials' : `Back to Level ${levelNumber - 1}`}
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="sm:inline">{currentLevelIndex === 0 ? 'Back to Materials' : `Back to Level ${levelNumber - 1}`}</span>
             </button>
 
-            {/* Complete Button */}
             <button
               onClick={handleLevelComplete}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg transition-colors flex items-center justify-center gap-2"
+              disabled={isCompletingLevel}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-1 sm:order-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {currentLevelIndex < quest.levels.length - 1 ? (
+              {isCompletingLevel ? (
+                <>Processing...</>
+              ) : currentLevelIndex < quest.levels.length - 1 ? (
                 <>
                   Complete Level {levelNumber}
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                 </>
               ) : (
                 <>
                   Complete Quest
-                  <Trophy className="w-5 h-5" />
+                  <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
                 </>
               )}
             </button>
@@ -431,22 +574,28 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
     )
   }
 
-  // Completion Step
   if (currentStep === 'completed') {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-gradient-to-br from-green-400 to-blue-500 rounded-lg shadow-2xl p-12 text-center text-white mb-8">
-          <div className="mb-6">
-            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-              <Trophy className="w-16 h-16 text-yellow-500" />
+      <div className="max-w-4xl mx-auto px-4 sm:px-0 relative">
+        {selectedImage && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" onClick={() => setSelectedImage(null)}>
+            <button className="absolute top-4 right-4 text-white" onClick={() => setSelectedImage(null)}><X className="w-8 h-8" /></button>
+            <img src={selectedImage} alt="Enlarged" className="max-w-full max-h-full object-contain rounded-lg" onClick={(e) => e.stopPropagation()} />
+          </div>
+        )}
+
+        <div className="bg-gradient-to-br from-green-400 to-blue-500 rounded-lg shadow-2xl p-6 sm:p-8 md:p-12 text-center text-white mb-6 sm:mb-8">
+          <div className="mb-4 sm:mb-6">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <Trophy className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 text-yellow-500" />
             </div>
-            <h1 className="text-5xl font-bold mb-4">Congratulations! 🎉</h1>
-            <p className="text-2xl mb-8">You&apos;ve completed the quest!</p>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">Congratulations! 🎉</h1>
+            <p className="text-lg sm:text-xl md:text-2xl mb-6 sm:mb-8">You&apos;ve completed the quest!</p>
           </div>
 
-          <div className="bg-white/20 backdrop-blur rounded-lg p-6 mb-8">
-            <h2 className="text-xl font-bold mb-4">Quest Summary</h2>
-            <div className="space-y-3 text-left">
+          <div className="bg-white/20 backdrop-blur rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
+            <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Quest Summary</h2>
+            <div className="space-y-2 sm:space-y-3 text-left text-sm sm:text-base">
               <div className="flex items-center justify-between">
                 <span>Quest:</span>
                 <span className="font-bold">{quest.title}</span>
@@ -459,89 +608,64 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
                 <span>XP Earned:</span>
                 <span className="font-bold">{quest.xp_reward} XP</span>
               </div>
+              {userProgress?.completion_time && (
+                <div className="flex items-center justify-between">
+                  <span>Total Completion Time:</span>
+                  <span className="font-bold">
+                    {userProgress.completion_time < 60 
+                      ? `${userProgress.completion_time} minutes`
+                      : `${Math.floor(userProgress.completion_time / 60)}h ${userProgress.completion_time % 60}m`
+                    }
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
-          {levelCompletionTimes.length > 0 && (
-            <div className="bg-white/20 backdrop-blur rounded-lg p-6 mb-8">
-              <h2 className="text-xl font-bold mb-4">Your Completion Times</h2>
-              <div className="space-y-2 text-left">
-                {levelCompletionTimes.map((time, index) => (
-                  <div key={index} className="flex items-center justify-between">
+          {/* Level-by-Level Completion Times */}
+          {completionsLoaded && levelCompletions.length > 0 && (
+            <div className="bg-white/20 backdrop-blur rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
+              <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Your Completion Times</h2>
+              <div className="space-y-1 sm:space-y-2 text-left text-xs sm:text-sm md:text-base">
+                {levelCompletions.map((completion) => (
+                  <div key={completion.level} className="flex items-center justify-between">
                     <span className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4" />
-                      Level {index + 1}
+                      <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                      Level {completion.level}
                     </span>
-                    <span className="font-mono">{time.toLocaleTimeString()}</span>
+                    <span className="font-mono">{completion.completedAt.toLocaleTimeString()}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => router.push('/participant/quests')}
-              className="bg-white text-blue-600 font-bold py-4 px-8 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              Back to Quests
-            </button>
-            
-            <button
-              onClick={() => setCurrentStep('instructions')}
-              className="bg-white/20 backdrop-blur border-2 border-white text-white font-bold py-4 px-8 rounded-lg hover:bg-white/30 transition-colors"
-            >
-              Review Quest Content
-            </button>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+            <button onClick={() => router.push('/participant/quests')} className="bg-white text-blue-600 font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg hover:bg-gray-100 transition-colors text-sm sm:text-base">Back to Quests</button>
+            <button onClick={() => setCurrentStep('instructions')} className="bg-white/20 backdrop-blur border-2 border-white text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg hover:bg-white/30 transition-colors text-sm sm:text-base">Review Quest Content</button>
           </div>
         </div>
 
-        {/* Rewards Section */}
         {(quest.badge_image_url || quest.certificate_image_url) && (
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Your Rewards</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Badge */}
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 text-center">Your Rewards</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
               {quest.badge_image_url && (
                 <div className="text-center">
-                  <div className="bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl p-6 mb-4">
-                    <img
-                      src={quest.badge_image_url}
-                      alt="Quest Badge"
-                      className="w-48 h-48 mx-auto object-contain"
-                    />
+                  <div className="bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl p-4 sm:p-6 mb-4">
+                    <img src={quest.badge_image_url} alt="Badge" onClick={() => setSelectedImage(quest.badge_image_url)} className="w-32 h-32 sm:w-48 sm:h-48 mx-auto object-contain cursor-zoom-in hover:scale-105 transition-transform" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Achievement Badge</h3>
-                  
-                    href={quest.badge_image_url}
-                    download={`${quest.title}-badge.png`}
-                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
-                  <a>
-                    <Download className="w-5 h-5" />
-                    Download Badge
-                  </a>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Achievement Badge</h3>
+                  <a href={quest.badge_image_url} download={`${quest.title}-badge.png`} className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm sm:text-base"><Download className="w-4 h-4" /> <span>Download Badge</span></a>
                 </div>
               )}
-
-              {/* Certificate */}
               {quest.certificate_image_url && (
                 <div className="text-center">
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 mb-4">
-                    <img
-                      src={quest.certificate_image_url}
-                      alt="Quest Certificate"
-                      className="w-full h-48 mx-auto object-contain"
-                    />
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 sm:p-6 mb-4">
+                    <img src={quest.certificate_image_url} alt="Cert" onClick={() => setSelectedImage(quest.certificate_image_url)} className="w-full h-32 sm:h-48 mx-auto object-contain cursor-zoom-in hover:scale-105 transition-transform" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Certificate of Completion</h3>
-                  
-                    href={quest.certificate_image_url}
-                    download={`${quest.title}-certificate.png`}
-                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
-                  <a>
-                    <Download className="w-5 h-5" />
-                    Download Certificate
-                  </a>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Certificate of Completion</h3>
+                  <a href={quest.certificate_image_url} download={`${quest.title}-cert.png`} className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm sm:text-base"><Download className="w-4 h-4" /> <span>Download Certificate</span></a>
                 </div>
               )}
             </div>
