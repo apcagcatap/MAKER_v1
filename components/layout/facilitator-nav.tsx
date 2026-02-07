@@ -21,7 +21,7 @@ export function FacilitatorNav() {
 
   const navItems = [
     { href: "/facilitator", icon: Home, label: "Home" },
-    { href: "/facilitator/quests", icon: Target, label: "Active Quests" },
+    { href: "/facilitator/quests", icon: Target, label: "Quests" },
     { href: "/facilitator/participants", icon: Users, label: "Participants" },
     { href: "/facilitator/skills", icon: Award, label: "Skills" },
     { href: "/facilitator/forums", icon: MessageSquare, label: "Forums" },

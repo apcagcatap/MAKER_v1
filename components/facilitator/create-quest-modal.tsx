@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Trash2, Plus, Upload, X, Sparkles } from "lucide-react"
+import { Trash2, Plus, Upload, X, Sparkles, Link2 } from "lucide-react"
 import { createQuest, updateQuest, uploadImage } from "@/lib/actions/quests"
 import { generateQuestStory } from "@/lib/actions/ai-story"
 import { toast } from "sonner"
@@ -75,6 +75,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
   const [badgeImageUploading, setBadgeImageUploading] = useState(false)
   const [certificateImageUploading, setCertificateImageUploading] = useState(false)
   const [status, setStatus] = useState(editingQuest?.status || "Draft")
+  const [surveyLink, setSurveyLink] = useState(editingQuest?.survey_link || "")
 
   // Step 2: Story
   const [storyGenre, setStoryGenre] = useState("Adventure")
@@ -117,6 +118,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
       setBadgeImagePreview(editingQuest.badge_image_url || null)
       setCertificateImagePreview(editingQuest.certificate_image_url || null)
       setStatus(editingQuest.status || "Draft")
+      setSurveyLink(editingQuest.survey_link || "")
       setStories(editingQuest.stories?.map((s: any, i: number) => ({ title: s.title, content: s.content, order_index: i })) || [])
       setLearningResources(editingQuest.learning_resources?.map((r: any, i: number) => ({ 
         title: r.title, 
@@ -139,6 +141,11 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
       if (!description.trim()) newErrors.description = "Description is required"
       if (!badgeImageUrl) newErrors.badgeImage = "Badge image is required"
       if (!certificateImageUrl) newErrors.certificateImage = "Certificate image is required"
+      
+      // Validate survey link if provided
+      if (surveyLink.trim() && !isValidUrl(surveyLink.trim())) {
+        newErrors.surveyLink = "Please enter a valid URL (must start with http:// or https://)"
+      }
     }
 
     if (stepToValidate === 2) {
@@ -179,6 +186,15 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
     }
 
     return newErrors
+  }
+
+  const isValidUrl = (url: string) => {
+    try {
+      const urlObj = new URL(url)
+      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:'
+    } catch {
+      return false
+    }
   }
 
   const validateForm = (stepToValidate?: number) => {
@@ -345,6 +361,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
         badge_image_url: badgeImageUrl,
         certificate_image_url: certificateImageUrl,
         status,
+        survey_link: surveyLink.trim() || null,
         materials_needed: materialsNeeded,
         general_instructions: generalInstructions,
         levels,
@@ -386,6 +403,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
     setBadgeImagePreview(null)
     setCertificateImagePreview(null)
     setStatus("Draft")
+    setSurveyLink("")
     setStoryGenre("Adventure")
     setCustomGenre("")
     setStoryTopic("")
@@ -470,6 +488,26 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
                 <Input type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} className="mt-2 h-10 text-gray-900" />
               </div>
             </div>
+            
+            {/* Survey/Feedback Link Field */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Link2 className="w-4 h-4 text-gray-600" />
+                <Label className="text-gray-900 font-medium">Survey / Feedback Form Link (Optional)</Label>
+              </div>
+              <Input 
+                placeholder="https://forms.google.com/..." 
+                value={surveyLink} 
+                onChange={(e) => { 
+                  setSurveyLink(e.target.value); 
+                  if (errors.surveyLink) setErrors({ ...errors, surveyLink: "" }) 
+                }} 
+                className={`h-10 text-gray-900 placeholder:text-gray-400 ${errors.surveyLink ? "border-red-500" : ""}`} 
+              />
+              {errors.surveyLink && <p className="text-red-500 text-sm mt-1">{errors.surveyLink}</p>}
+              <p className="text-xs text-gray-500 mt-1">Participants will be able to access this survey after completing the quest</p>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-gray-900 font-medium">Badge Image *</Label>
@@ -777,6 +815,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
               <div><span className="font-medium text-gray-900">Quest Name:</span> {title}</div>
               <div><span className="font-medium text-gray-900">Difficulty:</span> {difficulty}</div>
               <div><span className="font-medium text-gray-900">Status:</span> {status}</div>
+              {surveyLink && <div><span className="font-medium text-gray-900">Survey Link:</span> <a href={surveyLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{surveyLink}</a></div>}
               <div><span className="font-medium text-gray-900">Stories:</span> {stories.filter(s => s.title && s.content).length} segment{stories.filter(s => s.title && s.content).length !== 1 ? "s" : ""}</div>
               <div><span className="font-medium text-gray-900">Learning Resources:</span> {learningResources.filter(r => r.title && r.external_url).length} resource{learningResources.filter(r => r.title && r.external_url).length !== 1 ? "s" : ""}</div>
               <div><span className="font-medium text-gray-900">Levels:</span> {levels.length} level{levels.length !== 1 ? "s" : ""}</div>
