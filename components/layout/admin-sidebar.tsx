@@ -9,7 +9,8 @@ import {
   FileText,
   LogOut,
   BookOpen,
-  Trophy
+  Trophy,
+  BarChart3
 } from "lucide-react"
 import {
   Sidebar,
@@ -78,6 +79,18 @@ export function AdminSidebar() {
                 <a href="/admin/users">
                   <Users />
                   <span>User Management</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton 
+                asChild 
+                isActive={pathname?.startsWith("/admin/analytics")}
+                tooltip="Analytics"
+              >
+                <a href="/admin/analytics">
+                  <BarChart3 />
+                  <span>Analytics</span>
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
