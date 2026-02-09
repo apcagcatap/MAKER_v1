@@ -87,6 +87,7 @@ export async function getPublishedQuests() {
       `)
       .eq("status", "Published")
       .eq("is_active", true)
+      .eq("archived", false)
       .order("created_at", { ascending: false })
 
     if (error) {
@@ -359,10 +360,11 @@ export async function updateQuest(questId: string, formData: any) {
 
 export async function deleteQuest(questId: string) {
   try {
+    // Soft delete: archive instead of hard delete
     const supabase = await createClient()
     const { error } = await supabase
       .from("quests")
-      .delete()
+      .update({ archived: true })
       .eq("id", questId)
 
     if (error) throw new Error(error.message)

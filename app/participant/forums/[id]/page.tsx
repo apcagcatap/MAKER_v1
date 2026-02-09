@@ -20,7 +20,7 @@ export default async function ForumDetailPage({ params }: { params: { id: string
   const { id } = await params
 
   // Fetch forum details
-  const { data: forum } = await supabase.from("forums").select("*").eq("id", id).single()
+  const { data: forum } = await supabase.from("forums").select("*").eq("id", id).eq("archived", false).single()
 
   if (!forum) {
     redirect("/participant/forums")

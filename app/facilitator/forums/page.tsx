@@ -23,6 +23,7 @@ export default async function FacilitatorForumsPage() {
       *,
       posts:forum_posts(count)
     `)
+    .eq("archived", false)
     .order("created_at", { ascending: false })
 
   return (

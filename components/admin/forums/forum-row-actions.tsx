@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { MoreHorizontal, Trash2, Pencil } from "lucide-react"
-import { deleteAdminForum } from "@/lib/actions/admin-forums"
+import { MoreHorizontal, Trash2, Pencil, ArchiveRestore } from "lucide-react"
+import { archiveAdminForum, restoreAdminForum } from "@/lib/actions/admin-forums"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,18 +16,27 @@ import { EditForumDialog } from "./edit-forum-dialog"
 import type { Forum } from "./forum-form"
 
 interface ForumRowActionsProps {
-  forum: Forum
+  forum: Forum & { archived?: boolean }
 }
 
 export function ForumRowActions({ forum }: ForumRowActionsProps) {
   const [showEditDialog, setShowEditDialog] = useState(false)
 
-  const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this forum? This will delete all posts and replies within it.")) return
+  const handleArchive = async () => {
+    if (!confirm("Are you sure you want to archive this forum? It can be restored later.")) return
 
-    const res = await deleteAdminForum(forum.id)
+    const res = await archiveAdminForum(forum.id)
     if (res.error) {
-      alert(`Failed to delete forum: ${res.error}`)
+      alert(`Failed to archive forum: ${res.error}`)
+    }
+  }
+
+  const handleRestore = async () => {
+    if (!confirm("Restore this forum and make it visible again?")) return
+
+    const res = await restoreAdminForum(forum.id)
+    if (res.error) {
+      alert(`Failed to restore forum: ${res.error}`)
     }
   }
 
@@ -47,13 +56,21 @@ export function ForumRowActions({ forum }: ForumRowActionsProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>
-            <Pencil className="mr-2 h-4 w-4" /> Edit
-          </DropdownMenuItem>
+          {!forum.archived && (
+            <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>
+              <Pencil className="mr-2 h-4 w-4" /> Edit
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleDelete} className="text-[#ED262A] focus:text-[#ED262A]">
-            <Trash2 className="mr-2 h-4 w-4" /> Delete
-          </DropdownMenuItem>
+          {forum.archived ? (
+            <DropdownMenuItem onClick={handleRestore} className="text-green-600 focus:text-green-600">
+              <ArchiveRestore className="mr-2 h-4 w-4" /> Restore
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onClick={handleArchive} className="text-[#ED262A] focus:text-[#ED262A]">
+              <Trash2 className="mr-2 h-4 w-4" /> Archive
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

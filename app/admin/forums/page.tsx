@@ -9,6 +9,7 @@ interface PageProps {
   searchParams: Promise<{
     q?: string
     sort?: string
+    archived?: string
   }>
 }
 
@@ -16,8 +17,9 @@ export default async function AdminForumsPage({ searchParams }: PageProps) {
   const params = await searchParams
   const query = typeof params.q === "string" ? params.q : ""
   const sort = typeof params.sort === "string" ? params.sort : "newest"
+  const archived = typeof params.archived === "string" ? params.archived : "active"
 
-  const forums = await getForums(query, sort)
+  const forums = await getForums(query, sort, archived)
 
   return (
     <div className="admin-wrapper p-6 md:p-8 max-w-7xl mx-auto">

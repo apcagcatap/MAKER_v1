@@ -47,7 +47,8 @@ export async function deleteForum(forumId: string) {
     return { error: "Not authenticated" }
   }
 
-  const { error } = await supabase.from("forums").delete().eq("id", forumId)
+  // Soft delete: archive instead of hard delete
+  const { error } = await supabase.from("forums").update({ archived: true }).eq("id", forumId)
 
   if (error) {
     return { error: error.message }

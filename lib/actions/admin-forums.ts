@@ -15,9 +15,19 @@ const supabaseAdmin = createClient(
   }
 )
 
-export async function getForums(search?: string, sort?: string) {
+export async function getForums(search?: string, sort?: string, showArchived?: string) {
   try {
     let query = supabaseAdmin.from("forums").select("*")
+
+    // Filter by archive status
+    if (showArchived === "archived") {
+      query = query.eq("archived", true)
+    } else if (showArchived === "all") {
+      // Show everything
+    } else {
+      // Default: only show non-archived
+      query = query.eq("archived", false)
+    }
 
     if (search) {
       query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
@@ -94,14 +104,69 @@ export async function updateAdminForum(forumId: string, formData: FormData) {
   return { data }
 }
 
-export async function deleteAdminForum(forumId: string) {
+export async function archiveAdminForum(forumId: string) {
   const { error } = await supabaseAdmin
     .from("forums")
-    .delete()
+    .update({ archived: true })
     .eq("id", forumId)
 
   if (error) {
     return { error: error.message }
+  }
+
+  // Also archive all posts and replies in this forum
+  const { data: posts } = await supabaseAdmin
+    .from("forum_posts")
+    .select("id")
+    .eq("forum_id", forumId)
+
+  if (posts && posts.length > 0) {
+    await supabaseAdmin
+      .from("forum_posts")
+      .update({ archived: true })
+      .eq("forum_id", forumId)
+
+    const postIds = posts.map((p) => p.id)
+    await supabaseAdmin
+      .from("forum_replies")
+      .update({ archived: true })
+      .in("post_id", postIds)
+  }
+
+  revalidatePath("/admin/forums")
+  revalidatePath("/facilitator/forums")
+  revalidatePath("/participant/forums")
+
+  return { success: true }
+}
+
+export async function restoreAdminForum(forumId: string) {
+  const { error } = await supabaseAdmin
+    .from("forums")
+    .update({ archived: false })
+    .eq("id", forumId)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  // Also restore all posts and replies in this forum
+  const { data: posts } = await supabaseAdmin
+    .from("forum_posts")
+    .select("id")
+    .eq("forum_id", forumId)
+
+  if (posts && posts.length > 0) {
+    await supabaseAdmin
+      .from("forum_posts")
+      .update({ archived: false })
+      .eq("forum_id", forumId)
+
+    const postIds = posts.map((p) => p.id)
+    await supabaseAdmin
+      .from("forum_replies")
+      .update({ archived: false })
+      .in("post_id", postIds)
   }
 
   revalidatePath("/admin/forums")

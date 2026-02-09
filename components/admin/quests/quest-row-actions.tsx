@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { MoreHorizontal, Trash2, Pencil } from "lucide-react"
-import { deleteQuest } from "@/lib/actions/admin-quests"
+import { MoreHorizontal, Trash2, Pencil, ArchiveRestore } from "lucide-react"
+import { archiveQuest, restoreQuest } from "@/lib/actions/admin-quests"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,17 +17,30 @@ import { EditQuestDialog } from "./edit-quest-dialog"
 // Using the same type definition strategy
 import { ComponentProps } from "react"
 import { QuestForm } from "./quest-form"
-type Quest = ComponentProps<typeof QuestForm>["quest"]
+type Quest = ComponentProps<typeof QuestForm>["quest"] & { archived?: boolean }
 
 export function QuestRowActions({ quest }: { quest: Quest }) {
   const [showEditDialog, setShowEditDialog] = useState(false)
 
-  const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this quest? This action cannot be undone.")) return
+  const handleArchive = async () => {
+    if (!confirm("Are you sure you want to archive this quest? It can be restored later.")) return
     
-    // We assume quest.id is always present
     if (quest?.id) {
-      await deleteQuest(quest.id)
+      const res = await archiveQuest(quest.id)
+      if (res?.error) {
+        alert(`Failed to archive quest: ${res.error}`)
+      }
+    }
+  }
+
+  const handleRestore = async () => {
+    if (!confirm("Restore this quest and make it visible again?")) return
+
+    if (quest?.id) {
+      const res = await restoreQuest(quest.id)
+      if (res?.error) {
+        alert(`Failed to restore quest: ${res.error}`)
+      }
     }
   }
 
@@ -43,13 +56,21 @@ export function QuestRowActions({ quest }: { quest: Quest }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>
-            <Pencil className="mr-2 h-4 w-4" /> Edit
-          </DropdownMenuItem>
+          {!quest?.archived && (
+            <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>
+              <Pencil className="mr-2 h-4 w-4" /> Edit
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleDelete} className="text-[#ED262A] focus:text-[#ED262A]">
-            <Trash2 className="mr-2 h-4 w-4" /> Delete
-          </DropdownMenuItem>
+          {quest?.archived ? (
+            <DropdownMenuItem onClick={handleRestore} className="text-green-600 focus:text-green-600">
+              <ArchiveRestore className="mr-2 h-4 w-4" /> Restore
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onClick={handleArchive} className="text-[#ED262A] focus:text-[#ED262A]">
+              <Trash2 className="mr-2 h-4 w-4" /> Archive
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

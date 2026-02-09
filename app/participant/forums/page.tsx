@@ -22,6 +22,7 @@ export default async function ForumsPage() {
       *,
       posts:forum_posts(count)
     `)
+    .eq("archived", false)
     .order("created_at", { ascending: false })
 
   return (

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowUpDown } from "lucide-react"
+import { ArrowUpDown, Archive } from "lucide-react"
 import { QuestRowActions } from "./quest-row-actions"
 
 // Define a compatible interface for the table
@@ -19,6 +19,7 @@ interface Quest {
   status: string | null
   xp_reward: string | null
   created_at: string
+  archived?: boolean
 }
 
 interface QuestTableProps {
@@ -60,14 +61,25 @@ export function QuestTable({ quests, sortOrder }: QuestTableProps) {
               </tr>
             ) : (
               quests.map((quest) => (
-                <tr key={quest.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-gray-900">{quest.title}</td>
+                <tr key={quest.id} className={`hover:bg-gray-50/50 transition-colors ${quest.archived ? "opacity-60" : ""}`}>
+                  <td className="px-6 py-4 font-medium text-gray-900">
+                    <div className="flex items-center gap-2">
+                      {quest.archived && <Archive className="h-4 w-4 text-gray-400 shrink-0" />}
+                      {quest.title}
+                    </div>
+                  </td>
                   <td className="px-6 py-4">{quest.difficulty}</td>
                   <td className="px-6 py-4">{quest.xp_reward}</td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${quest.status === 'Published' ? 'bg-green-100 text-green-800' : quest.status === 'Archived' ? 'bg-gray-100 text-gray-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                      {quest.status || 'Draft'}
-                    </span>
+                    {quest.archived ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                        Archived
+                      </span>
+                    ) : (
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${quest.status === 'Published' ? 'bg-green-100 text-green-800' : quest.status === 'Archived' ? 'bg-gray-100 text-gray-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                        {quest.status || 'Draft'}
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-gray-500">{new Date(quest.created_at).toLocaleDateString()}</td>
                   <td className="px-6 py-4 text-right">
