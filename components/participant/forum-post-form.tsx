@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { MessageSquare, Loader2 } from "lucide-react"
-import { createPost } from "@/app/actions/forums"
+import { createPost } from "@/lib/actions/forums"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 

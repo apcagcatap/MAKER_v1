@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Trash2, Loader2, AlertTriangle } from "lucide-react"
-import { deleteForum } from "@/app/actions/forums"
+import { deleteForum } from "@/lib/actions/forums"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 
