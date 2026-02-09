@@ -20,7 +20,6 @@ export function AdminNav() {
     { href: "/admin", icon: Home, label: "Dashboard" },
     { href: "/admin/users", icon: Users, label: "Users" },
     { href: "/admin/quests", icon: Target, label: "Quests" },
-    { href: "/admin/skills", icon: Award, label: "Skills" },
     { href: "/admin/forums", icon: MessageSquare, label: "Forums" },
     { href: "/admin/settings", icon: Settings, label: "Settings" },
   ]

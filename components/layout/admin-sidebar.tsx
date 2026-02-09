@@ -94,18 +94,6 @@ export function AdminSidebar() {
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
-             <SidebarMenuItem>
-              <SidebarMenuButton 
-                asChild 
-                isActive={pathname?.startsWith("/admin/skills")}
-                tooltip="Skills"
-              >
-                <a href="/admin/skills">
-                  <BookOpen />
-                  <span>Skills</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton 
                 asChild 

@@ -31,11 +31,10 @@ export function DeleteForumButton({ forumId }: DeleteForumButtonProps) {
       setShowConfirm(false)
     } else {
       toast({
-        title: "Deleted",
-        description: "The forum has been successfully removed.",
+        title: "Archived",
+        description: "The forum has been archived.",
         variant: "success",
       })
-      // No need for setIsDeleting(false) as the page will refresh/redirect
       router.refresh()
     }
   }
@@ -53,7 +52,7 @@ export function DeleteForumButton({ forumId }: DeleteForumButtonProps) {
           {isDeleting ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
-            "Confirm Delete"
+            "Confirm Archive"
           )}
         </Button>
         <Button

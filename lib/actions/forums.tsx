@@ -102,11 +102,15 @@ export async function deletePost(postId: string, forumId: string) {
     return { error: "Not authenticated" }
   }
 
-  const { error } = await supabase.from("forum_posts").delete().eq("id", postId)
+  // Soft delete: archive the post and its replies
+  const { error } = await supabase.from("forum_posts").update({ archived: true }).eq("id", postId)
 
   if (error) {
     return { error: error.message }
   }
+
+  // Also archive all replies on this post
+  await supabase.from("forum_replies").update({ archived: true }).eq("post_id", postId)
 
   revalidatePath(`/admin/forums/${forumId}`)
   revalidatePath(`/facilitator/forums/${forumId}`)
@@ -156,7 +160,7 @@ export async function deleteReply(replyId: string, forumId: string) {
     return { error: "Not authenticated" }
   }
 
-  const { error } = await supabase.from("forum_replies").delete().eq("id", replyId)
+  const { error } = await supabase.from("forum_replies").update({ archived: true }).eq("id", replyId)
 
   if (error) {
     return { error: error.message }

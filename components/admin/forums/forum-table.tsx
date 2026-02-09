@@ -50,7 +50,9 @@ export function ForumTable({ forums, sortOrder }: ForumTableProps) {
                       <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${forum.archived ? "bg-gray-200 text-gray-400" : "bg-[#ED262A]/10 text-[#ED262A]"}`}>
                         {forum.archived ? <Archive className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
                       </div>
-                      <span className="font-medium text-gray-900">{forum.title}</span>
+                      <Link href={`/admin/forums/${forum.id}`} className="font-medium text-gray-900 hover:text-[#ED262A] transition-colors hover:underline">
+                        {forum.title}
+                      </Link>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-gray-500 max-w-md truncate">

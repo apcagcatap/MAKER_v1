@@ -35,6 +35,7 @@ export default async function ForumDetailPage({ params }: { params: { id: string
       replies:forum_replies(count)
     `)
     .eq("forum_id", id)
+    .eq("archived", false)
     .order("created_at", { ascending: false })
 
   return (
