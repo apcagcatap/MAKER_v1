@@ -15,7 +15,7 @@ export default async function ForumsPage() {
     redirect("/auth/login")
   }
 
-  // Fetch all forums with post counts
+  // Fetch all forums with post counts (only non-archived posts)
   const { data: forums } = await supabase
     .from("forums")
     .select(`
@@ -23,6 +23,7 @@ export default async function ForumsPage() {
       posts:forum_posts(count)
     `)
     .eq("archived", false)
+    .eq("posts.archived", false)
     .order("created_at", { ascending: false })
 
   return (
