@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Trash2, Plus, Upload, X, Sparkles } from "lucide-react"
+import { Trash2, Plus, Upload, X, Sparkles, Link2 } from "lucide-react"
 import { createQuest, updateQuest, uploadImage } from "@/lib/actions/quests"
 import { generateQuestStory } from "@/lib/actions/ai-story"
 import { toast } from "sonner"
@@ -39,6 +39,22 @@ interface CreateQuestModalProps {
   editingQuest?: any
 }
 
+const GENRES = [
+  { value: "Adventure", label: "🗺️ Adventure", description: "Exciting journeys with challenges and discovery", example: "e.g. A quest through ancient ruins to find lost knowledge" },
+  { value: "Sci-Fi", label: "🚀 Science Fiction", description: "Futuristic tech and scientific concepts", example: "e.g. Exploring a space station to learn about physics" },
+  { value: "Fantasy", label: "🧙 Fantasy", description: "Magical worlds and enchanted quests", example: "e.g. Using magical formulas (math) to save a kingdom" },
+  { value: "Real-World", label: "🌍 Real-World", description: "Contemporary, relatable scenarios", example: "e.g. Starting a school project or community initiative" },
+  { value: "Custom", label: "✨ Custom", description: "Define your own genre", example: "e.g. Horror, Western, Superhero, etc." },
+]
+
+const SETTING_SUGGESTIONS = [
+  "A futuristic space academy",
+  "An ancient library filled with secrets",
+  "A modern-day science lab",
+  "A magical forest kingdom",
+  "An underwater research station",
+]
+
 export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQuest }: CreateQuestModalProps) {
   const router = useRouter()
   const badgeInputRef = useRef<HTMLInputElement>(null)
@@ -59,9 +75,13 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
   const [badgeImageUploading, setBadgeImageUploading] = useState(false)
   const [certificateImageUploading, setCertificateImageUploading] = useState(false)
   const [status, setStatus] = useState(editingQuest?.status || "Draft")
+  const [surveyLink, setSurveyLink] = useState(editingQuest?.survey_link || "")
 
   // Step 2: Story
-  const [storyContext, setStoryContext] = useState("")
+  const [storyGenre, setStoryGenre] = useState("Adventure")
+  const [customGenre, setCustomGenre] = useState("")
+  const [storyTopic, setStoryTopic] = useState("")
+  const [storySetting, setStorySetting] = useState("")
   const [stories, setStories] = useState<Story[]>(
     editingQuest?.stories?.map((s: any, i: number) => ({ title: s.title, content: s.content, order_index: i })) || []
   )
@@ -86,6 +106,33 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  // Persist state when editing quest changes
+  useEffect(() => {
+    if (editingQuest && open) {
+      setTitle(editingQuest.title || "")
+      setDescription(editingQuest.description || "")
+      setDifficulty(editingQuest.difficulty || "Beginner - Intermediate")
+      setScheduledDate(editingQuest.scheduled_date || "")
+      setBadgeImageUrl(editingQuest.badge_image_url || "")
+      setCertificateImageUrl(editingQuest.certificate_image_url || "")
+      setBadgeImagePreview(editingQuest.badge_image_url || null)
+      setCertificateImagePreview(editingQuest.certificate_image_url || null)
+      setStatus(editingQuest.status || "Draft")
+      setSurveyLink(editingQuest.survey_link || "")
+      setStories(editingQuest.stories?.map((s: any, i: number) => ({ title: s.title, content: s.content, order_index: i })) || [])
+      setLearningResources(editingQuest.learning_resources?.map((r: any, i: number) => ({ 
+        title: r.title, 
+        description: r.description || "", 
+        type: r.type, 
+        external_url: r.external_url, 
+        order_index: i 
+      })) || [])
+      setMaterialsNeeded(editingQuest.materials_needed || "")
+      setGeneralInstructions(editingQuest.general_instructions || "")
+      setLevels(editingQuest.levels || [])
+    }
+  }, [editingQuest, open])
+
   const getValidationErrors = (stepToValidate: number) => {
     const newErrors: Record<string, string> = {}
 
@@ -94,6 +141,11 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
       if (!description.trim()) newErrors.description = "Description is required"
       if (!badgeImageUrl) newErrors.badgeImage = "Badge image is required"
       if (!certificateImageUrl) newErrors.certificateImage = "Certificate image is required"
+      
+      // Validate survey link if provided
+      if (surveyLink.trim() && !isValidUrl(surveyLink.trim())) {
+        newErrors.surveyLink = "Please enter a valid URL (must start with http:// or https://)"
+      }
     }
 
     if (stepToValidate === 2) {
@@ -134,6 +186,15 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
     }
 
     return newErrors
+  }
+
+  const isValidUrl = (url: string) => {
+    try {
+      const urlObj = new URL(url)
+      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:'
+    } catch {
+      return false
+    }
   }
 
   const validateForm = (stepToValidate?: number) => {
@@ -191,22 +252,34 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
 
   const handleGenerateStory = async () => {
     if (!title.trim()) {
-      toast.error("Please enter a quest title first")
+      toast.error("Please enter a quest title first (Step 1)")
       return
     }
-
     if (!description.trim()) {
-      toast.error("Please enter a quest description first")
+      toast.error("Please enter a quest description first (Step 1)")
+      return
+    }
+    if (!storyTopic.trim()) {
+      toast.error("Please enter a learning topic")
+      return
+    }
+    if (storyGenre === "Custom" && !customGenre.trim()) {
+      toast.error("Please enter your custom genre")
       return
     }
 
     setIsGeneratingStory(true)
     try {
+      const genreToUse = storyGenre === "Custom" ? customGenre.trim() : storyGenre
+
       const generatedStories = await generateQuestStory({
         title,
         description,
         difficulty,
-        storyContext: storyContext.trim() || undefined,
+        genre: genreToUse,
+        topic: storyTopic.trim(),
+        setting: storySetting.trim(),
+        temperature: 0.7, // Fixed temperature since slider is removed
       })
 
       const newStories = generatedStories.map((story, index) => ({
@@ -288,6 +361,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
         badge_image_url: badgeImageUrl,
         certificate_image_url: certificateImageUrl,
         status,
+        survey_link: surveyLink.trim() || null,
         materials_needed: materialsNeeded,
         general_instructions: generalInstructions,
         levels,
@@ -329,7 +403,11 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
     setBadgeImagePreview(null)
     setCertificateImagePreview(null)
     setStatus("Draft")
-    setStoryContext("")
+    setSurveyLink("")
+    setStoryGenre("Adventure")
+    setCustomGenre("")
+    setStoryTopic("")
+    setStorySetting("")
     setStories([])
     setLearningResources([])
     setMaterialsNeeded("")
@@ -339,7 +417,10 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
   }
 
   const handleDialogOpenChange = (newOpen: boolean) => {
-    if (!newOpen) resetForm()
+    // Only reset form if explicitly closing and not editing
+    if (!newOpen && !editingQuest) {
+      resetForm()
+    }
     onOpenChange(newOpen)
   }
 
@@ -408,7 +489,27 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
                 <Input type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} className="mt-1 sm:mt-2 h-9 sm:h-10 text-sm sm:text-base text-gray-900" />
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            
+            {/* Survey/Feedback Link Field */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Link2 className="w-4 h-4 text-gray-600" />
+                <Label className="text-gray-900 font-medium">Survey / Feedback Form Link (Optional)</Label>
+              </div>
+              <Input 
+                placeholder="https://forms.google.com/..." 
+                value={surveyLink} 
+                onChange={(e) => { 
+                  setSurveyLink(e.target.value); 
+                  if (errors.surveyLink) setErrors({ ...errors, surveyLink: "" }) 
+                }} 
+                className={`h-10 text-gray-900 placeholder:text-gray-400 ${errors.surveyLink ? "border-red-500" : ""}`} 
+              />
+              {errors.surveyLink && <p className="text-red-500 text-sm mt-1">{errors.surveyLink}</p>}
+              <p className="text-xs text-gray-500 mt-1">Participants will be able to access this survey after completing the quest</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-gray-900 font-medium text-sm sm:text-base">Badge Image *</Label>
                 {badgeImagePreview ? (
@@ -455,46 +556,8 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
 
         {/* Step 2: Story */}
         {step === 2 && (
-          <div className="space-y-3 sm:space-y-4">
-            {/* AI Story Context Input */}
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 rounded-lg p-3 sm:p-4">
-              <Label className="text-gray-900 font-semibold flex items-center gap-2 mb-2 text-sm sm:text-base">
-                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
-                AI Story Settings (Optional)
-              </Label>
-              <Textarea
-                placeholder="Describe the setting, tone, or vibe for your story... 
-e.g., 'A futuristic space adventure', 'Medieval fantasy kingdom', 'Modern city mystery'"
-                value={storyContext}
-                onChange={(e) => setStoryContext(e.target.value)}
-                rows={3}
-                className="text-sm sm:text-base text-gray-900 placeholder:text-gray-400 bg-white"
-              />
-              <p className="text-xs text-gray-600 mt-2">
-                This helps the AI create a story that matches your desired theme
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4">
-              <p className="text-xs sm:text-sm text-gray-600">Add story segments to engage participants</p>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Button
-                  onClick={handleGenerateStory}
-                  disabled={isGeneratingStory || !title.trim() || !description.trim()}
-                  variant="outline"
-                  size="sm"
-                  className="gap-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600 border-0 text-xs sm:text-sm h-8 sm:h-9"
-                >
-                  <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
-                  {isGeneratingStory ? "Generating..." : "Generate with AI"}
-                </Button>
-                <Button onClick={addStory} variant="outline" size="sm" className="gap-2 text-xs sm:text-sm h-8 sm:h-9">
-                  <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
-                  Add Story
-                </Button>
-              </div>
-            </div>
-
+          <div className="space-y-4">
+            {/* Step 1 incomplete warning */}
             {(!title.trim() || !description.trim()) && (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 sm:p-4 text-xs sm:text-sm text-amber-800">
                 <p className="font-medium mb-1">💡 Tip: Complete Step 1 first</p>
@@ -502,6 +565,111 @@ e.g., 'A futuristic space adventure', 'Medieval fantasy kingdom', 'Modern city m
               </div>
             )}
 
+            {/* AI Story Form Card */}
+            <div className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200 rounded-lg p-5 space-y-5">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-purple-600" />
+                <h4 className="font-semibold text-gray-900">Generate Story with AI</h4>
+              </div>
+
+              {/* Genre */}
+              <div className="space-y-2">
+                <Label className="text-gray-900 font-medium">Pick a Genre *</Label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {GENRES.map((g) => (
+                    <button
+                      key={g.value}
+                      type="button"
+                      onClick={() => setStoryGenre(g.value)}
+                      className={`text-left p-2.5 rounded-lg border-2 transition-colors ${
+                        storyGenre === g.value
+                          ? "border-purple-500 bg-purple-100"
+                          : "border-gray-200 bg-white hover:border-purple-300"
+                      }`}
+                    >
+                      <p className="text-sm font-medium text-gray-900">{g.label}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{g.description}</p>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Custom Genre Input */}
+                {storyGenre === "Custom" && (
+                  <div className="mt-3">
+                    <Input
+                      placeholder="Enter your custom genre (e.g., Horror, Western, Superhero)"
+                      value={customGenre}
+                      onChange={(e) => setCustomGenre(e.target.value)}
+                      className="bg-white text-gray-900 placeholder:text-gray-400"
+                    />
+                  </div>
+                )}
+
+                {/* Selected genre example */}
+                {storyGenre !== "Custom" && (
+                  <p className="text-xs text-purple-700 italic">
+                    {GENRES.find(g => g.value === storyGenre)?.example}
+                  </p>
+                )}
+              </div>
+
+              {/* Topic */}
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <Label className="text-gray-900 font-medium">Topic *</Label>
+                  <span className="text-xs text-gray-500">(the learning resource or lesson for context)</span>
+                </div>
+                <Input
+                  placeholder="e.g. Photosynthesis, Ancient Rome, Python Programming, Fractions"
+                  value={storyTopic}
+                  onChange={(e) => setStoryTopic(e.target.value)}
+                  className="bg-white text-gray-900 placeholder:text-gray-400"
+                />
+              </div>
+
+              {/* Setting */}
+              <div className="space-y-1.5">
+                <Label className="text-gray-900 font-medium">Setting <span className="text-gray-400 font-normal">(optional)</span></Label>
+                <Input
+                  placeholder="e.g. A futuristic space academy, a medieval kingdom..."
+                  value={storySetting}
+                  onChange={(e) => setStorySetting(e.target.value)}
+                  className="bg-white text-gray-900 placeholder:text-gray-400"
+                />
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {SETTING_SUGGESTIONS.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setStorySetting(s)}
+                      className="text-xs bg-white border border-gray-200 hover:border-purple-300 text-gray-600 px-2.5 py-1 rounded-full transition-colors"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Generate button */}
+              <Button
+                onClick={handleGenerateStory}
+                disabled={isGeneratingStory || !title.trim() || !description.trim() || !storyTopic.trim() || (storyGenre === "Custom" && !customGenre.trim())}
+                className="w-full gap-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600"
+              >
+                <Sparkles className="w-4 h-4" />
+                {isGeneratingStory ? "Generating…" : "Generate Story"}
+              </Button>
+            </div>
+
+            {/* Manual story controls */}
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-600">Or add story segments manually</p>
+              <Button onClick={addStory} variant="outline" size="sm" className="gap-2">
+                <Plus className="w-4 h-4" />Add Story
+              </Button>
+            </div>
+
+            {/* Story segments list */}
             {stories.map((story, index) => (
               <div key={index} className={`bg-white rounded-lg p-3 sm:p-4 md:p-6 border-2 space-y-3 sm:space-y-4 ${errors[`story_${index}_title`] || errors[`story_${index}_content`] ? "border-red-300" : "border-gray-200"}`}>
                 <div className="flex items-center justify-between">
@@ -650,6 +818,7 @@ e.g., 'A futuristic space adventure', 'Medieval fantasy kingdom', 'Modern city m
               <div><span className="font-medium text-gray-900">Quest Name:</span> {title}</div>
               <div><span className="font-medium text-gray-900">Difficulty:</span> {difficulty}</div>
               <div><span className="font-medium text-gray-900">Status:</span> {status}</div>
+              {surveyLink && <div><span className="font-medium text-gray-900">Survey Link:</span> <a href={surveyLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{surveyLink}</a></div>}
               <div><span className="font-medium text-gray-900">Stories:</span> {stories.filter(s => s.title && s.content).length} segment{stories.filter(s => s.title && s.content).length !== 1 ? "s" : ""}</div>
               <div><span className="font-medium text-gray-900">Learning Resources:</span> {learningResources.filter(r => r.title && r.external_url).length} resource{learningResources.filter(r => r.title && r.external_url).length !== 1 ? "s" : ""}</div>
               <div><span className="font-medium text-gray-900">Levels:</span> {levels.length} level{levels.length !== 1 ? "s" : ""}</div>
