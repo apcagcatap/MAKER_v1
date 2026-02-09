@@ -190,6 +190,7 @@ export async function updateForum(forumId: string, formData: FormData) {
     return { error: "You do not have permission to edit forums." }
   }
 
+  revalidatePath("/admin/forums")
   revalidatePath("/facilitator/forums")
   revalidatePath(`/participant/forums/${forumId}`)
 
