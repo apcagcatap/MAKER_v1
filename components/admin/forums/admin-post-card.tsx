@@ -154,7 +154,7 @@ export function AdminPostCard({ post, forumId, showArchived }: AdminPostCardProp
             disabled={archivingPost}
             className={post.archived
               ? "text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
-              : "text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+              : "bg-red-600 text-white border-red-600 hover:bg-red-700 hover:border-red-700"
             }
           >
             {archivingPost ? (
@@ -266,7 +266,7 @@ export function AdminPostCard({ post, forumId, showArchived }: AdminPostCardProp
                   className={`shrink-0 ${
                     reply.archived
                       ? "text-green-600 hover:bg-green-50 hover:text-green-700"
-                      : "text-red-600 hover:bg-red-50 hover:text-red-700"
+                      : "bg-red-600 text-white hover:bg-red-700 rounded-md"
                   }`}
                 >
                   {archivingReplyId === reply.id ? (

@@ -1,6 +1,8 @@
 import "@/app/admin/admin.css"
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
+
+export const dynamic = "force-dynamic"
 import Link from "next/link"
 import { ArrowLeft, MessageSquare, Archive } from "lucide-react"
 import {

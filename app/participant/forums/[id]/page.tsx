@@ -26,7 +26,7 @@ export default async function ForumDetailPage({ params }: { params: { id: string
     redirect("/participant/forums")
   }
 
-  // Fetch forum posts with user profiles and reply counts
+  // Fetch forum posts with user profiles and reply counts (only non-archived replies)
   const { data: posts } = await supabase
     .from("forum_posts")
     .select(`
@@ -36,6 +36,7 @@ export default async function ForumDetailPage({ params }: { params: { id: string
     `)
     .eq("forum_id", id)
     .eq("archived", false)
+    .eq("replies.archived", false)
     .order("created_at", { ascending: false })
 
   return (

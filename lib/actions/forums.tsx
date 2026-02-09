@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { getAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 
 export async function createForum(formData: FormData) {
@@ -102,16 +103,20 @@ export async function deletePost(postId: string, forumId: string) {
     return { error: "Not authenticated" }
   }
 
+  // Use admin client to bypass RLS so facilitators can archive any post
+  const adminClient = getAdminClient()
+
   // Soft delete: archive the post and its replies
-  const { error } = await supabase.from("forum_posts").update({ archived: true }).eq("id", postId)
+  const { error } = await adminClient.from("forum_posts").update({ archived: true }).eq("id", postId)
 
   if (error) {
     return { error: error.message }
   }
 
   // Also archive all replies on this post
-  await supabase.from("forum_replies").update({ archived: true }).eq("post_id", postId)
+  await adminClient.from("forum_replies").update({ archived: true }).eq("post_id", postId)
 
+  revalidatePath("/admin/forums")
   revalidatePath(`/admin/forums/${forumId}`)
   revalidatePath(`/facilitator/forums/${forumId}`)
   revalidatePath(`/participant/forums/${forumId}`)
@@ -160,12 +165,15 @@ export async function deleteReply(replyId: string, forumId: string) {
     return { error: "Not authenticated" }
   }
 
-  const { error } = await supabase.from("forum_replies").update({ archived: true }).eq("id", replyId)
+  // Use admin client to bypass RLS so facilitators can archive any reply
+  const adminClient = getAdminClient()
+  const { error } = await adminClient.from("forum_replies").update({ archived: true }).eq("id", replyId)
 
   if (error) {
     return { error: error.message }
   }
 
+  revalidatePath("/admin/forums")
   revalidatePath(`/admin/forums/${forumId}`)
   revalidatePath(`/facilitator/forums/${forumId}`)
   revalidatePath(`/participant/forums/${forumId}`)
