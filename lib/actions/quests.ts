@@ -266,12 +266,15 @@ export async function createQuest(formData: any) {
     const userId = user?.id || "dev-user-admin"
     const adminClient = getAdminClient()
 
+    // Separate nested arrays (stories, learning_resources) from the main quest data
+    const { stories, learning_resources, ...questData } = formData
+
     const { data: quest, error } = await adminClient
       .from("quests")
       .insert({
-        ...formData,
-        xp_reward: formData.xp_reward || 0,
-        skill_id: formData.skill_id || null,
+        ...questData,
+        xp_reward: questData.xp_reward || 0,
+        skill_id: questData.skill_id || null,
         created_by: userId,
         is_active: true,
       })
@@ -280,15 +283,17 @@ export async function createQuest(formData: any) {
 
     if (error) throw new Error(error.message)
 
-    if (formData.stories?.length > 0) {
+    // Insert stories into their own table
+    if (stories?.length > 0) {
       await adminClient.from("stories").insert(
-        formData.stories.map((s: any) => ({ ...s, quest_id: quest.id }))
+        stories.map((s: any) => ({ ...s, quest_id: quest.id }))
       )
     }
 
-    if (formData.learning_resources?.length > 0) {
+    // Insert learning resources into their own table
+    if (learning_resources?.length > 0) {
       await adminClient.from("learning_resources").insert(
-        formData.learning_resources.map((r: any) => ({ ...r, quest_id: quest.id }))
+        learning_resources.map((r: any) => ({ ...r, quest_id: quest.id }))
       )
     }
 
@@ -320,12 +325,15 @@ export async function updateQuest(questId: string, formData: any) {
 
     const adminClient = getAdminClient()
 
+    // Separate nested arrays from main quest data
+    const { stories, learning_resources, ...questData } = formData
+
     const { data: quest, error } = await adminClient
       .from("quests")
       .update({
-        ...formData,
-        xp_reward: formData.xp_reward || 0,
-        skill_id: formData.skill_id || null,
+        ...questData,
+        xp_reward: questData.xp_reward || 0,
+        skill_id: questData.skill_id || null,
       })
       .eq("id", questId)
       .select()
@@ -333,18 +341,21 @@ export async function updateQuest(questId: string, formData: any) {
 
     if (error) throw new Error(error.message)
 
-    // Update stories and resources
+    // Update stories: delete old ones and insert new ones
+    // Note: A more granular approach (update existing, add new) could be better for IDs, 
+    // but full replacement is safer for consistency if order changes often.
     await adminClient.from("stories").delete().eq("quest_id", questId)
-    if (formData.stories?.length > 0) {
+    if (stories?.length > 0) {
       await adminClient.from("stories").insert(
-        formData.stories.map((s: any) => ({ ...s, quest_id: questId }))
+        stories.map((s: any) => ({ ...s, quest_id: questId }))
       )
     }
 
+    // Update learning resources
     await adminClient.from("learning_resources").delete().eq("quest_id", questId)
-    if (formData.learning_resources?.length > 0) {
+    if (learning_resources?.length > 0) {
       await adminClient.from("learning_resources").insert(
-        formData.learning_resources.map((r: any) => ({ ...r, quest_id: questId }))
+        learning_resources.map((r: any) => ({ ...r, quest_id: questId }))
       )
     }
 
