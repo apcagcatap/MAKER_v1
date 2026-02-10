@@ -66,7 +66,8 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
   // Step 1: Basic Details
   const [title, setTitle] = useState(editingQuest?.title || "")
   const [description, setDescription] = useState(editingQuest?.description || "")
-  const [difficulty, setDifficulty] = useState(editingQuest?.difficulty || "Beginner - Intermediate")
+  // CHANGED: Default is now "Beginner" instead of a range
+  const [difficulty, setDifficulty] = useState(editingQuest?.difficulty || "Beginner")
   const [scheduledDate, setScheduledDate] = useState(editingQuest?.scheduled_date || "")
   const [badgeImageUrl, setBadgeImageUrl] = useState(editingQuest?.badge_image_url || "")
   const [certificateImageUrl, setCertificateImageUrl] = useState(editingQuest?.certificate_image_url || "")
@@ -111,7 +112,8 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
     if (editingQuest && open) {
       setTitle(editingQuest.title || "")
       setDescription(editingQuest.description || "")
-      setDifficulty(editingQuest.difficulty || "Beginner - Intermediate")
+      // CHANGED: Ensure fallback is single value
+      setDifficulty(editingQuest.difficulty || "Beginner")
       setScheduledDate(editingQuest.scheduled_date || "")
       setBadgeImageUrl(editingQuest.badge_image_url || "")
       setCertificateImageUrl(editingQuest.certificate_image_url || "")
@@ -396,7 +398,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
     setStep(1)
     setTitle("")
     setDescription("")
-    setDifficulty("Beginner - Intermediate")
+    setDifficulty("Beginner") // CHANGED
     setScheduledDate("")
     setBadgeImageUrl("")
     setCertificateImageUrl("")
@@ -475,11 +477,10 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
                 <Label className="text-gray-900 font-medium text-sm sm:text-base">Difficulty</Label>
                 <Select value={difficulty} onValueChange={setDifficulty}>
                   <SelectTrigger className="mt-1 sm:mt-2 h-9 sm:h-10 text-sm sm:text-base text-gray-900 w-full"><SelectValue /></SelectTrigger>
+                  {/* CHANGED: Removed ranges like "Beginner - Intermediate" */}
                   <SelectContent>
                     <SelectItem value="Beginner">Beginner</SelectItem>
-                    <SelectItem value="Beginner - Intermediate">Beginner - Intermediate</SelectItem>
                     <SelectItem value="Intermediate">Intermediate</SelectItem>
-                    <SelectItem value="Intermediate - Advanced">Intermediate - Advanced</SelectItem>
                     <SelectItem value="Advanced">Advanced</SelectItem>
                   </SelectContent>
                 </Select>

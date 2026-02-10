@@ -442,3 +442,29 @@ export async function archiveQuest(questId: string) {
     throw error
   }
 }
+
+export async function getLatestQuest() {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from("quests")
+      .select(`
+        *,
+        skill:skills(*)
+      `)
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single()
+
+    if (error && error.code !== 'PGRST116') {
+      console.error("Error fetching latest quest:", error)
+      throw new Error(error.message)
+    }
+
+    return data
+  } catch (error) {
+    console.error("Error in getLatestQuest:", error)
+    return null
+  }
+}

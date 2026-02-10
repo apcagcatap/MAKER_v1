@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { FacilitatorNav } from "@/components/layout/facilitator-nav"
 import { StatsCard } from "@/components/participant/stats-card"
 import { Users, Target, Award, TrendingUp } from "lucide-react"
-import { QuestManagementCard } from "@/components/facilitator/quest-management-card"
+import { getLatestQuest } from "@/lib/actions/quests"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 
@@ -45,16 +45,8 @@ export default async function FacilitatorDashboard() {
     .select("*", { count: "exact", head: true })
     .eq("status", "in_progress")
 
-  // Fetch recent quests
-  const { data: recentQuests } = await supabase
-    .from("quests")
-    .select(`
-      *,
-      skill:skills(*)
-    `)
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
-    .limit(6)
+  // Fetch the latest active quest for the featured section
+  const latestQuest = await getLatestQuest()
 
   return (
     <div className="min-h-screen bg-blue-900">
@@ -109,10 +101,12 @@ export default async function FacilitatorDashboard() {
               <p className="text-xs sm:text-sm">Information Institute</p>
             </div>
 
-            {/* Left Section: Light The Tower Card */} 
+            {/* Left Section: Featured Quest Card (Formerly Light The Tower) */} 
             <div className="bg-blue-600 rounded-xl p-4 sm:p-6 text-white flex flex-col justify-between flex-grow">
               <div>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">Light The Tower</h2>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">
+                  {latestQuest ? latestQuest.title : "No Active Quests"}
+                </h2>
                 <div className="flex items-center mb-3 sm:mb-4">
                   <div className="bg-white rounded-full p-2 sm:p-3 mr-2 sm:mr-3 md:mr-4 flex-shrink-0">
                     {/* Icon placeholder */} 
@@ -132,31 +126,43 @@ export default async function FacilitatorDashboard() {
                       <path d="M12 6v6l4 2" />
                     </svg>
                   </div>
-                  <p className="text-sm sm:text-base md:text-lg">Will you be a keeper of the Tower Flame?</p>
+                  <p className="text-sm sm:text-base md:text-lg line-clamp-2">
+                    {latestQuest 
+                      ? "Check out the most recently created quest on the platform." 
+                      : "Create a new quest to get started!"}
+                  </p>
                 </div>
-                <span className="bg-red-500 text-white text-xs font-semibold px-2 sm:px-2.5 py-0.5 rounded-full">Beginner</span>
+                {latestQuest && (
+                  <span className="bg-red-500 text-white text-xs font-semibold px-2 sm:px-2.5 py-0.5 rounded-full capitalize">
+                    {latestQuest.difficulty || "General"}
+                  </span>
+                )}
               </div>
-              {/* Progress Bar Placeholder */} 
+              {/* Visual Divider / Progress Placeholder */} 
               <div className="mt-3 sm:mt-4 h-2 bg-blue-400 rounded-full">
                 <div className="h-full bg-white rounded-full w-1/2"></div>
               </div>
             </div>
           </div>
 
-          {/* Right Section: Goal Of This Quest */} 
+          {/* Right Section: Quest Details (Dynamic) */} 
           <div className="lg:w-1/2 bg-white rounded-xl p-4 sm:p-6 lg:p-8 shadow-lg flex flex-col justify-between border border-gray-100">
             <div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Goal Of This Quest</h2>
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
+                {latestQuest ? "About this Quest" : "Welcome"}
+              </h2>
               <p className="text-xs sm:text-sm md:text-base text-gray-700 leading-relaxed">
-                Design and build a functional sensor array using an Arduino that can detect motion or environmental
-                changes, triggering a signal to light up a watchtower. This quest introduces the basics of physical
-                computing, wiring, and sensor integration your mission is to bring the tower to life and guard the
-                realm!
+                {latestQuest 
+                  ? latestQuest.description 
+                  : "There are currently no active quests. Click the button below to create your first quest and it will be featured here."}
               </p>
             </div>
             <div className="flex justify-end mt-4 sm:mt-6">
-              <Button className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded w-full sm:w-auto text-sm sm:text-base h-9 sm:h-10">
-                Edit
+              <Button 
+                asChild
+                className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded w-full sm:w-auto text-sm sm:text-base h-9 sm:h-10"
+              >
+                <a href="/facilitator/quests">Manage Quests</a>
               </Button>
             </div>
           </div>
@@ -188,18 +194,6 @@ export default async function FacilitatorDashboard() {
             icon={<Award className="w-5 h-5 sm:w-6 sm:h-6" />}
             gradient="bg-gradient-to-br from-green-500 to-emerald-500"
           />
-        </div>
-
-        {/* Recent Quests */}
-        <div>
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-cyan-100">Recent Quests</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-            {recentQuests?.map((quest) => (
-              <QuestManagementCard key={quest.id} quest={quest} />
-            ))}
-          </div>
         </div>
       </main>
     </div>

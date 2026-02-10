@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { FacilitatorNav } from "@/components/layout/facilitator-nav"
 import { CreateQuestModal } from "@/components/facilitator/create-quest-modal"
 import { ImageViewerModal } from "@/components/facilitator/image-viewer-modal"
-// Import the new dialog
 import { ParticipantsListDialog } from "@/components/facilitator/participants-list-dialog" 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -244,20 +243,20 @@ export function QuestsTable({
                         <span className="text-sm font-light text-black">{quest.title}</span>
                       </td>
                       
-                      {/* Participants Column with Button */}
+                      {/* Participants Column with Updated Button */}
                       <td className="px-6 py-4 text-center">
                         <Button
                           onClick={() => handleOpenParticipants(quest)}
                           variant="ghost"
                           size="sm"
-                          className="h-auto py-2 px-4 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg text-sm font-light gap-2 w-full justify-center"
+                          className="h-auto py-2 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium gap-2 min-w-[120px] justify-center shadow-md transition-all"
                         >
-                          <Users className="w-4 h-4 text-gray-500" />
-                          <span>View ({totalCount})</span>
+                          <Users className="w-4 h-4 text-white" />
+                          <span>View</span>
                           {hasActive && (
-                            <span className="flex h-2 w-2 relative">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                            <span className="flex h-2 w-2 relative ml-1">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
                             </span>
                           )}
                         </Button>
@@ -383,7 +382,7 @@ export function QuestsTable({
           </div>
         </div>
 
-        {/* Mobile View (Optional: Simplified for brevity) */}
+        {/* Mobile View */}
         <div className="grid gap-4 lg:hidden">
           {filteredQuests?.map((quest) => (
              <div key={quest.id} className="bg-white rounded-xl shadow-lg p-4 space-y-4">
@@ -393,9 +392,9 @@ export function QuestsTable({
                 <Button 
                    onClick={() => handleOpenParticipants(quest)}
                    variant="outline" 
-                   className="w-full"
+                   className="w-full bg-blue-600 text-white hover:bg-blue-700"
                 >
-                   View {getTotalParticipantCount(quest)} Participants
+                   View Participants
                 </Button>
                 {/* ... other mobile details ... */}
              </div>
