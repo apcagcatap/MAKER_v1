@@ -9,7 +9,7 @@ interface Completion {
     avatar_url?: string;
   };
   completed_at: string;
-  duration_minutes?: number;
+  duration_seconds: number;
 }
 
 interface FastestCompletionsProps {
@@ -17,19 +17,47 @@ interface FastestCompletionsProps {
 }
 
 export function FastestCompletions({ completions }: FastestCompletionsProps) {
-  const medalIcons = [
-    <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" key="gold" />,
-    <Award className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" key="silver" />,
-    <Medal className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" key="bronze" />
-  ];
+  const getMedalIcon = (index: number) => {
+    if (index === 0) return <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
+    if (index === 1) return <Award className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+    if (index === 2) return <Medal className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
+    return (
+      <div className="w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
+        <span className="text-xs font-bold text-gray-500">{index + 1}</span>
+      </div>
+    )
+  }
 
-  const formatDuration = (minutes: number) => {
-    if (minutes < 60) {
-      return `${minutes}m`;
+  const formatElapsedTime = (totalSeconds: number) => {
+    // Handle edge cases
+    if (totalSeconds < 0) return "0s";
+    if (totalSeconds === 0) return "0s";
+    
+    // Less than 60 seconds: show only seconds
+    if (totalSeconds < 60) {
+      return `${totalSeconds}s`;
     }
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+    
+    // Less than 60 minutes: show minutes and seconds
+    if (totalSeconds < 3600) {
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
+    }
+    
+    // 60 minutes or more: show hours, minutes, and optionally seconds
+    const hours = Math.floor(totalSeconds / 3600);
+    const remainingSeconds = totalSeconds % 3600;
+    const minutes = Math.floor(remainingSeconds / 60);
+    const seconds = remainingSeconds % 60;
+    
+    if (seconds > 0) {
+      return `${hours}h ${minutes}m ${seconds}s`;
+    } else if (minutes > 0) {
+      return `${hours}h ${minutes}m`;
+    } else {
+      return `${hours}h`;
+    }
   };
 
   return (
@@ -45,14 +73,19 @@ export function FastestCompletions({ completions }: FastestCompletionsProps) {
           </p>
         </div>
       ) : (
-        <div className="space-y-3 sm:space-y-4">
+        <div className="space-y-2 sm:space-y-3 max-h-[280px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-gray-100 hover:scrollbar-thumb-blue-500">
           {completions.map((completion, index) => (
-            <div key={completion.user.id} className="flex items-center gap-2 sm:gap-3">
-              <div className="flex-shrink-0">
-                {medalIcons[index]}
-              </div>
-              
+            <div 
+              key={`${completion.user.id}-${index}`} 
+              className="flex items-center justify-between gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors"
+            >
               <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                {/* Medal/Rank Icon */}
+                <div className="flex-shrink-0">
+                  {getMedalIcon(index)}
+                </div>
+                
+                {/* Avatar */}
                 {completion.user.avatar_url ? (
                   <img
                     src={completion.user.avatar_url}
@@ -65,16 +98,19 @@ export function FastestCompletions({ completions }: FastestCompletionsProps) {
                   </div>
                 )}
                 
+                {/* Username */}
                 <div className="flex-1 min-w-0">
                   <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">
                     {completion.user.full_name}
                   </p>
-                  {completion.duration_minutes !== undefined && (
-                    <p className="text-xs text-gray-500">
-                      {formatDuration(completion.duration_minutes)}
-                    </p>
-                  )}
                 </div>
+              </div>
+              
+              {/* Elapsed Time - Stopwatch Format */}
+              <div className="flex-shrink-0">
+                <span className="text-xs sm:text-sm font-semibold text-blue-600 font-mono">
+                  {formatElapsedTime(completion.duration_seconds)}
+                </span>
               </div>
             </div>
           ))}

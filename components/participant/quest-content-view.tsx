@@ -17,6 +17,7 @@ type QuestStep = 'story' | 'instructions' | 'materials' | 'level' | 'completed'
 interface LevelCompletion {
   level: number
   completedAt: Date
+  durationSeconds: number
 }
 
 export function QuestContentView({ quest, userProgress }: QuestContentViewProps) {
@@ -27,6 +28,9 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
   const [isCompletingLevel, setIsCompletingLevel] = useState(false)
   const [levelCompletions, setLevelCompletions] = useState<LevelCompletion[]>([])
   const [completionsLoaded, setCompletionsLoaded] = useState(false)
+  
+  // Track when current level started (resets for each level)
+  const [levelStartTime, setLevelStartTime] = useState<Date | null>(null)
   
   // Dropdown states for level page
   const [showInstructions, setShowInstructions] = useState(false)
@@ -56,7 +60,8 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
         if (completions) {
           setLevelCompletions(completions.map((c: any) => ({
             level: c.level,
-            completedAt: new Date(c.completed_at)
+            completedAt: new Date(c.completed_at),
+            durationSeconds: c.duration_seconds || 0
           })))
         }
         setCompletionsLoaded(true)
@@ -98,6 +103,15 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
         }
     }
   }, [userProgress, quest.stories])
+
+  // Start level timer when level loads
+  useEffect(() => {
+    if (currentStep === 'level') {
+      const startTime = new Date()
+      setLevelStartTime(startTime)
+      console.log(`⏱️ Level ${currentLevelIndex + 1} timer started at:`, startTime.toISOString())
+    }
+  }, [currentStep, currentLevelIndex])
 
   const handleStartQuest = async () => {
     try {
@@ -164,24 +178,9 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
       const { data: { user } } = await supabase.auth.getUser()
       
       if (user) {
-        // Check if started_at is already set (user is resuming)
-        const { data: currentUserQuest } = await supabase
-          .from('user_quests')
-          .select('started_at')
-          .eq('quest_id', quest.id)
-          .eq('user_id', user.id)
-          .single()
-
-        // Only set started_at if it's null (first time starting Level 1)
-        const updateData: any = { materials_viewed: true }
-        
-        if (!currentUserQuest?.started_at) {
-          updateData.started_at = new Date().toISOString() // Start timer only on first Level 1 start
-        }
-
         await supabase
           .from('user_quests')
-          .update(updateData)
+          .update({ materials_viewed: true })
           .eq('quest_id', quest.id)
           .eq('user_id', user.id)
       }
@@ -189,6 +188,7 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
       console.error('Error marking materials as viewed:', error)
     }
     
+    // Navigate to level 1 (timer will start automatically via useEffect)
     setCurrentStep('level')
     setCurrentLevelIndex(0)
   }
@@ -200,6 +200,13 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
 
     const nextLevelIndex = currentLevelIndex + 1
     const completionTime = new Date()
+    
+    // Calculate THIS level's duration from when the level started
+    const levelDuration = levelStartTime 
+      ? Math.max(0, Math.round((completionTime.getTime() - levelStartTime.getTime()) / 1000))
+      : 0
+
+    console.log(`✅ Level ${currentLevelIndex + 1} completed in ${levelDuration}s`)
 
     try {
       const { createClient } = await import('@/lib/supabase/client')
@@ -207,44 +214,46 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
       const { data: { user } } = await supabase.auth.getUser()
       
       if (user) {
-        // Record this level's completion time
+        // Get user quest data
         const { data: userQuestData } = await supabase
           .from('user_quests')
-          .select('id, started_at')
+          .select('id')
           .eq('quest_id', quest.id)
           .eq('user_id', user.id)
           .single()
 
-        if (userQuestData) {
+        if (userQuestData?.id) {
           // Check if this level completion already exists
           const { data: existingCompletion } = await supabase
             .from('level_completions')
             .select('id')
             .eq('user_quest_id', userQuestData.id)
-            .eq('level', currentLevelIndex + 1) // level is 1-indexed
+            .eq('level', currentLevelIndex + 1)
             .single()
 
           if (!existingCompletion) {
-            // Only insert if it doesn't exist (prevents duplicates)
+            // Insert new level completion with duration
             await supabase
               .from('level_completions')
               .insert({
                 user_quest_id: userQuestData.id,
                 level: currentLevelIndex + 1,
-                completed_at: completionTime.toISOString()
+                completed_at: completionTime.toISOString(),
+                duration_seconds: levelDuration
               })
 
             // Update local state
             setLevelCompletions([...levelCompletions, {
               level: currentLevelIndex + 1,
-              completedAt: completionTime
+              completedAt: completionTime,
+              durationSeconds: levelDuration
             }])
           }
         }
 
         if (nextLevelIndex < quest.levels.length) {
           // Progressing to next level
-          const { error } = await supabase
+          await supabase
             .from('user_quests')
             .update({
               current_level: nextLevelIndex
@@ -252,47 +261,48 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
             .eq('quest_id', quest.id)
             .eq('user_id', user.id)
 
-          if (error) {
-            console.error('Error updating level progress:', error)
-          } else {
-            setCurrentLevelIndex(nextLevelIndex)
-            setCurrentStep('level')
+          // Move to next level (timer will restart via useEffect)
+          setCurrentLevelIndex(nextLevelIndex)
+          setCurrentStep('level')
+        } else if (userQuestData?.id) {
+          // Final level - Calculate TOTAL time from ALL level completions
+          const { data: allLevelCompletions } = await supabase
+            .from('level_completions')
+            .select('completed_at, duration_seconds')
+            .eq('user_quest_id', userQuestData.id)
+            .order('level', { ascending: true })
+
+          if (allLevelCompletions && allLevelCompletions.length > 0) {
+            // Get the FIRST level's start time and LAST level's completion time
+            const firstLevelTime = new Date(allLevelCompletions[0].completed_at).getTime() - (allLevelCompletions[0].duration_seconds * 1000)
+            const lastLevelTime = completionTime.getTime()
+            
+            // Calculate ACTUAL elapsed time from start to finish
+            const totalSeconds = Math.max(0, Math.round((lastLevelTime - firstLevelTime) / 1000))
+            const totalMinutes = Math.round(totalSeconds / 60)
+
+            console.log('🏆 Quest Complete! Total time:', {
+              first_level_started: new Date(firstLevelTime).toISOString(),
+              last_level_completed: completionTime.toISOString(),
+              total_seconds: totalSeconds,
+              total_minutes: totalMinutes
+            })
+
+            await supabase
+              .from('user_quests')
+              .update({
+                status: 'completed',
+                completed_at: completionTime.toISOString(),
+                current_level: quest.levels.length,
+                completion_time: totalMinutes,
+                completion_time_seconds: totalSeconds
+              })
+              .eq('quest_id', quest.id)
+              .eq('user_id', user.id)
+
+            setCurrentStep('completed')
             router.refresh()
           }
-        } else {
-          // Final level completion - Calculate ACCURATE completion time
-          const { data: userQuest } = await supabase
-            .from('user_quests')
-            .select('started_at')
-            .eq('quest_id', quest.id)
-            .eq('user_id', user.id)
-            .single()
-
-          // Calculate time difference between start and now
-          const startedAt = userQuest?.started_at ? new Date(userQuest.started_at) : completionTime
-          const completionTimeMinutes = Math.round((completionTime.getTime() - startedAt.getTime()) / (1000 * 60))
-
-          console.log('🕒 Quest Completion Time Calculation:', {
-            started_at: startedAt.toISOString(),
-            completed_at: completionTime.toISOString(),
-            duration_minutes: completionTimeMinutes
-          })
-
-          const { error } = await supabase
-            .from('user_quests')
-            .update({
-              status: 'completed',
-              completed_at: completionTime.toISOString(),
-              current_level: quest.levels.length,
-              completion_time: completionTimeMinutes
-            })
-            .eq('quest_id', quest.id)
-            .eq('user_id', user.id)
-
-          if (!error) {
-            setCurrentStep('completed')
-          }
-          router.refresh()
         }
       }
     } catch (error) {
@@ -305,13 +315,36 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
   }
 
   const handleBack = () => {
-    if (currentStep === 'materials') {
+    if (currentStep === 'instructions') {
+      // Go back to story (only if story exists)
+      if (quest.stories?.length > 0) {
+        setCurrentStep('story')
+      }
+    } else if (currentStep === 'materials') {
       setCurrentStep('instructions')
-    } else if (currentStep === 'level' && currentLevelIndex === 0) {
-      setCurrentStep('materials')
     } else if (currentStep === 'level' && currentLevelIndex > 0) {
+      // Only allow going back if NOT on Level 1
       setCurrentLevelIndex(currentLevelIndex - 1)
     }
+  }
+
+  // Helper function to format elapsed time
+  const formatElapsedTime = (seconds: number) => {
+    if (seconds < 0) return "0s"
+    if (seconds < 60) {
+      return `${seconds}s`
+    }
+    const minutes = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    if (seconds < 3600) {
+      return secs > 0 ? `${minutes}m ${secs}s` : `${minutes}m`
+    }
+    const hours = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    if (mins > 0) {
+      return `${hours}h ${mins}m`
+    }
+    return `${hours}h`
   }
 
   if (!userProgress) {
@@ -382,13 +415,26 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
             </div>
           )}
 
-          <button
-            onClick={handleInstructionsComplete}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
-          >
-            Continue to Materials
-            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            {/* Back button - only show if story exists */}
+            {quest.stories?.length > 0 && (
+              <button
+                onClick={handleBack}
+                className="w-full sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-2 sm:order-1"
+              >
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                Back to Story
+              </button>
+            )}
+
+            <button
+              onClick={handleInstructionsComplete}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-1 sm:order-2"
+            >
+              Continue to Materials
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -522,7 +568,7 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
             </div>
           </div>
 
-          {/* Your Progress Section - ONLY shown on level pages */}
+          {/* Your Progress Section - Shows individual level times */}
           {completionsLoaded && levelCompletions.length > 0 && (
             <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 rounded-lg border border-green-200">
               <div className="flex items-center gap-2 mb-2 sm:mb-3">
@@ -533,7 +579,7 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
                 {levelCompletions.map((completion) => (
                   <div key={completion.level} className="flex items-center gap-2 text-xs sm:text-sm text-green-700">
                     <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <span>Level {completion.level} completed at {completion.completedAt.toLocaleTimeString()}</span>
+                    <span>Level {completion.level} completed in {formatElapsedTime(completion.durationSeconds)}</span>
                   </div>
                 ))}
               </div>
@@ -541,13 +587,16 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
           )}
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <button
-              onClick={handleBack}
-              className="w-full sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-2 sm:order-1"
-            >
-              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="sm:inline">{currentLevelIndex === 0 ? 'Back to Materials' : `Back to Level ${levelNumber - 1}`}</span>
-            </button>
+            {/* Back button - ONLY show if NOT on Level 1 (to protect timer) */}
+            {currentLevelIndex > 0 && (
+              <button
+                onClick={handleBack}
+                className="w-full sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-2 sm:order-1"
+              >
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="sm:inline">Back to Level {currentLevelIndex}</span>
+              </button>
+            )}
 
             <button
               onClick={handleLevelComplete}
@@ -575,6 +624,37 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
   }
 
   if (currentStep === 'completed') {
+    const formatElapsedTimeComplete = (seconds: number) => {
+      if (!seconds || seconds <= 0) return "0s"
+      
+      if (seconds < 60) {
+        return `${seconds}s`
+      }
+      
+      if (seconds < 3600) {
+        const minutes = Math.floor(seconds / 60)
+        const secs = seconds % 60
+        return secs > 0 ? `${minutes}m ${secs}s` : `${minutes}m`
+      }
+      
+      const hours = Math.floor(seconds / 3600)
+      const remainingSeconds = seconds % 3600
+      const minutes = Math.floor(remainingSeconds / 60)
+      const secs = remainingSeconds % 60
+      
+      if (secs > 0) {
+        return `${hours}h ${minutes}m ${secs}s`
+      } else if (minutes > 0) {
+        return `${hours}h ${minutes}m`
+      } else {
+        return `${hours}h`
+      }
+    }
+
+    // Use the ACTUAL total time from the database (userProgress.completion_time_seconds)
+    // This matches what's shown in the leaderboard
+    const actualTotalSeconds = userProgress?.completion_time_seconds || 0
+
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-0 relative">
         {selectedImage && (
@@ -608,17 +688,12 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
                 <span>XP Earned:</span>
                 <span className="font-bold">{quest.xp_reward} XP</span>
               </div>
-              {userProgress?.completion_time && (
-                <div className="flex items-center justify-between">
-                  <span>Total Completion Time:</span>
-                  <span className="font-bold">
-                    {userProgress.completion_time < 60 
-                      ? `${userProgress.completion_time} minutes`
-                      : `${Math.floor(userProgress.completion_time / 60)}h ${userProgress.completion_time % 60}m`
-                    }
-                  </span>
-                </div>
-              )}
+              <div className="flex items-center justify-between">
+                <span>Total Completion Time:</span>
+                <span className="font-bold font-mono">
+                  {formatElapsedTimeComplete(actualTotalSeconds)}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -633,7 +708,7 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
                       <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
                       Level {completion.level}
                     </span>
-                    <span className="font-mono">{completion.completedAt.toLocaleTimeString()}</span>
+                    <span className="font-mono">{formatElapsedTime(completion.durationSeconds)}</span>
                   </div>
                 ))}
               </div>
