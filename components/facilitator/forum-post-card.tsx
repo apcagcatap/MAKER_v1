@@ -35,6 +35,8 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
   const [editingReplyId, setEditingReplyId] = useState<string | null>(null)
   const [editReplyContent, setEditReplyContent] = useState("")
   const [isUpdatingReply, setIsUpdatingReply] = useState(false)
+  const [isPostHidden, setIsPostHidden] = useState(false)
+  const [localReplyCount, setLocalReplyCount] = useState(post.replies?.[0]?.count || 0)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -58,8 +60,8 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
     getUser()
   }, [])
 
-  const loadReplies = async () => {
-    if (replies.length > 0) return
+  const loadReplies = async (force = false) => {
+    if (!force && replies.length > 0) return
     
     setIsLoadingReplies(true)
     const supabase = createClient()
@@ -70,10 +72,12 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
         profile:profiles(id, display_name, avatar_url, role)
       `)
       .eq("post_id", post.id)
+      .eq("archived", false)
       .order("created_at", { ascending: true })
 
     if (data) {
       setReplies(data as ForumReply[])
+      setLocalReplyCount(data.length)
     }
     setIsLoadingReplies(false)
   }
@@ -115,15 +119,14 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
       })
       setReplyContent("")
       setShowReplyForm(false)
-      setReplies([])
-      await loadReplies()
+      await loadReplies(true)
     }
 
     setIsSubmitting(false)
   }
 
   const handleDeletePost = async () => {
-    if (!confirm("Are you sure you want to delete this post? This will also delete all replies.")) return
+    if (!confirm("Are you sure you want to archive this post? This will also archive all replies.")) return
 
     const result = await deletePost(post.id, forumId)
 
@@ -136,15 +139,15 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
     } else {
       toast({
         title: "Success",
-        description: "Post deleted",
+        description: "Post archived",
         variant: "delete",
       })
-      window.location.reload()
+      setIsPostHidden(true)
     }
   }
 
   const handleDeleteReply = async (replyId: string) => {
-    if (!confirm("Are you sure you want to delete this reply?")) return
+    if (!confirm("Are you sure you want to archive this reply?")) return
 
     const result = await deleteReply(replyId, forumId)
 
@@ -157,11 +160,11 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
     } else {
       toast({
         title: "Success",
-        description: "Reply deleted",
+        description: "Reply archived",
         variant: "delete",
       })
-      setReplies([])
-      await loadReplies()
+      setReplies(prev => prev.filter(r => r.id !== replyId))
+      setLocalReplyCount(prev => Math.max(0, prev - 1))
     }
   }
 
@@ -207,10 +210,10 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
     setIsUpdatingReply(false)
   }
 
-  // Check if user can delete post (owner or facilitator)
+  // Check if user can archive post (owner or facilitator)
   const canDeletePost = currentUserId === post.user_id || currentUserRole === "facilitator"
   
-  // Function to check if user can delete a reply (owner or facilitator)
+  // Function to check if user can archive a reply (owner or facilitator)
   const canDeleteReply = (replyUserId: string) => {
     return currentUserId === replyUserId || currentUserRole === "facilitator"
   }
@@ -220,7 +223,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
     return currentUserId === replyUserId
   }
 
-  const replyCount = post.replies?.[0]?.count || 0
+  if (isPostHidden) return null
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -269,7 +272,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
             className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
           >
             <MessageSquare className="w-4 h-4 mr-2" />
-            {replyCount} {replyCount === 1 ? "Reply" : "Replies"}
+            {localReplyCount} {localReplyCount === 1 ? "Reply" : "Replies"}
             {showReplies ? (
               <ChevronUp className="w-4 h-4 ml-2" />
             ) : (
@@ -375,7 +378,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                             className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 px-2"
                           >
                             <Trash2 className="w-3 h-3 mr-1" />
-                            Delete
+                            Archive
                           </Button>
                         )}
                       </div>

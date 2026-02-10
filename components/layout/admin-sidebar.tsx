@@ -9,7 +9,8 @@ import {
   FileText,
   LogOut,
   BookOpen,
-  Trophy
+  Trophy,
+  MessageSquare
 } from "lucide-react"
 import {
   Sidebar,
@@ -93,15 +94,15 @@ export function AdminSidebar() {
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
-             <SidebarMenuItem>
+            <SidebarMenuItem>
               <SidebarMenuButton 
                 asChild 
-                isActive={pathname?.startsWith("/admin/skills")}
-                tooltip="Skills"
+                isActive={pathname?.startsWith("/admin/forums")}
+                tooltip="Forums"
               >
-                <a href="/admin/skills">
-                  <BookOpen />
-                  <span>Skills</span>
+                <a href="/admin/forums">
+                  <MessageSquare />
+                  <span>Forums</span>
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>

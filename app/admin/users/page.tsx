@@ -7,13 +7,24 @@ import { CreateUserDialog } from "@/components/admin/users/create-user-dialog"
 export default async function AdminUsersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; role?: string; sort?: string }>
+  searchParams: Promise<{ q?: string; role?: string; sort?: string; archived?: string }>
 }) {
   const params = await searchParams
   const supabase = await createClient()
   
   // Start building the query
   let query = supabase.from("profiles").select("*")
+
+  // Filter by archive status
+  const archivedFilter = params.archived || "active"
+  if (archivedFilter === "archived") {
+    query = query.eq("archived", true)
+  } else if (archivedFilter === "all") {
+    // Show everything
+  } else {
+    // Default: only show non-archived
+    query = query.eq("archived", false)
+  }
 
   // Apply Search
   if (params.q) {

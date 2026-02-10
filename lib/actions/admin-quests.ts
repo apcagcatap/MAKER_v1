@@ -40,9 +40,19 @@ async function uploadStorageImage(file: File, path: string) {
   return data.publicUrl
 }
 
-export async function getQuests(search?: string, status?: string, sort?: string) {
+export async function getQuests(search?: string, status?: string, sort?: string, showArchived?: string) {
   try {
     let query = supabaseAdmin.from("quests").select("*")
+
+    // Filter by archive status
+    if (showArchived === "archived") {
+      query = query.eq("archived", true)
+    } else if (showArchived === "all") {
+      // Show everything
+    } else {
+      // Default: only show non-archived
+      query = query.eq("archived", false)
+    }
 
     if (search) {
       query = query.ilike("title", `%${search}%`)
@@ -222,17 +232,34 @@ export async function updateQuest(formData: FormData) {
   return { success: true }
 }
 
-export async function deleteQuest(questId: string) {
+export async function archiveQuest(questId: string) {
   try {
     const { error } = await supabaseAdmin
       .from("quests")
-      .delete()
+      .update({ archived: true })
       .eq("id", questId)
 
     if (error) return { error: error.message }
   } catch (error) {
-    console.error("Unexpected error deleting quest:", error)
-    return { error: "Failed to delete quest due to a network or server error." }
+    console.error("Unexpected error archiving quest:", error)
+    return { error: "Failed to archive quest due to a network or server error." }
+  }
+
+  revalidatePath("/admin/quests")
+  return { success: true }
+}
+
+export async function restoreQuest(questId: string) {
+  try {
+    const { error } = await supabaseAdmin
+      .from("quests")
+      .update({ archived: false })
+      .eq("id", questId)
+
+    if (error) return { error: error.message }
+  } catch (error) {
+    console.error("Unexpected error restoring quest:", error)
+    return { error: "Failed to restore quest due to a network or server error." }
   }
 
   revalidatePath("/admin/quests")

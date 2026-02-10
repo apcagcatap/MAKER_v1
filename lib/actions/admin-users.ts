@@ -64,9 +64,23 @@ export async function createUser(formData: FormData) {
   return { success: true }
 }
 
-export async function deleteUser(userId: string) {
-  // Deleting from auth.users cascades to public.profiles
-  const { error } = await supabaseAdmin.auth.admin.deleteUser(userId)
+export async function archiveUser(userId: string) {
+  const { error } = await supabaseAdmin
+    .from("profiles")
+    .update({ archived: true })
+    .eq("id", userId)
+  
+  if (error) return { error: error.message }
+  
+  revalidatePath("/admin/users")
+  return { success: true }
+}
+
+export async function restoreUser(userId: string) {
+  const { error } = await supabaseAdmin
+    .from("profiles")
+    .update({ archived: false })
+    .eq("id", userId)
   
   if (error) return { error: error.message }
   

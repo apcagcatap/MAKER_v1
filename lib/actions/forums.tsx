@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { getAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 
 export async function createForum(formData: FormData) {
@@ -47,7 +48,8 @@ export async function deleteForum(forumId: string) {
     return { error: "Not authenticated" }
   }
 
-  const { error } = await supabase.from("forums").delete().eq("id", forumId)
+  // Soft delete: archive instead of hard delete
+  const { error } = await supabase.from("forums").update({ archived: true }).eq("id", forumId)
 
   if (error) {
     return { error: error.message }
@@ -101,12 +103,20 @@ export async function deletePost(postId: string, forumId: string) {
     return { error: "Not authenticated" }
   }
 
-  const { error } = await supabase.from("forum_posts").delete().eq("id", postId)
+  // Use admin client to bypass RLS so facilitators can archive any post
+  const adminClient = getAdminClient()
+
+  // Soft delete: archive the post and its replies
+  const { error } = await adminClient.from("forum_posts").update({ archived: true }).eq("id", postId)
 
   if (error) {
     return { error: error.message }
   }
 
+  // Also archive all replies on this post
+  await adminClient.from("forum_replies").update({ archived: true }).eq("post_id", postId)
+
+  revalidatePath("/admin/forums")
   revalidatePath(`/admin/forums/${forumId}`)
   revalidatePath(`/facilitator/forums/${forumId}`)
   revalidatePath(`/participant/forums/${forumId}`)
@@ -155,12 +165,15 @@ export async function deleteReply(replyId: string, forumId: string) {
     return { error: "Not authenticated" }
   }
 
-  const { error } = await supabase.from("forum_replies").delete().eq("id", replyId)
+  // Use admin client to bypass RLS so facilitators can archive any reply
+  const adminClient = getAdminClient()
+  const { error } = await adminClient.from("forum_replies").update({ archived: true }).eq("id", replyId)
 
   if (error) {
     return { error: error.message }
   }
 
+  revalidatePath("/admin/forums")
   revalidatePath(`/admin/forums/${forumId}`)
   revalidatePath(`/facilitator/forums/${forumId}`)
   revalidatePath(`/participant/forums/${forumId}`)
@@ -190,6 +203,7 @@ export async function updateForum(forumId: string, formData: FormData) {
     return { error: "You do not have permission to edit forums." }
   }
 
+  revalidatePath("/admin/forums")
   revalidatePath("/facilitator/forums")
   revalidatePath(`/participant/forums/${forumId}`)
 

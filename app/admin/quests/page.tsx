@@ -10,6 +10,7 @@ interface PageProps {
     q?: string
     status?: string
     sort?: string
+    archived?: string
   }>
 }
 
@@ -19,9 +20,10 @@ export default async function AdminQuestsPage({ searchParams }: PageProps) {
   const query = typeof params.q === "string" ? params.q : ""
   const status = typeof params.status === "string" ? params.status : "all"
   const sort = typeof params.sort === "string" ? params.sort : "newest"
+  const archived = typeof params.archived === "string" ? params.archived : "active"
 
   // Fetch data on the server
-  const quests = await getQuests(query, status, sort)
+  const quests = await getQuests(query, status, sort, archived)
 
   return (
     <div className="admin-wrapper p-6 md:p-8 max-w-7xl mx-auto">
