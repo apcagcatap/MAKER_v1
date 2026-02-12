@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { FacilitatorNav } from "@/components/layout/facilitator-nav"
-import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
 import { SkillCard } from "@/components/facilitator/skill-card"
+import { CreateSkillButton } from "@/components/facilitator/create-skill-button"
 
 export default async function FacilitatorSkillsPage() {
   const supabase = await createClient()
@@ -45,10 +44,8 @@ export default async function FacilitatorSkillsPage() {
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1 sm:mb-2">Skills</h1>
                 <p className="text-xs sm:text-sm md:text-base text-gray-200">Manage available skills for participants</p>
               </div>
-              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 w-full sm:w-auto text-sm sm:text-base h-9 sm:h-10">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Skill
-              </Button>
+              {/* Replaced static button with functional component */}
+              <CreateSkillButton />
             </div>
           </div>
         </div>

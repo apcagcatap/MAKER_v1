@@ -227,7 +227,7 @@ export async function getSkills(): Promise<Skill[]> {
 /**
  * Create a new skill directly from the quest creation modal
  */
-export async function createNewSkill(name: string, icon: string = "🎯") {
+export async function createNewSkill(name: string, icon: string = "🎯", description?: string) {
   try {
     const supabase = await createClient()
     const adminClient = getAdminClient()
@@ -245,7 +245,7 @@ export async function createNewSkill(name: string, icon: string = "🎯") {
       .from("skills")
       .insert({ 
         name,
-        description: `Mastery in ${name}`, 
+        description: description || `Mastery in ${name}`, 
         icon: icon || "🎯" 
       })
       .select()
