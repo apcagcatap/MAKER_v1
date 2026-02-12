@@ -3,19 +3,38 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Target, Users, Award, MessageSquare, LogOut, Menu, X } from "lucide-react"
+import { Home, Target, Users, Award, MessageSquare, LogOut, Menu, X, User, Settings, Info, ChevronDown } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { createPortal } from "react-dom"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export function FacilitatorNav() {
   const pathname = usePathname()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [displayName, setDisplayName] = useState<string | null>(null)
 
   useEffect(() => {
     setMounted(true)
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        supabase.from("profiles").select("display_name").eq("id", user.id).single().then(({ data }) => {
+          setDisplayName(data?.display_name || null)
+        })
+      }
+    })
+  }, [])
+
+  useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden'
     } else {
@@ -71,10 +90,40 @@ export function FacilitatorNav() {
                   )
                 })}
               </div>
-              <button onClick={handleLogout} className="text-blue-100 hover:text-white flex items-center gap-2 px-4 py-2">
-                <LogOut className="w-5 h-5" />
-                <span>Logout</span>
-              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-2 px-4 py-2 text-blue-100 hover:text-white transition-colors outline-none cursor-pointer">
+                  <span className="font-medium">Account</span>
+                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
+                    <User className="w-5 h-5" />
+                  </div>
+                  <ChevronDown className="w-4 h-4" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link href={displayName ? `/profile/${encodeURIComponent(displayName)}` : "/facilitator"} className="flex items-center gap-2 cursor-pointer">
+                      <User className="w-4 h-4" />
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/facilitator" className="flex items-center gap-2 cursor-pointer">
+                      <Info className="w-4 h-4" />
+                      About
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/facilitator" className="flex items-center gap-2 cursor-pointer">
+                      <Settings className="w-4 h-4" />
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600">
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {/* Mobile Menu Button */}
@@ -121,9 +170,33 @@ export function FacilitatorNav() {
               })}
               
               <div className="pt-2 mt-2 border-t border-blue-800/50">
+                <Link
+                  href={displayName ? `/profile/${encodeURIComponent(displayName)}` : "/facilitator"}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base text-blue-100 hover:bg-blue-800"
+                >
+                  <User className="w-5 h-5" />
+                  <span>Profile</span>
+                </Link>
+                <Link
+                  href="/facilitator"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base text-blue-100 hover:bg-blue-800"
+                >
+                  <Info className="w-5 h-5" />
+                  <span>About</span>
+                </Link>
+                <Link
+                  href="/facilitator"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base text-blue-100 hover:bg-blue-800"
+                >
+                  <Settings className="w-5 h-5" />
+                  <span>Settings</span>
+                </Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base text-white hover:bg-blue-800"
+                  className="w-full flex items-center gap-4 px-4 py-3 rounded-lg font-semibold text-base text-red-300 hover:bg-blue-800"
                 >
                   <LogOut className="w-5 h-5" />
                   <span>Logout</span>

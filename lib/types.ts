@@ -27,6 +27,9 @@ export type QuestDifficulty = "beginner" | "intermediate" | "advanced"
 // USER & PROFILE TYPES
 // ============================================
 
+/** Sex type matching sex_type enum in database */
+export type Sex = "Male" | "Female"
+
 /**
  * User Profile
  *
@@ -44,6 +47,21 @@ export interface Profile {
   bio: string | null // User biography/description
   created_at: string // Account creation timestamp
   updated_at: string // Last profile update timestamp
+  // Registration fields (DOST-STII standard)
+  first_name: string | null
+  middle_name: string | null
+  last_name: string | null
+  suffix: string | null // Jr., Sr., III, IV
+  sex: Sex | null
+  birthdate: string | null // ISO date string
+  phone: string | null // Philippine mobile: +639XXXXXXXXX
+  region: string | null
+  province: string | null
+  city_municipality: string | null
+  barangay: string | null
+  occupation: string | null
+  organization: string | null
+  highest_education: string | null
 }
 
 // ============================================
