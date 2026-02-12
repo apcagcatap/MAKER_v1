@@ -43,14 +43,14 @@
 
 /* Admin Sidebar Theme */
 .admin-sidebar-theme {
-  --sidebar-background: #ED262A;
-  --sidebar-foreground: #FFFFFF;
-  --sidebar-primary: #FFFFFF;
-  --sidebar-primary-foreground: #ED262A;
-  --sidebar-accent: #FFFFFF;
-  --sidebar-accent-foreground: #1E1E1E;
-  --sidebar-border: #c41e22;
-  --sidebar-ring: #FFFFFF;
+  --sidebar-background: #FFFFFF;
+  --sidebar-foreground: #1E1E1E;
+  --sidebar-primary: #ED262A;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #ED262A;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #ED262A;
 }
 
 .admin-sidebar-theme [data-sidebar="sidebar"] {
@@ -59,8 +59,8 @@
 }
 
 .admin-sidebar-theme [data-sidebar="menu-button"] {
-  background-color: #c41e22;
-  color: #FFFFFF;
+  background-color: transparent;
+  color: #1E1E1E;
 }
 
 .admin-sidebar-theme [data-sidebar="menu-button"]:hover,

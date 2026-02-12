@@ -2,8 +2,8 @@
 "use client"
 
 import { useState } from "react"
-import { MoreHorizontal, Trash2, Shield, User } from "lucide-react"
-import { deleteUser, updateUserRole } from "@/lib/actions/admin-users"
+import { MoreHorizontal, Trash2, Shield, User, ArchiveRestore } from "lucide-react"
+import { archiveUser, restoreUser, updateUserRole } from "@/lib/actions/admin-users"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,20 +17,37 @@ import { Button } from "@/components/ui/button"
 interface UserRowActionsProps {
   userId: string
   currentRole: string
+  archived?: boolean
 }
 
-export function UserRowActions({ userId, currentRole }: UserRowActionsProps) {
+export function UserRowActions({ userId, currentRole, archived }: UserRowActionsProps) {
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) return
+  const handleArchive = async () => {
+    if (!confirm("Are you sure you want to archive this user? They will no longer appear in active lists.")) return
     
     setIsLoading(true)
     try {
-      await deleteUser(userId)
+      const res = await archiveUser(userId)
+      if (res.error) alert(`Failed to archive user: ${res.error}`)
     } catch (error) {
-      console.error("Failed to delete user", error)
-      alert("Failed to delete user")
+      console.error("Failed to archive user", error)
+      alert("Failed to archive user")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleRestore = async () => {
+    if (!confirm("Restore this user and make them active again?")) return
+
+    setIsLoading(true)
+    try {
+      const res = await restoreUser(userId)
+      if (res.error) alert(`Failed to restore user: ${res.error}`)
+    } catch (error) {
+      console.error("Failed to restore user", error)
+      alert("Failed to restore user")
     } finally {
       setIsLoading(false)
     }
@@ -63,32 +80,46 @@ export function UserRowActions({ userId, currentRole }: UserRowActionsProps) {
         >
           Copy ID
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
         
-        <DropdownMenuLabel>Change Role</DropdownMenuLabel>
-        <DropdownMenuItem 
-          onClick={() => handleRoleUpdate("facilitator")}
-          disabled={currentRole === "facilitator"}
-        >
-          <Shield className="mr-2 h-4 w-4" />
-          Make Facilitator
-        </DropdownMenuItem>
-        <DropdownMenuItem 
-          onClick={() => handleRoleUpdate("participant")}
-          disabled={currentRole === "participant"}
-        >
-          <User className="mr-2 h-4 w-4" />
-          Make Participant
-        </DropdownMenuItem>
+        {!archived && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Change Role</DropdownMenuLabel>
+            <DropdownMenuItem 
+              onClick={() => handleRoleUpdate("facilitator")}
+              disabled={currentRole === "facilitator"}
+            >
+              <Shield className="mr-2 h-4 w-4" />
+              Make Facilitator
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => handleRoleUpdate("participant")}
+              disabled={currentRole === "participant"}
+            >
+              <User className="mr-2 h-4 w-4" />
+              Make Participant
+            </DropdownMenuItem>
+          </>
+        )}
         
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
-          onClick={handleDelete}
-          className="text-[#ED262A] focus:text-[#ED262A]"
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete User
-        </DropdownMenuItem>
+        {archived ? (
+          <DropdownMenuItem 
+            onClick={handleRestore}
+            className="text-green-600 focus:text-green-600"
+          >
+            <ArchiveRestore className="mr-2 h-4 w-4" />
+            Restore User
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem 
+            onClick={handleArchive}
+            className="text-[#ED262A] focus:text-[#ED262A]"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Archive User
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )

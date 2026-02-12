@@ -20,13 +20,13 @@ export default async function ForumDetailPage({ params }: { params: { id: string
   const { id } = await params
 
   // Fetch forum details
-  const { data: forum } = await supabase.from("forums").select("*").eq("id", id).single()
+  const { data: forum } = await supabase.from("forums").select("*").eq("id", id).eq("archived", false).single()
 
   if (!forum) {
     redirect("/facilitator/forums")
   }
 
-  // Fetch forum posts with user profiles and reply counts
+  // Fetch forum posts with user profiles and reply counts (only non-archived replies)
   const { data: posts } = await supabase
     .from("forum_posts")
     .select(`
@@ -35,6 +35,8 @@ export default async function ForumDetailPage({ params }: { params: { id: string
       replies:forum_replies(count)
     `)
     .eq("forum_id", id)
+    .eq("archived", false)
+    .eq("replies.archived", false)
     .order("created_at", { ascending: false })
 
   return (

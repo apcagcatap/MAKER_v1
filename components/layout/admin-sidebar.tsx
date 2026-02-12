@@ -10,7 +10,8 @@ import {
   LogOut,
   BookOpen,
   Trophy,
-  BarChart3
+  BarChart3,
+  MessageSquare
 } from "lucide-react"
 import {
   Sidebar,
@@ -44,7 +45,7 @@ export function AdminSidebar() {
         <div className="flex items-center gap-2 px-2 py-2">
           <SidebarTrigger className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
           <div className="flex items-center gap-2 group-data-[collapsible=icon]:hidden">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[#ED262A]">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#ED262A] text-white">
               <Shield className="size-4" />
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
@@ -106,45 +107,15 @@ export function AdminSidebar() {
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
-             <SidebarMenuItem>
-              <SidebarMenuButton 
-                asChild 
-                isActive={pathname?.startsWith("/admin/skills")}
-                tooltip="Skills"
-              >
-                <a href="/admin/skills">
-                  <BookOpen />
-                  <span>Skills</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-        
-        <SidebarGroup>
-          <SidebarGroupLabel>System</SidebarGroupLabel>
-          <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton 
                 asChild 
-                isActive={pathname?.startsWith("/admin/content")}
-                tooltip="Content"
+                isActive={pathname?.startsWith("/admin/forums")}
+                tooltip="Forums"
               >
-                <a href="/admin/content">
-                  <FileText />
-                  <span>Content</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                asChild 
-                isActive={pathname?.startsWith("/admin/settings")}
-                tooltip="Settings"
-              >
-                <a href="/admin/settings">
-                  <Settings />
-                  <span>Settings</span>
+                <a href="/admin/forums">
+                  <MessageSquare />
+                  <span>Forums</span>
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>

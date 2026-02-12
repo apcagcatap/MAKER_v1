@@ -1,6 +1,6 @@
 // components/admin/users/user-table.tsx
 import Link from "next/link"
-import { ArrowUpDown } from "lucide-react"
+import { ArrowUpDown, Archive } from "lucide-react"
 import { UserRowActions } from "./user-row-actions"
 
 interface User {
@@ -10,6 +10,7 @@ interface User {
   role: string
   created_at: string
   avatar_url: string | null
+  archived?: boolean
 }
 
 interface UserTableProps {
@@ -29,6 +30,7 @@ export function UserTable({ users, sortOrder }: UserTableProps) {
             <tr>
               <th className="px-6 py-3">User</th>
               <th className="px-6 py-3">Role</th>
+              <th className="px-6 py-3">Status</th>
               <th className="px-6 py-3">
                 <Link 
                   href={`?sort=${nextSort}`} 
@@ -44,17 +46,19 @@ export function UserTable({ users, sortOrder }: UserTableProps) {
           <tbody className="divide-y divide-gray-100">
             {users.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
                   No users found matching your criteria.
                 </td>
               </tr>
             ) : (
               users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
+                <tr key={user.id} className={`hover:bg-gray-50/50 transition-colors ${user.archived ? "opacity-60" : ""}`}>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-full bg-[#ED262A]/10 flex items-center justify-center text-[#ED262A] font-bold text-xs">
-                        {user.avatar_url ? (
+                      <div className={`h-9 w-9 rounded-full flex items-center justify-center font-bold text-xs ${user.archived ? "bg-gray-200 text-gray-400" : "bg-[#ED262A]/10 text-[#ED262A]"}`}>
+                        {user.archived ? (
+                          <Archive className="h-4 w-4" />
+                        ) : user.avatar_url ? (
                           <img src={user.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
                         ) : (
                           (user.display_name?.[0] || user.email[0]).toUpperCase()
@@ -82,11 +86,16 @@ export function UserTable({ users, sortOrder }: UserTableProps) {
                       {user.role}
                     </span>
                   </td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.archived ? "bg-gray-100 text-gray-600" : "bg-green-100 text-green-800"}`}>
+                      {user.archived ? "Archived" : "Active"}
+                    </span>
+                  </td>
                   <td className="px-6 py-4 text-gray-500">
                     {new Date(user.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <UserRowActions userId={user.id} currentRole={user.role} />
+                    <UserRowActions userId={user.id} currentRole={user.role} archived={user.archived} />
                   </td>
                 </tr>
               ))

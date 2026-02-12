@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Trash2, Loader2, AlertTriangle } from "lucide-react"
-import { deleteForum } from "@/app/actions/forums"
+import { deleteForum } from "@/lib/actions/forums"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 
@@ -31,11 +31,10 @@ export function DeleteForumButton({ forumId }: DeleteForumButtonProps) {
       setShowConfirm(false)
     } else {
       toast({
-        title: "Deleted",
-        description: "The forum has been successfully removed.",
+        title: "Archived",
+        description: "The forum has been archived.",
         variant: "success",
       })
-      // No need for setIsDeleting(false) as the page will refresh/redirect
       router.refresh()
     }
   }
@@ -53,7 +52,7 @@ export function DeleteForumButton({ forumId }: DeleteForumButtonProps) {
           {isDeleting ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
-            "Confirm Delete"
+            "Confirm Archive"
           )}
         </Button>
         <Button

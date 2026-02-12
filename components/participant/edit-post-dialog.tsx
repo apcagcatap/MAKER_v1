@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Edit2, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { updatePost } from "@/app/actions/forums" 
+import { updatePost } from "@/lib/actions/forums" 
 import {
   Dialog,
   DialogContent,
