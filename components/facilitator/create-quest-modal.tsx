@@ -83,6 +83,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
   const [selectedSkillId, setSelectedSkillId] = useState(editingQuest?.skill_id || "")
   const [isCreatingSkill, setIsCreatingSkill] = useState(false)
   const [newSkillName, setNewSkillName] = useState("")
+  const [newSkillIcon, setNewSkillIcon] = useState("🎯")
 
   // Step 2: Story
   const [storyGenre, setStoryGenre] = useState("Adventure")
@@ -161,11 +162,12 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
     if (!newSkillName.trim()) return
     
     try {
-      const newSkill = await createNewSkill(newSkillName.trim())
+      const newSkill = await createNewSkill(newSkillName.trim(), newSkillIcon)
       setAvailableSkills([...availableSkills, newSkill])
       setSelectedSkillId(newSkill.id)
       setIsCreatingSkill(false)
       setNewSkillName("")
+      setNewSkillIcon("🎯")
       toast.success("Skill created!")
     } catch (error) {
       toast.error("Failed to create skill")
@@ -451,6 +453,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
     setSelectedSkillId("")
     setIsCreatingSkill(false)
     setNewSkillName("")
+    setNewSkillIcon("🎯")
     setStories([])
     setLearningResources([])
     setMaterialsNeeded("")
@@ -513,7 +516,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
               {errors.description && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.description}</p>}
             </div>
 
-            {/* SKILL SELECTION AREA */}
+            {/* SKILL SELECTION AREA - UPDATED */}
             <div>
               <Label className="text-gray-900 font-medium text-sm sm:text-base">Skill Category</Label>
               <div className="mt-1 sm:mt-2 flex gap-2">
@@ -525,7 +528,9 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
                       </SelectTrigger>
                       <SelectContent>
                         {availableSkills.map((skill) => (
-                           <SelectItem key={skill.id} value={skill.id}>{skill.name}</SelectItem>
+                           <SelectItem key={skill.id} value={skill.id}>
+                             <span className="mr-2">{skill.icon}</span> {skill.name}
+                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -540,27 +545,36 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
                   </>
                 ) : (
                   <>
-                    <Input 
-                      placeholder="Enter new skill name..." 
-                      value={newSkillName}
-                      onChange={(e) => setNewSkillName(e.target.value)}
-                      className="flex-1 h-9 sm:h-10 text-sm sm:text-base text-gray-900"
-                    />
-                    <Button 
-                      type="button" 
-                      onClick={handleCreateSkill}
-                      className="h-9 sm:h-10 bg-green-600 hover:bg-green-700"
-                    >
-                      <Check className="w-4 h-4" />
-                    </Button>
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      onClick={() => setIsCreatingSkill(false)}
-                      className="h-9 sm:h-10 px-2 text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
+                    <div className="flex gap-2 w-full">
+                      <Input
+                        placeholder="Icon/Emoji"
+                        value={newSkillIcon}
+                        onChange={(e) => setNewSkillIcon(e.target.value)}
+                        className="w-20 h-9 sm:h-10 text-sm sm:text-base text-center"
+                        maxLength={2}
+                      />
+                      <Input 
+                        placeholder="Enter new skill name..." 
+                        value={newSkillName}
+                        onChange={(e) => setNewSkillName(e.target.value)}
+                        className="flex-1 h-9 sm:h-10 text-sm sm:text-base text-gray-900"
+                      />
+                      <Button 
+                        type="button" 
+                        onClick={handleCreateSkill}
+                        className="h-9 sm:h-10 bg-green-600 hover:bg-green-700 px-3"
+                      >
+                        <Check className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        onClick={() => setIsCreatingSkill(false)}
+                        className="h-9 sm:h-10 px-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </>
                 )}
               </div>

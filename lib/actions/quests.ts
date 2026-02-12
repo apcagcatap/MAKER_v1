@@ -227,7 +227,7 @@ export async function getSkills(): Promise<Skill[]> {
 /**
  * Create a new skill directly from the quest creation modal
  */
-export async function createNewSkill(name: string) {
+export async function createNewSkill(name: string, icon: string = "🎯") {
   try {
     const supabase = await createClient()
     const adminClient = getAdminClient()
@@ -246,7 +246,7 @@ export async function createNewSkill(name: string) {
       .insert({ 
         name,
         description: `Mastery in ${name}`, 
-        icon: "🎯" 
+        icon: icon || "🎯" 
       })
       .select()
       .single()
@@ -258,6 +258,47 @@ export async function createNewSkill(name: string) {
     return data
   } catch (error) {
     console.error("Error creating skill:", error)
+    throw error
+  }
+}
+
+export async function updateSkill(skillId: string, name: string, description: string, icon: string) {
+  try {
+    const supabase = await createClient()
+    const adminClient = getAdminClient()
+
+    const { data, error } = await adminClient
+      .from("skills")
+      .update({ name, description, icon }) // Updating icon as well
+      .eq("id", skillId)
+      .select()
+      .single()
+
+    if (error) throw new Error(error.message)
+    
+    revalidatePath("/facilitator/skills")
+    return data
+  } catch (error) {
+    console.error("Error updating skill:", error)
+    throw error
+  }
+}
+
+export async function deleteSkill(skillId: string) {
+  try {
+    const supabase = await createClient()
+    const adminClient = getAdminClient()
+
+    const { error } = await adminClient
+      .from("skills")
+      .delete()
+      .eq("id", skillId)
+
+    if (error) throw new Error(error.message)
+
+    revalidatePath("/facilitator/skills")
+  } catch (error) {
+    console.error("Error deleting skill:", error)
     throw error
   }
 }
@@ -405,8 +446,8 @@ export async function deleteQuest(questId: string) {
     const supabase = await createClient()
     const { error } = await supabase
       .from("quests")
-      .update({ archived: true }) // Soft delete
-      .eq("id", questId)
+      .delete()
+      .eq("id", questId) // Hard delete for now, or update to archived based on preference
 
     if (error) throw new Error(error.message)
 
