@@ -1,30 +1,31 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import { getAdminClient } from "@/lib/supabase/admin"
+import { startOfMonth, endOfMonth, eachDayOfInterval, format } from "date-fns"
 
-export async function getAnalyticsData(cutoffDate?: Date) {
-  const supabase = await createClient()
+export async function getAnalyticsData(targetDate?: Date) {
+  const supabase = getAdminClient()
   
-  // If no date is selected, default to "now" (end of today)
-  const dateLimit = cutoffDate ? new Date(cutoffDate) : new Date()
-  // Ensure we include the entire selected day
-  dateLimit.setHours(23, 59, 59, 999)
-  const dateLimitIso = dateLimit.toISOString()
+  // 1. Determine the Month Range
+  // If no date is selected, default to current month
+  const date = targetDate ? new Date(targetDate) : new Date()
+  const monthStart = startOfMonth(date)
+  const monthEnd = endOfMonth(date)
+  
+  const monthStartIso = monthStart.toISOString()
+  const monthEndIso = monthEnd.toISOString()
 
-  // 1. Fetch profiles created on or before the cutoff date
+  // 2. Fetch Profiles (Signups within this month)
   const { data: profileData, error: profileError } = await supabase
     .from('profiles')
     .select('created_at')
-    .lte('created_at', dateLimitIso)
+    .gte('created_at', monthStartIso)
+    .lte('created_at', monthEndIso)
 
-  if (profileError) {
-    console.error("Profile Fetch Error:", profileError)
-    throw profileError
-  }
+  if (profileError) throw profileError
 
-  // 2. Fetch Quests and their User interactions
-  // We filter user_quests manually in JS to handle the "snapshot" logic correctly
-  // (e.g., a quest is "started" if started_at <= cutoff)
+  // 3. Fetch Quest Activity (Started OR Completed within this month)
+  // We fetch a bit broadly and filter in JS to calculate the "Close Rate" (Completions / Starts)
   const { data: questData, error: questError } = await supabase
     .from('quests')
     .select(`
@@ -39,43 +40,66 @@ export async function getAnalyticsData(cutoffDate?: Date) {
 
   if (questError) throw questError
 
-  // --- Process Engagement (Signups by Month) ---
-  const engagementMap = (profileData || []).reduce((acc: any, curr) => {
-    const date = new Date(curr.created_at)
-    // Group by YYYY-MM
-    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-    const displayMonth = date.toLocaleString('default', { month: 'short' }).toUpperCase()
-    
-    if (!acc[monthKey]) {
-      acc[monthKey] = { month: displayMonth, desktop: 0, dateValue: date.getTime() }
+  // --- Process Engagement: Daily Signups for the Month ---
+  // Initialize all days in the month with 0 to ensure continuity in the graph
+  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd })
+  const engagementMap = daysInMonth.reduce((acc: any, day) => {
+    const dayKey = format(day, "yyyy-MM-dd")
+    acc[dayKey] = { 
+      day: format(day, "d"), // Display "1", "2", "3"...
+      fullDate: dayKey,
+      users: 0 
     }
-    acc[monthKey].desktop += 1
     return acc
   }, {})
 
-  // Sort chronologically
-  const engagement = Object.values(engagementMap).sort((a: any, b: any) => a.dateValue - b.dateValue)
+  // Populate with actual data
+  profileData?.forEach(profile => {
+    const profileDate = format(new Date(profile.created_at), "yyyy-MM-dd")
+    if (engagementMap[profileDate]) {
+      engagementMap[profileDate].users += 1
+    }
+  })
 
-  // --- Process Quests (Historical Snapshot) ---
+  const engagement = Object.values(engagementMap)
+
+  // --- Process Quests: Monthly Performance ---
   const quests = (questData || []).map(q => {
     const interactions = (q.user_quests as any[]) || []
 
-    // Filter: Only count interactions that started ON or BEFORE the cutoff
-    const validInteractions = interactions.filter(uq => {
-      return uq.started_at && new Date(uq.started_at) <= dateLimit
-    })
-
-    const total = validInteractions.length
-
-    // Calculate completions relative to the cutoff date
-    // (A quest is only "completed" if completed_at exists AND is <= cutoff)
-    const completedCount = validInteractions.filter(uq => {
-      return uq.completed_at && new Date(uq.completed_at) <= dateLimit
+    // Count Starts in this month
+    const startsInMonth = interactions.filter(uq => {
+      if (!uq.started_at) return false
+      const d = new Date(uq.started_at)
+      return d >= monthStart && d <= monthEnd
     }).length
+
+    // Count Completions in this month
+    const completionsInMonth = interactions.filter(uq => {
+      if (!uq.completed_at) return false
+      const d = new Date(uq.completed_at)
+      return d >= monthStart && d <= monthEnd
+    }).length
+
+    // Metric: "Monthly Completion Rate" 
+    // (Completions in Month / Starts in Month) * 100
+    // Note: This can technically exceed 100% if people started previously but finished this month,
+    // which is a valid throughput metric. We cap it at 100 visually in the UI if preferred, 
+    // or we use (Completions / Active). Let's use (Completions / Starts) as a "Close Rate".
+    let rate = 0
+    if (startsInMonth > 0) {
+      rate = Math.round((completionsInMonth / startsInMonth) * 100)
+    } else if (completionsInMonth > 0) {
+      // If 0 starts but has completions (backlog), treat as 100% efficiency for this view
+      rate = 100 
+    }
 
     return {
       quest: q.title,
-      completion: total > 0 ? Math.round((completedCount / total) * 100) : 0,
+      completion: rate,
+      // We return these stats in case you want to show them in tooltips later
+      starts: startsInMonth,
+      completes: completionsInMonth,
       is_active: q.is_active
     }
   })
