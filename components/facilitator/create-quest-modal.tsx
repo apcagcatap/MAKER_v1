@@ -8,10 +8,11 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Trash2, Plus, Upload, X, Sparkles, Link2 } from "lucide-react"
-import { createQuest, updateQuest, uploadImage } from "@/lib/actions/quests"
+import { Trash2, Plus, Upload, X, Sparkles, Link2, Check } from "lucide-react"
+import { createQuest, updateQuest, uploadImage, getSkills, createNewSkill } from "@/lib/actions/quests"
 import { generateQuestStory } from "@/lib/actions/ai-story"
 import { toast } from "sonner"
+import type { Skill } from "@/lib/types"
 
 interface QuestLevel {
   title: string
@@ -66,7 +67,6 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
   // Step 1: Basic Details
   const [title, setTitle] = useState(editingQuest?.title || "")
   const [description, setDescription] = useState(editingQuest?.description || "")
-  // CHANGED: Default is now "Beginner" instead of a range
   const [difficulty, setDifficulty] = useState(editingQuest?.difficulty || "Beginner")
   const [scheduledDate, setScheduledDate] = useState(editingQuest?.scheduled_date || "")
   const [badgeImageUrl, setBadgeImageUrl] = useState(editingQuest?.badge_image_url || "")
@@ -77,6 +77,13 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
   const [certificateImageUploading, setCertificateImageUploading] = useState(false)
   const [status, setStatus] = useState(editingQuest?.status || "Draft")
   const [surveyLink, setSurveyLink] = useState(editingQuest?.survey_link || "")
+  
+  // SKILL STATE
+  const [availableSkills, setAvailableSkills] = useState<Skill[]>([])
+  const [selectedSkillId, setSelectedSkillId] = useState(editingQuest?.skill_id || "")
+  const [isCreatingSkill, setIsCreatingSkill] = useState(false)
+  const [newSkillName, setNewSkillName] = useState("")
+  const [newSkillIcon, setNewSkillIcon] = useState("🎯")
 
   // Step 2: Story
   const [storyGenre, setStoryGenre] = useState("Adventure")
@@ -107,12 +114,27 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  // Load skills on open
+  useEffect(() => {
+    if (open) {
+      loadSkills()
+    }
+  }, [open])
+
+  const loadSkills = async () => {
+    try {
+      const skills = await getSkills()
+      setAvailableSkills(skills)
+    } catch (error) {
+      console.error("Failed to load skills", error)
+    }
+  }
+
   // Persist state when editing quest changes
   useEffect(() => {
     if (editingQuest && open) {
       setTitle(editingQuest.title || "")
       setDescription(editingQuest.description || "")
-      // CHANGED: Ensure fallback is single value
       setDifficulty(editingQuest.difficulty || "Beginner")
       setScheduledDate(editingQuest.scheduled_date || "")
       setBadgeImageUrl(editingQuest.badge_image_url || "")
@@ -121,6 +143,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
       setCertificateImagePreview(editingQuest.certificate_image_url || null)
       setStatus(editingQuest.status || "Draft")
       setSurveyLink(editingQuest.survey_link || "")
+      setSelectedSkillId(editingQuest.skill_id || "") // Load skill
       setStories(editingQuest.stories?.map((s: any, i: number) => ({ title: s.title, content: s.content, order_index: i })) || [])
       setLearningResources(editingQuest.learning_resources?.map((r: any, i: number) => ({ 
         title: r.title, 
@@ -134,6 +157,22 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
       setLevels(editingQuest.levels || [])
     }
   }, [editingQuest, open])
+
+  const handleCreateSkill = async () => {
+    if (!newSkillName.trim()) return
+    
+    try {
+      const newSkill = await createNewSkill(newSkillName.trim(), newSkillIcon)
+      setAvailableSkills([...availableSkills, newSkill])
+      setSelectedSkillId(newSkill.id)
+      setIsCreatingSkill(false)
+      setNewSkillName("")
+      setNewSkillIcon("🎯")
+      toast.success("Skill created!")
+    } catch (error) {
+      toast.error("Failed to create skill")
+    }
+  }
 
   const getValidationErrors = (stepToValidate: number) => {
     const newErrors: Record<string, string> = {}
@@ -149,7 +188,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
         newErrors.surveyLink = "Please enter a valid URL (must start with http:// or https://)"
       }
     }
-
+    
     if (stepToValidate === 2) {
       stories.forEach((story, index) => {
         if (story.title.trim() && !story.content.trim()) {
@@ -281,7 +320,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
         genre: genreToUse,
         topic: storyTopic.trim(),
         setting: storySetting.trim(),
-        temperature: 0.7, // Fixed temperature since slider is removed
+        temperature: 0.7,
       })
 
       const newStories = generatedStories.map((story, index) => ({
@@ -359,6 +398,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
         title,
         description,
         difficulty,
+        skill_id: selectedSkillId || null, // SAVE SKILL ID
         scheduled_date: scheduledDate || null,
         badge_image_url: badgeImageUrl,
         certificate_image_url: certificateImageUrl,
@@ -398,7 +438,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
     setStep(1)
     setTitle("")
     setDescription("")
-    setDifficulty("Beginner") // CHANGED
+    setDifficulty("Beginner")
     setScheduledDate("")
     setBadgeImageUrl("")
     setCertificateImageUrl("")
@@ -410,6 +450,10 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
     setCustomGenre("")
     setStoryTopic("")
     setStorySetting("")
+    setSelectedSkillId("")
+    setIsCreatingSkill(false)
+    setNewSkillName("")
+    setNewSkillIcon("🎯")
     setStories([])
     setLearningResources([])
     setMaterialsNeeded("")
@@ -419,7 +463,6 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
   }
 
   const handleDialogOpenChange = (newOpen: boolean) => {
-    // Only reset form if explicitly closing and not editing
     if (!newOpen && !editingQuest) {
       resetForm()
     }
@@ -472,12 +515,76 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
               <Textarea placeholder="Enter quest description" value={description} onChange={(e) => { setDescription(e.target.value); if (errors.description) setErrors({ ...errors, description: "" }) }} className={`mt-1 sm:mt-2 text-sm sm:text-base text-gray-900 placeholder:text-gray-400 ${errors.description ? "border-red-500" : ""}`} rows={3} />
               {errors.description && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.description}</p>}
             </div>
+
+            {/* SKILL SELECTION AREA - UPDATED */}
+            <div>
+              <Label className="text-gray-900 font-medium text-sm sm:text-base">Skill Category</Label>
+              <div className="mt-1 sm:mt-2 flex gap-2">
+                {!isCreatingSkill ? (
+                  <>
+                    <Select value={selectedSkillId} onValueChange={setSelectedSkillId}>
+                      <SelectTrigger className="flex-1 h-9 sm:h-10 text-sm sm:text-base text-gray-900">
+                        <SelectValue placeholder="Select a skill..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableSkills.map((skill) => (
+                           <SelectItem key={skill.id} value={skill.id}>
+                             <span className="mr-2">{skill.icon}</span> {skill.name}
+                           </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setIsCreatingSkill(true)}
+                      className="h-9 sm:h-10 px-3"
+                    >
+                      <Plus className="w-4 h-4 mr-1" /> New
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex gap-2 w-full">
+                      <Input
+                        placeholder="Icon/Emoji"
+                        value={newSkillIcon}
+                        onChange={(e) => setNewSkillIcon(e.target.value)}
+                        className="w-20 h-9 sm:h-10 text-sm sm:text-base text-center"
+                        maxLength={2}
+                      />
+                      <Input 
+                        placeholder="Enter new skill name..." 
+                        value={newSkillName}
+                        onChange={(e) => setNewSkillName(e.target.value)}
+                        className="flex-1 h-9 sm:h-10 text-sm sm:text-base text-gray-900"
+                      />
+                      <Button 
+                        type="button" 
+                        onClick={handleCreateSkill}
+                        className="h-9 sm:h-10 bg-green-600 hover:bg-green-700 px-3"
+                      >
+                        <Check className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        onClick={() => setIsCreatingSkill(false)}
+                        className="h-9 sm:h-10 px-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <Label className="text-gray-900 font-medium text-sm sm:text-base">Difficulty</Label>
                 <Select value={difficulty} onValueChange={setDifficulty}>
                   <SelectTrigger className="mt-1 sm:mt-2 h-9 sm:h-10 text-sm sm:text-base text-gray-900 w-full"><SelectValue /></SelectTrigger>
-                  {/* CHANGED: Removed ranges like "Beginner - Intermediate" */}
                   <SelectContent>
                     <SelectItem value="Beginner">Beginner</SelectItem>
                     <SelectItem value="Intermediate">Intermediate</SelectItem>
@@ -558,22 +665,20 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
         {/* Step 2: Story */}
         {step === 2 && (
           <div className="space-y-4">
-            {/* Step 1 incomplete warning */}
             {(!title.trim() || !description.trim()) && (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 sm:p-4 text-xs sm:text-sm text-amber-800">
                 <p className="font-medium mb-1">💡 Tip: Complete Step 1 first</p>
                 <p>Fill in the quest title and description in Step 1.</p>
               </div>
             )}
-
-            {/* AI Story Form Card */}
+            
+            {/* AI Story Generator */}
             <div className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200 rounded-lg p-5 space-y-5">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-purple-600" />
                 <h4 className="font-semibold text-gray-900">Generate Story with AI</h4>
               </div>
 
-              {/* Genre */}
               <div className="space-y-2">
                 <Label className="text-gray-900 font-medium">Pick a Genre *</Label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -594,7 +699,6 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
                   ))}
                 </div>
 
-                {/* Custom Genre Input */}
                 {storyGenre === "Custom" && (
                   <div className="mt-3">
                     <Input
@@ -606,7 +710,6 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
                   </div>
                 )}
 
-                {/* Selected genre example */}
                 {storyGenre !== "Custom" && (
                   <p className="text-xs text-purple-700 italic">
                     {GENRES.find(g => g.value === storyGenre)?.example}
@@ -614,7 +717,6 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
                 )}
               </div>
 
-              {/* Topic */}
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
                   <Label className="text-gray-900 font-medium">Topic *</Label>
@@ -628,7 +730,6 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
                 />
               </div>
 
-              {/* Setting */}
               <div className="space-y-1.5">
                 <Label className="text-gray-900 font-medium">Setting <span className="text-gray-400 font-normal">(optional)</span></Label>
                 <Input
@@ -651,7 +752,6 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
                 </div>
               </div>
 
-              {/* Generate button */}
               <Button
                 onClick={handleGenerateStory}
                 disabled={isGeneratingStory || !title.trim() || !description.trim() || !storyTopic.trim() || (storyGenre === "Custom" && !customGenre.trim())}
@@ -662,7 +762,6 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
               </Button>
             </div>
 
-            {/* Manual story controls */}
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-600">Or add story segments manually</p>
               <Button onClick={addStory} variant="outline" size="sm" className="gap-2">
@@ -670,7 +769,6 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
               </Button>
             </div>
 
-            {/* Story segments list */}
             {stories.map((story, index) => (
               <div key={index} className={`bg-white rounded-lg p-3 sm:p-4 md:p-6 border-2 space-y-3 sm:space-y-4 ${errors[`story_${index}_title`] || errors[`story_${index}_content`] ? "border-red-300" : "border-gray-200"}`}>
                 <div className="flex items-center justify-between">
@@ -700,7 +798,6 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
           </div>
         )}
 
-        {/* Step 3: Learning Resources */}
         {step === 3 && (
           <div className="space-y-3 sm:space-y-4">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3">
@@ -755,7 +852,6 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
           </div>
         )}
 
-        {/* Step 4: Materials & Instructions */}
         {step === 4 && (
           <div className="space-y-3 sm:space-y-4">
             <div>
@@ -771,7 +867,6 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
           </div>
         )}
 
-        {/* Step 5: Quest Levels */}
         {step === 5 && (
           <div className="space-y-3 sm:space-y-4">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3">
@@ -812,7 +907,6 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
           </div>
         )}
 
-        {/* Step 6: Review & Publish */}
         {step === 6 && (
           <div className="space-y-3 sm:space-y-4">
             <div className="bg-white rounded-lg p-3 sm:p-4 space-y-2 text-xs sm:text-sm text-gray-900">
@@ -820,6 +914,8 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
               <div><span className="font-medium text-gray-900">Difficulty:</span> {difficulty}</div>
               <div><span className="font-medium text-gray-900">Status:</span> {status}</div>
               {surveyLink && <div><span className="font-medium text-gray-900">Survey Link:</span> <a href={surveyLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{surveyLink}</a></div>}
+              {/* Skill display in review */}
+              <div><span className="font-medium text-gray-900">Skill:</span> {availableSkills.find(s => s.id === selectedSkillId)?.name || "None"}</div>
               <div><span className="font-medium text-gray-900">Stories:</span> {stories.filter(s => s.title && s.content).length} segment{stories.filter(s => s.title && s.content).length !== 1 ? "s" : ""}</div>
               <div><span className="font-medium text-gray-900">Learning Resources:</span> {learningResources.filter(r => r.title && r.external_url).length} resource{learningResources.filter(r => r.title && r.external_url).length !== 1 ? "s" : ""}</div>
               <div><span className="font-medium text-gray-900">Levels:</span> {levels.length} level{levels.length !== 1 ? "s" : ""}</div>
@@ -828,7 +924,6 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
           </div>
         )}
 
-        {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-gray-200">
           <div className="flex gap-2 sm:gap-3 order-2 sm:order-1">
             {step > 1 && <Button onClick={() => setStep(step - 1)} variant="outline" className="flex-1 sm:flex-none text-xs sm:text-sm h-9 sm:h-10">Back</Button>}

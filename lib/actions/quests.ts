@@ -7,14 +7,11 @@ import type { Skill } from "@/lib/types"
 
 /**
  * Get all quests (for facilitator/admin view)
- * Shows all quests regardless of status
- * Includes participant status for the dashboard view
  */
 export async function getAllQuests() {
   try {
     const supabase = await createClient()
     
-    // Fetch quests with user_quests status to check for active participants
     const { data: quests, error } = await supabase
       .from("quests")
       .select(`
@@ -37,7 +34,6 @@ export async function getAllQuests() {
 
 /**
  * Fetch specific participants for a quest
- * Used for the Participants List Dialog
  */
 export async function getQuestParticipants(questId: string) {
   try {
@@ -87,7 +83,6 @@ export async function getPublishedQuests() {
       `)
       .eq("status", "Published")
       .eq("is_active", true)
-      .eq("archived", false)
       .order("created_at", { ascending: false })
 
     if (error) {
@@ -229,6 +224,85 @@ export async function getSkills(): Promise<Skill[]> {
   return skills || []
 }
 
+/**
+ * Create a new skill directly from the quest creation modal
+ */
+export async function createNewSkill(name: string, icon: string = "🎯", description?: string) {
+  try {
+    const supabase = await createClient()
+    const adminClient = getAdminClient()
+
+    // Check if exists first (case insensitive)
+    const { data: existing } = await supabase
+      .from("skills")
+      .select("*")
+      .ilike("name", name)
+      .single()
+
+    if (existing) return existing
+
+    const { data, error } = await adminClient
+      .from("skills")
+      .insert({ 
+        name,
+        description: description || `Mastery in ${name}`, 
+        icon: icon || "🎯" 
+      })
+      .select()
+      .single()
+
+    if (error) throw new Error(error.message)
+    
+    // Refresh the skills page so the new skill appears there immediately
+    revalidatePath("/facilitator/skills")
+    return data
+  } catch (error) {
+    console.error("Error creating skill:", error)
+    throw error
+  }
+}
+
+export async function updateSkill(skillId: string, name: string, description: string, icon: string) {
+  try {
+    const supabase = await createClient()
+    const adminClient = getAdminClient()
+
+    const { data, error } = await adminClient
+      .from("skills")
+      .update({ name, description, icon }) // Updating icon as well
+      .eq("id", skillId)
+      .select()
+      .single()
+
+    if (error) throw new Error(error.message)
+    
+    revalidatePath("/facilitator/skills")
+    return data
+  } catch (error) {
+    console.error("Error updating skill:", error)
+    throw error
+  }
+}
+
+export async function deleteSkill(skillId: string) {
+  try {
+    const supabase = await createClient()
+    const adminClient = getAdminClient()
+
+    const { error } = await adminClient
+      .from("skills")
+      .delete()
+      .eq("id", skillId)
+
+    if (error) throw new Error(error.message)
+
+    revalidatePath("/facilitator/skills")
+  } catch (error) {
+    console.error("Error deleting skill:", error)
+    throw error
+  }
+}
+
 export async function uploadImage(file: Blob, type: "badge" | "certificate") {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -343,8 +417,6 @@ export async function updateQuest(questId: string, formData: any) {
     if (error) throw new Error(error.message)
 
     // Update stories: delete old ones and insert new ones
-    // Note: A more granular approach (update existing, add new) could be better for IDs, 
-    // but full replacement is safer for consistency if order changes often.
     await adminClient.from("stories").delete().eq("quest_id", questId)
     if (stories?.length > 0) {
       await adminClient.from("stories").insert(
@@ -371,12 +443,11 @@ export async function updateQuest(questId: string, formData: any) {
 
 export async function deleteQuest(questId: string) {
   try {
-    // Soft delete: archive instead of hard delete
     const supabase = await createClient()
     const { error } = await supabase
       .from("quests")
-      .update({ archived: true })
-      .eq("id", questId)
+      .delete()
+      .eq("id", questId) // Hard delete for now, or update to archived based on preference
 
     if (error) throw new Error(error.message)
 

@@ -8,7 +8,17 @@ import { ImageViewerModal } from "@/components/facilitator/image-viewer-modal"
 import { ParticipantsListDialog } from "@/components/facilitator/participants-list-dialog" 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Users } from "lucide-react"
+import { 
+  Search, 
+  Users, 
+  Edit, 
+  Archive, 
+  CheckCircle, 
+  FileImage, 
+  FileText,
+  Calendar,
+  BarChart
+} from "lucide-react"
 import { publishQuest, archiveQuest } from "@/lib/actions/quests"
 import { toast } from "sonner"
 import {
@@ -234,7 +244,6 @@ export function QuestsTable({
               <tbody>
                 {filteredQuests?.map((quest) => {
                   const activeCount = getActiveParticipantCount(quest)
-                  const totalCount = getTotalParticipantCount(quest)
                   const hasActive = activeCount > 0
 
                   return (
@@ -243,7 +252,7 @@ export function QuestsTable({
                         <span className="text-sm font-light text-black">{quest.title}</span>
                       </td>
                       
-                      {/* Participants Column with Updated Button */}
+                      {/* Participants Column */}
                       <td className="px-6 py-4 text-center">
                         <Button
                           onClick={() => handleOpenParticipants(quest)}
@@ -384,21 +393,109 @@ export function QuestsTable({
 
         {/* Mobile View */}
         <div className="grid gap-4 lg:hidden">
-          {filteredQuests?.map((quest) => (
-             <div key={quest.id} className="bg-white rounded-xl shadow-lg p-4 space-y-4">
-                <div className="border-b pb-3">
-                  <h3 className="text-lg font-semibold">{quest.title}</h3>
+          {filteredQuests?.map((quest) => {
+            const activeCount = getActiveParticipantCount(quest)
+            const hasActive = activeCount > 0
+
+            return (
+              <div key={quest.id} className="bg-white rounded-xl shadow-lg p-5 space-y-4 border border-gray-100">
+                {/* Header: Title & Status */}
+                <div className="flex justify-between items-start gap-4">
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-gray-900 leading-tight" style={{ fontFamily: "Poppins, sans-serif" }}>
+                      {quest.title}
+                    </h3>
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <BarChart className="w-3.5 h-3.5" />
+                        <span className="font-medium">{quest.difficulty && quest.difficulty.charAt(0).toUpperCase() + quest.difficulty.slice(1).toLowerCase() || "Beginner"}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                         <Calendar className="w-3.5 h-3.5" />
+                         <span>{quest.scheduled_date ? new Date(quest.scheduled_date).toLocaleDateString() : "No Date"}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+                      quest.status === "Published"
+                        ? "bg-green-100 text-green-700"
+                        : quest.status === "Draft"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    {quest.status || "Draft"}
+                  </span>
                 </div>
-                <Button 
-                   onClick={() => handleOpenParticipants(quest)}
-                   variant="outline" 
-                   className="w-full bg-blue-600 text-white hover:bg-blue-700"
+
+                {/* Main Action: Participants */}
+                <Button
+                  onClick={() => handleOpenParticipants(quest)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm h-12 text-sm font-medium"
                 >
+                   <Users className="w-4 h-4 mr-2" />
                    View Participants
+                   {hasActive && (
+                      <span className="ml-2 flex h-2 w-2 relative">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
+                      </span>
+                   )}
                 </Button>
-                {/* ... other mobile details ... */}
-             </div>
-          ))}
+
+                {/* Resources: Badge & Certificate */}
+                <div className="grid grid-cols-2 gap-3">
+                   <Button
+                      variant="outline"
+                      onClick={() => handleViewImage(quest.badge_image_url, `${quest.title} Badge`, "Badge")}
+                      className="w-full justify-center bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-100 hover:text-blue-700 h-10"
+                   >
+                     <FileImage className="w-4 h-4 mr-2" /> Badge
+                   </Button>
+                   <Button
+                      variant="outline"
+                      onClick={() => handleViewImage(quest.certificate_image_url, `${quest.title} Certificate`, "Certificate")}
+                      className="w-full justify-center bg-purple-50 text-purple-600 border-purple-100 hover:bg-purple-100 hover:text-purple-700 h-10"
+                   >
+                     <FileText className="w-4 h-4 mr-2" /> Certificate
+                   </Button>
+                </div>
+
+                {/* Footer: Admin Actions */}
+                <div className="pt-4 border-t border-gray-100 flex gap-3">
+                   <Button
+                      onClick={() => handleOpenModal(quest)}
+                      disabled={isLoading || hasActive}
+                      variant="outline"
+                      className={`flex-1 h-10 ${hasActive ? "opacity-50 cursor-not-allowed" : ""}`}
+                   >
+                      <Edit className="w-4 h-4 mr-2" /> Edit
+                   </Button>
+                   
+                   {quest.status === "Published" ? (
+                      <Button
+                        onClick={() => handleArchiveQuest(quest.id)}
+                        disabled={isLoading || hasActive}
+                        variant="outline"
+                        className={`flex-1 h-10 text-orange-600 border-orange-200 hover:bg-orange-50 ${hasActive ? "opacity-50 cursor-not-allowed" : ""}`}
+                      >
+                         <Archive className="w-4 h-4 mr-2" /> Archive
+                      </Button>
+                   ) : (
+                      <Button
+                        onClick={() => handlePublishQuest(quest.id)}
+                        disabled={isLoading}
+                        variant="outline"
+                        className="flex-1 h-10 text-green-600 border-green-200 hover:bg-green-50"
+                      >
+                         <CheckCircle className="w-4 h-4 mr-2" /> Publish
+                      </Button>
+                   )}
+                </div>
+              </div>
+            )
+          })}
         </div>
       </main>
 
