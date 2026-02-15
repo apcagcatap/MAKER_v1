@@ -367,7 +367,6 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                             disabled={editingReplyId === reply.id}
                           >
                             <Pencil className="w-3 h-3 mr-1" />
-                            Edit
                           </Button>
                         )}
                         {canDeleteReply(reply.user_id) && (
@@ -378,7 +377,6 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                             className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 px-2"
                           >
                             <Archive className="w-3 h-3 mr-1" />
-                            Archive
                           </Button>
                         )}
                       </div>
