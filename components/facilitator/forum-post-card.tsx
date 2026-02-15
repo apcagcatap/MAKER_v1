@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { MessageSquare, ChevronDown, ChevronUp, Loader2, Trash2, Pencil } from "lucide-react"
+import { MessageSquare, ChevronDown, ChevronUp, Loader2, Archive, Pencil } from "lucide-react"
 import { createReply, deletePost, deleteReply, updateReply } from "@/lib/actions/forums"
 import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
@@ -255,7 +255,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                     onClick={handleDeletePost}
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Archive className="w-4 h-4" />
                   </Button>
                 </div>
               )}
@@ -377,7 +377,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                             onClick={() => handleDeleteReply(reply.id)}
                             className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 px-2"
                           >
-                            <Trash2 className="w-3 h-3 mr-1" />
+                            <Archive className="w-3 h-3 mr-1" />
                             Archive
                           </Button>
                         )}

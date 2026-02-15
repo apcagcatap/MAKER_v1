@@ -1,7 +1,7 @@
 "use client"
 
 import type { Quest } from "@/lib/types"
-import { Users, Edit, Trash2, Archive } from "lucide-react"
+import { Users, Edit, Archive, Archive } from "lucide-react"
 
 interface QuestManagementCardProps {
   quest: Quest
@@ -87,7 +87,7 @@ export function QuestManagementCard({
           className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-gray-200 rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           title="Delete"
         >
-          <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+          <Archive className="w-3 h-3 sm:w-4 sm:h-4" />
         </button>
       </div>
     </div>
