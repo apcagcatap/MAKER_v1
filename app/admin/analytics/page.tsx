@@ -2,9 +2,9 @@
 
 import * as React from "react"
 import "@/app/admin/admin.css"
-import { CalendarIcon, Download, Loader2, RefreshCw } from "lucide-react"
+import { CalendarIcon, Download, Loader2, RefreshCw, Filter } from "lucide-react"
 import { format } from "date-fns"
-import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis, Brush } from "recharts"
 import { getAnalyticsData } from "@/lib/actions/analytics"
 
 import jsPDF from "jspdf"
@@ -15,11 +15,18 @@ import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
 const chartConfig = {
   users: { label: "New Users", color: "#2563eb" },
-  completion: { label: "Monthly Close Rate %", color: "#1e40af" },
+  completion: { label: "Monthly Close Rate %", color: "#0ea5e9" },
 } satisfies ChartConfig
 
 export default function AnalyticsPage() {
@@ -28,6 +35,9 @@ export default function AnalyticsPage() {
   const [engagementData, setEngagementData] = React.useState<any[]>([])
   const [loading, setLoading] = React.useState(true)
   const [isGeneratingPdf, setIsGeneratingPdf] = React.useState(false)
+  
+  // Filter State
+  const [statusFilter, setStatusFilter] = React.useState("Published")
 
   // Load Data (Triggered by Date Change)
   React.useEffect(() => {
@@ -45,6 +55,19 @@ export default function AnalyticsPage() {
     }
     load()
   }, [date])
+
+  // Filter the Quest Data based on selection
+  const filteredQuestData = React.useMemo(() => {
+    if (statusFilter === "All") return questData
+    return questData.filter((q) => q.status === statusFilter)
+  }, [questData, statusFilter])
+
+  // Helper to determine color based on completion rate
+  const getRateColor = (rate: number) => {
+    if (rate >= 70) return "text-green-600" // High
+    if (rate >= 30) return "text-orange-500" // Medium
+    return "text-red-600" // Low
+  }
 
   // PDF Generation
   const handleDownloadPDF = async () => {
@@ -133,35 +156,73 @@ export default function AnalyticsPage() {
                   <ChartTooltip 
                     content={<ChartTooltipContent className="bg-white text-blue-600 border-blue-200 shadow-md" />} 
                   />
-                  <Line dataKey="users" type="monotone" stroke="var(--color-users)" strokeWidth={2} dot={false} />
+                  <Line 
+                    dataKey="users" 
+                    type="monotone" 
+                    stroke="var(--color-users)" 
+                    strokeWidth={2} 
+                    dot={false}
+                    activeDot={{ r: 6, fill: "#ef4444" }} 
+                  />
                 </LineChart>
               </ChartContainer>
             </CardContent>
           </Card>
 
-          {/* Chart 2: Quest Completion (Monthly) - No Filter */}
+          {/* Chart 2: Quest Completion (Monthly) with Filter & Zoom */}
           <Card className="border-none shadow-none">
-            <CardHeader>
-              <CardTitle>Quest Performance</CardTitle>
-              <CardDescription>
-                Completion rate (Completions / Starts) for {format(displayDate, "MMMM")}
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <div className="space-y-1">
+                <CardTitle>Quest Performance</CardTitle>
+                <CardDescription>
+                  Completion rate (Completions / Starts) for {format(displayDate, "MMMM")}
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                 <Filter className="w-4 h-4 text-gray-500" />
+                 <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[140px] h-8 text-xs">
+                    <SelectValue placeholder="Filter Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">All Quests</SelectItem>
+                    <SelectItem value="Published">Published</SelectItem>
+                    <SelectItem value="Archived">Archived</SelectItem>
+                    <SelectItem value="Draft">Drafts</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </CardHeader>
             <CardContent>
               <ChartContainer config={chartConfig} className="h-[300px] w-full">
-                <BarChart data={questData}>
+                <BarChart data={filteredQuestData}>
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                  <XAxis dataKey="quest" axisLine={false} tickLine={false} />
+                  <XAxis 
+                    dataKey="quest" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    minTickGap={10} 
+                  />
                   <YAxis axisLine={false} tickLine={false} />
+                  
+                  {/* Custom Tooltip with Dynamic Color */}
                   <ChartTooltip 
                     cursor={{ fill: 'transparent' }}
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload
+                        const rateColorClass = getRateColor(data.completion)
+                        
                         return (
-                          <div className="bg-white p-3 border border-blue-200 shadow-md rounded-lg text-sm text-blue-600">
+                          <div className="bg-white p-3 border border-blue-200 shadow-md rounded-lg text-sm text-gray-700">
                             <div className="font-bold mb-1">{data.quest}</div>
-                            <div>Rate: {data.completion}%</div>
+                            <div className="text-xs text-gray-500 mb-2">Status: {data.status}</div>
+                            
+                            {/* DYNAMIC COLORED TEXT */}
+                            <div className={cn("font-bold", rateColorClass)}>
+                              Rate: {data.completion}%
+                            </div>
+                            
                             <div className="text-xs text-gray-500 mt-1">
                               {data.completes} completed / {data.starts} started
                             </div>
@@ -171,7 +232,20 @@ export default function AnalyticsPage() {
                       return null
                     }} 
                   />
-                  <Bar dataKey="completion" fill="var(--color-completion)" radius={[4, 4, 0, 0]} />
+                  
+                  <Bar 
+                    dataKey="completion" 
+                    fill="#0ea5e9" // Sky Blue 500
+                    radius={[4, 4, 0, 0]} 
+                  />
+                  
+                  <Brush 
+                    dataKey="quest" 
+                    height={30} 
+                    stroke="#2563eb" 
+                    alwaysShowText={false}
+                    tickFormatter={() => ""} 
+                  />
                 </BarChart>
               </ChartContainer>
             </CardContent>
@@ -191,11 +265,11 @@ export default function AnalyticsPage() {
               <div className="grid w-full md:w-[250px] gap-2">
                 <Popover>
                   <PopoverTrigger asChild>
+                    {/* UPDATED BUTTON STYLE HERE */}
                     <Button
-                      variant={"outline"}
                       className={cn(
-                        "justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
+                        "justify-start text-left font-normal bg-blue-600 hover:bg-blue-700 text-white",
+                        !date && "text-blue-50" // Slightly dim placeholder text if needed
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
