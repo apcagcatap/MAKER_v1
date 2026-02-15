@@ -18,8 +18,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils"
 
 const chartConfig = {
-  users: { label: "New Users", color: "#2563eb" },
-  completion: { label: "Monthly Close Rate %", color: "#1e40af" },
+  users: { label: "New Users", color: "#ED262A" },
+  completion: { label: "Monthly Close Rate %", color: "#ED262A" },
 } satisfies ChartConfig
 
 export default function AnalyticsPage() {
@@ -106,7 +106,7 @@ export default function AnalyticsPage() {
         <div className="space-y-6 bg-white p-4 rounded-lg relative min-h-[400px]">
            {loading && (
             <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+              <Loader2 className="h-8 w-8 animate-spin text-[#ED262A]" />
             </div>
           )}
 
@@ -131,7 +131,7 @@ export default function AnalyticsPage() {
                   />
                   <YAxis axisLine={false} tickLine={false} allowDecimals={false} />
                   <ChartTooltip 
-                    content={<ChartTooltipContent className="bg-white text-blue-600 border-blue-200 shadow-md" />} 
+                    content={<ChartTooltipContent className="bg-white text-[#ED262A] border-[#ED262A]/20 shadow-md" />} 
                   />
                   <Line dataKey="users" type="monotone" stroke="var(--color-users)" strokeWidth={2} dot={false} />
                 </LineChart>
@@ -159,7 +159,7 @@ export default function AnalyticsPage() {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload
                         return (
-                          <div className="bg-white p-3 border border-blue-200 shadow-md rounded-lg text-sm text-blue-600">
+                          <div className="bg-white p-3 border border-[#ED262A]/20 shadow-md rounded-lg text-sm text-[#ED262A]">
                             <div className="font-bold mb-1">{data.quest}</div>
                             <div>Rate: {data.completion}%</div>
                             <div className="text-xs text-gray-500 mt-1">
@@ -194,8 +194,8 @@ export default function AnalyticsPage() {
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
+                        "justify-start text-left font-normal border-[#ED262A] bg-[#ED262A] text-white hover:bg-[#c41e22]",
+                        !date 
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
@@ -220,8 +220,8 @@ export default function AnalyticsPage() {
               )}
             </div>
 
-            <Button 
-              className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 min-w-[140px]"
+            <Button
+              className="w-full md:w-auto bg-[#ED262A] hover:bg-[#c41e22] min-w-[140px]"
               onClick={handleDownloadPDF}
               disabled={isGeneratingPdf || loading}
             >
