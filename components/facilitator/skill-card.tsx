@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Skill } from "@/lib/types"
 import { Button } from "@/components/ui/button"
-import { Edit, Trash2, Loader2 } from "lucide-react"
+import { Edit, Archive, Loader2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -90,7 +90,7 @@ export function SkillCard({ skill }: SkillCardProps) {
             disabled={isLoading}
             className="text-red-600 hover:text-red-700 hover:bg-red-50 bg-transparent h-8 sm:h-9 md:h-10 px-2 sm:px-3"
           >
-            {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />}
+            {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Archive className="w-3 h-3 sm:w-4 sm:h-4" />}
           </Button>
         </div>
       </div>

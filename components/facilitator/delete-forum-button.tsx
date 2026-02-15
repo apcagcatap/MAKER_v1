@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Trash2, Loader2, AlertTriangle } from "lucide-react"
+import { Archive, Loader2, AlertTriangle } from "lucide-react"
 import { deleteForum } from "@/lib/actions/forums"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
@@ -79,7 +79,7 @@ export function DeleteForumButton({ forumId }: DeleteForumButtonProps) {
       }}
       className="text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
     >
-      <Trash2 className="w-5 h-5" />
+      <Archive className="w-5 h-5" />
     </Button>
   )
 }

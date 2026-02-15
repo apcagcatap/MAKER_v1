@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react"
 import { createQuest, updateQuest } from "@/lib/actions/admin-quests"
-import { Trash2, Plus } from "lucide-react"
+import { Archive, Plus } from "lucide-react"
 
 interface Quest {
   id: string
@@ -214,7 +214,7 @@ export function QuestForm({ quest, onSuccess }: QuestFormProps) {
                 onClick={() => removeLevel(index)}
                 className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors"
               >
-                <Trash2 className="h-4 w-4" />
+                <Archive className="h-4 w-4" />
               </button>
               
               <div className="grid gap-2">

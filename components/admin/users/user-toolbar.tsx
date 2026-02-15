@@ -82,7 +82,7 @@ export function UserToolbar() {
 
           {/* Role Filter Tabs */}
           <div className="flex p-1 bg-gray-100 rounded-lg">
-            {["all", "facilitator", "participant", "admin"].map((role) => (
+            {["all", "facilitator", "participant"].map((role) => (
               <button
                 key={role}
                 onClick={() => handleRoleChange(role)}
