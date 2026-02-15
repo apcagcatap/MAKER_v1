@@ -92,7 +92,6 @@ export function CreateUserDialog() {
                   <SelectContent>
                     <SelectItem value="participant">Participant</SelectItem>
                     <SelectItem value="facilitator">Facilitator</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
