@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Trash2, Plus, Upload, X, Sparkles, Link2, Check } from "lucide-react"
+import { Archive, Plus, Upload, X, Sparkles, Link2, Check } from "lucide-react"
 import { createQuest, updateQuest, uploadImage, getSkills, createNewSkill } from "@/lib/actions/quests"
 import { generateQuestStory } from "@/lib/actions/ai-story"
 import { toast } from "sonner"
@@ -773,7 +773,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
               <div key={index} className={`bg-white rounded-lg p-3 sm:p-4 md:p-6 border-2 space-y-3 sm:space-y-4 ${errors[`story_${index}_title`] || errors[`story_${index}_content`] ? "border-red-300" : "border-gray-200"}`}>
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-gray-900 text-sm sm:text-base">Story Segment {index + 1}</h3>
-                  <button onClick={() => removeStory(index)} className="text-red-500 hover:text-red-700"><Trash2 className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                  <button onClick={() => removeStory(index)} className="text-red-500 hover:text-red-700"><Archive className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                 </div>
                 <div>
                   <Label className="text-gray-900 font-medium text-sm sm:text-base">Story Title</Label>
@@ -810,7 +810,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
               <div key={index} className={`bg-white rounded-lg p-3 sm:p-4 md:p-6 border-2 space-y-3 sm:space-y-4 ${errors[`resource_${index}_title`] || errors[`resource_${index}_url`] || errors[`resource_${index}_type`] ? "border-red-300" : "border-gray-200"}`}>
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-gray-900 text-sm sm:text-base">Resource {index + 1}</h3>
-                  <button onClick={() => removeLearningResource(index)} className="text-red-500 hover:text-red-700"><Trash2 className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                  <button onClick={() => removeLearningResource(index)} className="text-red-500 hover:text-red-700"><Archive className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                 </div>
                 <div>
                   <Label className="text-gray-900 font-medium text-sm sm:text-base">Resource Title</Label>
@@ -883,7 +883,7 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-gray-900 text-sm sm:text-base">Level {index + 1}</h3>
                   <button onClick={() => removeLevel(index)} className="text-red-500 hover:text-red-700">
-                    <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <Archive className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
                 <div>

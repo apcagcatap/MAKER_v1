@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { MoreHorizontal, Trash2, Pencil, ArchiveRestore } from "lucide-react"
+import { MoreHorizontal, Archive, Pencil, ArchiveRestore } from "lucide-react"
 import { archiveQuest, restoreQuest } from "@/lib/actions/admin-quests"
 import {
   DropdownMenu,
@@ -68,7 +68,7 @@ export function QuestRowActions({ quest }: { quest: Quest }) {
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem onClick={handleArchive} className="text-[#ED262A] focus:text-[#ED262A]">
-              <Trash2 className="mr-2 h-4 w-4" /> Archive
+              <Archive className="mr-2 h-4 w-4" /> Archive
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>

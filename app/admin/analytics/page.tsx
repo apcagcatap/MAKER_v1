@@ -158,7 +158,7 @@ export default function AnalyticsPage() {
                   />
                   <YAxis axisLine={false} tickLine={false} allowDecimals={false} fontSize={12} />
                   <ChartTooltip 
-                    content={<ChartTooltipContent className="bg-white text-blue-600 border-blue-200 shadow-md" />} 
+                    content={<ChartTooltipContent className="bg-white text-[#ED262A] border-[#ED262A]/20 shadow-md" />} 
                   />
                   <Line 
                     dataKey="users" 

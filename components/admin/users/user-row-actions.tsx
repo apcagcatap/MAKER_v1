@@ -2,7 +2,7 @@
 "use client"
 
 import { useState } from "react"
-import { MoreHorizontal, Trash2, Shield, User, ArchiveRestore } from "lucide-react"
+import { MoreHorizontal, Archive, Shield, User, ArchiveRestore } from "lucide-react"
 import { archiveUser, restoreUser, updateUserRole } from "@/lib/actions/admin-users"
 import {
   DropdownMenu,
@@ -116,7 +116,7 @@ export function UserRowActions({ userId, currentRole, archived }: UserRowActions
             onClick={handleArchive}
             className="text-[#ED262A] focus:text-[#ED262A]"
           >
-            <Trash2 className="mr-2 h-4 w-4" />
+            <Archive className="mr-2 h-4 w-4" />
             Archive User
           </DropdownMenuItem>
         )}
