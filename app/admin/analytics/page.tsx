@@ -2,9 +2,9 @@
 
 import * as React from "react"
 import "@/app/admin/admin.css"
-import { CalendarIcon, Download, Loader2, RefreshCw } from "lucide-react"
+import { CalendarIcon, Download, Loader2, RefreshCw, Filter } from "lucide-react"
 import { format } from "date-fns"
-import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis, Brush } from "recharts"
 import { getAnalyticsData } from "@/lib/actions/analytics"
 
 import jsPDF from "jspdf"
@@ -15,11 +15,18 @@ import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
 const chartConfig = {
-  users: { label: "New Users", color: "#ED262A" },
-  completion: { label: "Monthly Close Rate %", color: "#ED262A" },
+  users: { label: "New Users", color: "#2563eb" },
+  completion: { label: "Monthly Close Rate %", color: "#0ea5e9" },
 } satisfies ChartConfig
 
 export default function AnalyticsPage() {
@@ -28,6 +35,9 @@ export default function AnalyticsPage() {
   const [engagementData, setEngagementData] = React.useState<any[]>([])
   const [loading, setLoading] = React.useState(true)
   const [isGeneratingPdf, setIsGeneratingPdf] = React.useState(false)
+  
+  // Filter State
+  const [statusFilter, setStatusFilter] = React.useState("Published")
 
   // Load Data (Triggered by Date Change)
   React.useEffect(() => {
@@ -45,6 +55,19 @@ export default function AnalyticsPage() {
     }
     load()
   }, [date])
+
+  // Filter the Quest Data based on selection
+  const filteredQuestData = React.useMemo(() => {
+    if (statusFilter === "All") return questData
+    return questData.filter((q) => q.status === statusFilter)
+  }, [questData, statusFilter])
+
+  // Helper to determine color based on completion rate
+  const getRateColor = (rate: number) => {
+    if (rate >= 70) return "text-green-600" // High
+    if (rate >= 30) return "text-orange-500" // Medium
+    return "text-red-600" // Low
+  }
 
   // PDF Generation
   const handleDownloadPDF = async () => {
@@ -90,11 +113,13 @@ export default function AnalyticsPage() {
   const displayDate = date || new Date()
 
   return (
-    <div className="admin-wrapper p-6 md:p-8 max-w-7xl mx-auto">
-      <div className="admin-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+    // UPDATED: Adjusted padding for mobile (p-4) vs desktop (p-8)
+    <div className="admin-wrapper w-full max-w-7xl mx-auto p-4 sm:p-6 md:p-8">
+      {/* UPDATED: Header alignment for mobile */}
+      <div className="admin-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="admin-title">Analytics & Reports</h1>
-          <p className="admin-subtitle">
+          <h1 className="admin-title text-2xl sm:text-3xl font-bold">Analytics & Reports</h1>
+          <p className="admin-subtitle text-sm sm:text-base text-gray-500 mt-1">
             {date 
               ? `Viewing data for ${format(date, "MMMM yyyy")}` 
               : `Current Month Overview (${format(new Date(), "MMMM")})`}
@@ -103,65 +128,106 @@ export default function AnalyticsPage() {
       </div>
 
       <div id="analytics-dashboard-content" className="space-y-6">
-        <div className="space-y-6 bg-white p-4 rounded-lg relative min-h-[400px]">
+        <div className="space-y-6 bg-white p-4 rounded-lg relative min-h-[300px] sm:min-h-[400px] shadow-sm">
            {loading && (
-            <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-[#ED262A]" />
+            <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center rounded-lg">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
             </div>
           )}
 
           {/* Chart 1: Engagement (Daily) */}
-          <Card className="border-none shadow-none">
-            <CardHeader>
-              <CardTitle>Daily Signups</CardTitle>
+          <Card className="border-none shadow-none p-0">
+            <CardHeader className="px-0 pt-0">
+              <CardTitle className="text-lg sm:text-xl">Daily Signups</CardTitle>
               <CardDescription>
                 New users registered in {format(displayDate, "MMMM yyyy")}
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <ChartContainer config={chartConfig} className="h-[300px] w-full">
-                <LineChart data={engagementData}>
+            <CardContent className="px-0">
+              {/* UPDATED: Responsive height (250px mobile / 300px desktop) */}
+              <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px] w-full">
+                <LineChart data={engagementData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
                   <XAxis 
                     dataKey="day" 
                     axisLine={false} 
                     tickLine={false} 
                     tickMargin={10}
-                    label={{ value: 'Day of Month', position: 'insideBottom', offset: -5 }} 
+                    fontSize={12}
+                    label={{ value: 'Day', position: 'insideBottom', offset: -5, fontSize: 10 }} 
                   />
-                  <YAxis axisLine={false} tickLine={false} allowDecimals={false} />
+                  <YAxis axisLine={false} tickLine={false} allowDecimals={false} fontSize={12} />
                   <ChartTooltip 
                     content={<ChartTooltipContent className="bg-white text-[#ED262A] border-[#ED262A]/20 shadow-md" />} 
                   />
-                  <Line dataKey="users" type="monotone" stroke="var(--color-users)" strokeWidth={2} dot={false} />
+                  <Line 
+                    dataKey="users" 
+                    type="monotone" 
+                    stroke="var(--color-users)" 
+                    strokeWidth={2} 
+                    dot={false}
+                    activeDot={{ r: 6, fill: "#ef4444" }} 
+                  />
                 </LineChart>
               </ChartContainer>
             </CardContent>
           </Card>
 
-          {/* Chart 2: Quest Completion (Monthly) - No Filter */}
-          <Card className="border-none shadow-none">
-            <CardHeader>
-              <CardTitle>Quest Performance</CardTitle>
-              <CardDescription>
-                Completion rate (Completions / Starts) for {format(displayDate, "MMMM")}
-              </CardDescription>
+          {/* Chart 2: Quest Completion (Monthly) with Filter & Zoom */}
+          <Card className="border-none shadow-none p-0">
+            {/* UPDATED: Header flex-col on mobile to prevent squashing */}
+            <CardHeader className="px-0 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4">
+              <div className="space-y-1">
+                <CardTitle className="text-lg sm:text-xl">Quest Performance</CardTitle>
+                <CardDescription>
+                  Completion rate (Completions / Starts)
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                 <Filter className="w-4 h-4 text-gray-500" />
+                 <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[140px] h-8 text-xs">
+                    <SelectValue placeholder="Filter Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">All Quests</SelectItem>
+                    <SelectItem value="Published">Published</SelectItem>
+                    <SelectItem value="Archived">Archived</SelectItem>
+                    <SelectItem value="Draft">Drafts</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </CardHeader>
-            <CardContent>
-              <ChartContainer config={chartConfig} className="h-[300px] w-full">
-                <BarChart data={questData}>
+            <CardContent className="px-0">
+              {/* UPDATED: Responsive height */}
+              <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px] w-full">
+                <BarChart data={filteredQuestData} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                  <XAxis dataKey="quest" axisLine={false} tickLine={false} />
-                  <YAxis axisLine={false} tickLine={false} />
+                  <XAxis 
+                    dataKey="quest" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    minTickGap={10} 
+                    fontSize={12}
+                  />
+                  <YAxis axisLine={false} tickLine={false} fontSize={12} />
+                  
                   <ChartTooltip 
                     cursor={{ fill: 'transparent' }}
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload
+                        const rateColorClass = getRateColor(data.completion)
+                        
                         return (
-                          <div className="bg-white p-3 border border-[#ED262A]/20 shadow-md rounded-lg text-sm text-[#ED262A]">
-                            <div className="font-bold mb-1">{data.quest}</div>
-                            <div>Rate: {data.completion}%</div>
+                          <div className="bg-white p-3 border border-blue-200 shadow-md rounded-lg text-sm text-gray-700">
+                            <div className="font-bold mb-1 max-w-[200px] break-words">{data.quest}</div>
+                            <div className="text-xs text-gray-500 mb-2">Status: {data.status}</div>
+                            
+                            <div className={cn("font-bold", rateColorClass)}>
+                              Rate: {data.completion}%
+                            </div>
+                            
                             <div className="text-xs text-gray-500 mt-1">
                               {data.completes} completed / {data.starts} started
                             </div>
@@ -171,7 +237,20 @@ export default function AnalyticsPage() {
                       return null
                     }} 
                   />
-                  <Bar dataKey="completion" fill="var(--color-completion)" radius={[4, 4, 0, 0]} />
+                  
+                  <Bar 
+                    dataKey="completion" 
+                    fill="#0ea5e9"
+                    radius={[4, 4, 0, 0]} 
+                  />
+                  
+                  <Brush 
+                    dataKey="quest" 
+                    height={30} 
+                    stroke="#2563eb" 
+                    alwaysShowText={false}
+                    tickFormatter={() => ""} 
+                  />
                 </BarChart>
               </ChartContainer>
             </CardContent>
@@ -182,27 +261,27 @@ export default function AnalyticsPage() {
       {/* Controls */}
       <Card className="mt-6 border shadow-sm">
         <CardHeader>
-          <CardTitle>Report Controls</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">Report Controls</CardTitle>
           <CardDescription>Select a month to view its specific performance data.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-4 md:flex-row md:items-end">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end w-full">
             <div className="flex gap-2 w-full md:w-auto">
+              {/* UPDATED: w-full for mobile date picker */}
               <div className="grid w-full md:w-[250px] gap-2">
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
-                      variant={"outline"}
                       className={cn(
-                        "justify-start text-left font-normal border-[#ED262A] bg-[#ED262A] text-white hover:bg-[#c41e22]",
-                        !date 
+                        "w-full justify-start text-left font-normal bg-blue-600 hover:bg-blue-700 text-white",
+                        !date && "text-blue-50"
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {date ? format(date, "MMMM yyyy") : <span>Pick a Month</span>}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={date}
@@ -220,8 +299,9 @@ export default function AnalyticsPage() {
               )}
             </div>
 
-            <Button
-              className="w-full md:w-auto bg-[#ED262A] hover:bg-[#c41e22] min-w-[140px]"
+            {/* UPDATED: w-full for mobile download button */}
+            <Button 
+              className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 min-w-[140px]"
               onClick={handleDownloadPDF}
               disabled={isGeneratingPdf || loading}
             >

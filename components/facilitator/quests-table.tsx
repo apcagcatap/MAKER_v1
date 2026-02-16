@@ -464,30 +464,38 @@ export function QuestsTable({
 
                 {/* Footer: Admin Actions */}
                 <div className="pt-4 border-t border-gray-100 flex gap-3">
+                   {/* EDIT BUTTON: Sky Blue + White Text */}
                    <Button
                       onClick={() => handleOpenModal(quest)}
                       disabled={isLoading || hasActive}
-                      variant="outline"
-                      className={`flex-1 h-10 ${hasActive ? "opacity-50 cursor-not-allowed" : ""}`}
+                      className={`flex-1 h-10 ${
+                        hasActive 
+                          ? "opacity-50 cursor-not-allowed bg-gray-200 text-gray-500" 
+                          : "bg-sky-500 hover:bg-sky-600 text-white"
+                      }`}
                    >
                       <Edit className="w-4 h-4 mr-2" /> Edit
                    </Button>
                    
                    {quest.status === "Published" ? (
+                      /* ARCHIVE BUTTON: Red + White Text */
                       <Button
                         onClick={() => handleArchiveQuest(quest.id)}
                         disabled={isLoading || hasActive}
-                        variant="outline"
-                        className={`flex-1 h-10 text-orange-600 border-orange-200 hover:bg-orange-50 ${hasActive ? "opacity-50 cursor-not-allowed" : ""}`}
+                        className={`flex-1 h-10 ${
+                          hasActive 
+                            ? "opacity-50 cursor-not-allowed bg-gray-200 text-gray-500" 
+                            : "bg-red-500 hover:bg-red-600 text-white"
+                        }`}
                       >
                          <Archive className="w-4 h-4 mr-2" /> Archive
                       </Button>
                    ) : (
+                      /* PUBLISH BUTTON: Green + White Text */
                       <Button
                         onClick={() => handlePublishQuest(quest.id)}
                         disabled={isLoading}
-                        variant="outline"
-                        className="flex-1 h-10 text-green-600 border-green-200 hover:bg-green-50"
+                        className="flex-1 h-10 bg-green-500 hover:bg-green-600 text-white"
                       >
                          <CheckCircle className="w-4 h-4 mr-2" /> Publish
                       </Button>
