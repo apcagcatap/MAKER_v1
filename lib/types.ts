@@ -124,6 +124,8 @@ export interface Quest {
   levels: Array<{
     title: string
     description: string
+    /** When true, participant must get a facilitator code before completing this level */
+    requiresVerification?: boolean
   }>
   xp_reward: number
   skill_id: string | null

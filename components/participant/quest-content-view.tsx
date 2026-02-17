@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { StoryView } from '@/components/participant/story-view'
 import { ResourceCard } from '@/components/participant/resource-card'
+import { ParticipantVerification } from '@/components/participant/participant-verification'
 import { startQuest, completeStory } from '@/lib/actions/quests'
 import { CheckCircle2, Book, ListChecks, Trophy, ArrowRight, ArrowLeft, Clock, Download, X, ChevronDown, ChevronUp, FileText, Package } from 'lucide-react'
 
@@ -28,6 +29,8 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
   const [isCompletingLevel, setIsCompletingLevel] = useState(false)
   const [levelCompletions, setLevelCompletions] = useState<LevelCompletion[]>([])
   const [completionsLoaded, setCompletionsLoaded] = useState(false)
+  // Track which level indexes have been facilitator-verified this session
+  const [verifiedLevels, setVerifiedLevels] = useState<Set<number>>(new Set())
   
   // Track when current level started (resets for each level)
   const [levelStartTime, setLevelStartTime] = useState<Date | null>(null)
@@ -481,6 +484,10 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
     const currentLevel = quest.levels[currentLevelIndex]
     const levelNumber = currentLevelIndex + 1
     const progressPercentage = Math.round((currentLevelIndex / quest.levels.length) * 100)
+    // Gate: if this level has requiresVerification, the participant must be verified first
+    const needsVerification = currentLevel.requiresVerification === true
+    const isVerified = verifiedLevels.has(currentLevelIndex)
+    const canComplete = !needsVerification || isVerified
 
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-0">
@@ -586,6 +593,26 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
             </div>
           )}
 
+          {/* ── Manual Verification Widget ── */}
+          {needsVerification && !isVerified && (
+            <div className="mb-4 sm:mb-6">
+              <ParticipantVerification
+                questId={quest.id}
+                levelIndex={currentLevelIndex}
+                onVerified={() =>
+                  setVerifiedLevels((prev) => new Set(prev).add(currentLevelIndex))
+                }
+              />
+            </div>
+          )}
+
+          {needsVerification && isVerified && (
+            <div className="mb-4 sm:mb-6 flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg text-sm font-medium text-green-700">
+              <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+              Facilitator verified — you&apos;re good to go!
+            </div>
+          )}
+
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             {/* Back button - ONLY show if NOT on Level 1 (to protect timer) */}
             {currentLevelIndex > 0 && (
@@ -600,7 +627,7 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
 
             <button
               onClick={handleLevelComplete}
-              disabled={isCompletingLevel}
+              disabled={isCompletingLevel || !canComplete}
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-1 sm:order-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isCompletingLevel ? (
@@ -618,6 +645,13 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
               )}
             </button>
           </div>
+
+          {/* Helper text when blocked by verification */}
+          {needsVerification && !isVerified && (
+            <p className="text-center text-xs text-gray-400 mt-2">
+              Get your code verified by a facilitator to continue
+            </p>
+          )}
         </div>
       </div>
     )
