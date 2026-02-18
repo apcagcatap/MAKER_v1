@@ -1,0 +1,70 @@
+/* Admin Layout Variables */
+:root {
+  --admin-bg: #004A98; /* Yale Blue */
+  --admin-text-primary: #1E1E1E; /* Eerie Black */
+  --admin-text-secondary: #64748b;
+  --admin-highlight: #ED262A; /* Red Pigment */
+  --admin-component-bg: #FFFFFF; /* White */
+}
+
+.admin-wrapper {
+  background-color: var(--admin-bg);
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Admin Page Header */
+.admin-header {
+  margin-bottom: 2rem;
+}
+
+.admin-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.admin-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 0.5rem;
+  font-size: 1rem;
+}
+
+/* Admin Card/Panel Styles */
+.admin-card {
+  background: var(--admin-component-bg);
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  color: var(--admin-text-primary);
+}
+
+/* Admin Sidebar Theme */
+.admin-sidebar-theme {
+  --sidebar-background: #FFFFFF;
+  --sidebar-foreground: #1E1E1E;
+  --sidebar-primary: #ED262A;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #ED262A;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #ED262A;
+}
+
+.admin-sidebar-theme [data-sidebar="sidebar"] {
+  background-color: var(--sidebar-background);
+  color: var(--sidebar-foreground);
+}
+
+.admin-sidebar-theme [data-sidebar="menu-button"] {
+  background-color: transparent;
+  color: #1E1E1E;
+}
+
+.admin-sidebar-theme [data-sidebar="menu-button"]:hover,
+.admin-sidebar-theme [data-sidebar="menu-button"][data-active="true"] {
+  background-color: var(--sidebar-accent);
+  color: var(--sidebar-accent-foreground);
+}

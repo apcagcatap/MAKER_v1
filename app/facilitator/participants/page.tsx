@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { FacilitatorNav } from "@/components/layout/facilitator-nav"
-import { ParticipantCard } from "@/components/facilitator/participant-card"
-import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
+import { ParticipantsList } from "@/components/facilitator/participants-list"
+import { ProgressOverview } from "@/components/facilitator/progress-overview"
 
 export default async function FacilitatorParticipantsPage() {
   const supabase = await createClient()
@@ -22,54 +21,95 @@ export default async function FacilitatorParticipantsPage() {
     .eq("role", "participant")
     .order("created_at", { ascending: false })
 
-  // Fetch quest completion counts for each participant
+  // Fetch all published quests count
+  const { count: totalQuests } = await supabase
+    .from("quests")
+    .select("*", { count: "exact", head: true })
+    .eq("status", "Published")
+    .eq("is_active", true)
+
+  // Fetch all user quest data
   const participantIds = participants?.map((p) => p.id) || []
-  const { data: questCounts } = await supabase
+  const { data: allUserQuests } = await supabase
     .from("user_quests")
-    .select("user_id")
-    .eq("status", "completed")
+    .select("*")
     .in("user_id", participantIds)
 
+  // Calculate stats for each participant
+  const participantStats = participants?.map((participant) => {
+    const userQuests = allUserQuests?.filter((uq) => uq.user_id === participant.id) || []
+    const completed = userQuests.filter((uq) => uq.status === "completed").length
+    const inProgress = userQuests.filter((uq) => uq.status === "in_progress").length
+    
+    // Check if at risk (has quests in progress with low progress)
+    const atRisk = userQuests.some(
+      (uq) => uq.status === "in_progress" && uq.progress < 30
+    )
+
+    return {
+      participant,
+      questsCompleted: completed,
+      questsInProgress: inProgress,
+      totalQuests: totalQuests || 0,
+      isAtRisk: atRisk,
+    }
+  })
+
+  // Calculate overview stats
+  const activeParticipants = participantStats?.filter(
+    (p) => p.questsInProgress > 0 || p.questsCompleted > 0
+  ).length || 0
+
+  const totalCompletions = participantStats?.reduce((sum, p) => sum + p.questsCompleted, 0) || 0
+  const possibleCompletions = (participants?.length || 0) * (totalQuests || 1)
+  const completionRate = possibleCompletions > 0 
+    ? Math.round((totalCompletions / possibleCompletions) * 100)
+    : 0
+
+  const totalProgress = allUserQuests
+    ?.filter((uq) => uq.status === "in_progress")
+    .reduce((sum, uq) => sum + (uq.progress || 0), 0) || 0
+  const inProgressCount = allUserQuests?.filter((uq) => uq.status === "in_progress").length || 1
+  const averageProgress = Math.round(totalProgress / inProgressCount) || 0
+
+  const atRiskCount = participantStats?.filter((p) => p.isAtRisk).length || 0
+
+  const overviewStats = {
+    totalParticipants: participants?.length || 0,
+    activeParticipants,
+    completionRate,
+    averageProgress,
+    atRisk: atRiskCount,
+  }
+
+  // Create questCountMap for the ParticipantsList component
   const questCountMap = new Map<string, number>()
-  questCounts?.forEach((qc) => {
-    questCountMap.set(qc.user_id, (questCountMap.get(qc.user_id) || 0) + 1)
+  participantStats?.forEach((stat) => {
+    questCountMap.set(stat.participant.id, stat.questsCompleted)
   })
 
   return (
-    <div className="min-h-screen bg-blue-900">
-      <FacilitatorNav />
-
-      <div className="relative bg-blue-900 text-white py-16">
+    <div className="min-h-screen bg-gray-50">
+      {/* Add blue background wrapper for navbar */}
+      <div className="bg-blue-900">
+        <FacilitatorNav />
       </div>
 
-      <main className="relative -mt-16 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-white rounded-lg shadow-lg">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Participants</h1>
-          <p className="text-gray-600">Monitor participant progress and engagement</p>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
+        <div className="mb-4 sm:mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">Participant Progress</h1>
+          <p className="text-xs sm:text-sm md:text-base text-gray-600">Monitor participant progress and identify who needs help</p>
         </div>
 
-        <div className="mb-6">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <Input placeholder="Search participants..." className="pl-10" />
-          </div>
-        </div>
+        {/* Progress Overview */}
+        <ProgressOverview stats={overviewStats} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {participants?.map((participant) => (
-            <ParticipantCard
-              key={participant.id}
-              participant={participant}
-              questsCompleted={questCountMap.get(participant.id) || 0}
-            />
-          ))}
-        </div>
-
-        {participants?.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No participants yet.</p>
-          </div>
-        )}
+        {/* Participants List */}
+        <ParticipantsList 
+          participants={participants || []} 
+          participantStats={participantStats || []}
+          questCountMap={questCountMap}
+        />
       </main>
     </div>
   )

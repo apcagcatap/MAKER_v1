@@ -18,7 +18,7 @@
 export type UserRole = "participant" | "facilitator" | "admin"
 
 /** Quest completion status for tracking user progress */
-export type QuestStatus = "not_started" | "in_progress" | "completed"
+export type Quest_Progress_Status = "not_started" | "in_progress" | "completed"
 
 /** Quest difficulty levels */
 export type QuestDifficulty = "beginner" | "intermediate" | "advanced"
@@ -26,6 +26,9 @@ export type QuestDifficulty = "beginner" | "intermediate" | "advanced"
 // ============================================
 // USER & PROFILE TYPES
 // ============================================
+
+/** Sex type matching sex_type enum in database */
+export type Sex = "Male" | "Female"
 
 /**
  * User Profile
@@ -44,6 +47,21 @@ export interface Profile {
   bio: string | null // User biography/description
   created_at: string // Account creation timestamp
   updated_at: string // Last profile update timestamp
+  // Registration fields (DOST-STII standard)
+  first_name: string | null
+  middle_name: string | null
+  last_name: string | null
+  suffix: string | null // Jr., Sr., III, IV
+  sex: Sex | null
+  birthdate: string | null // ISO date string
+  phone: string | null // Philippine mobile: +639XXXXXXXXX
+  region: string | null
+  province: string | null
+  city_municipality: string | null
+  barangay: string | null
+  occupation: string | null
+  organization: string | null
+  highest_education: string | null
 }
 
 // ============================================
@@ -90,18 +108,31 @@ export interface UserSkill {
  * Represents a quest/challenge that users can complete to earn XP.
  * Created by facilitators and admins.
  */
+export type QuestStatus = 'Draft' | 'Published' | 'Archived'
+
 export interface Quest {
-  id: string // Unique quest identifier
-  title: string // Quest title
-  description: string | null // Detailed quest description
-  difficulty: QuestDifficulty // Quest difficulty level
-  xp_reward: number // XP awarded upon completion
-  skill_id: string | null // Optional: associated skill
-  created_by: string | null // User who created the quest
-  is_active: boolean // Whether quest is currently available
-  created_at: string // Creation timestamp
-  updated_at: string // Last update timestamp
-  skill?: Skill // Optional: populated skill data
+  id: string
+  title: string
+  description: string
+  difficulty: string
+  scheduled_date: string | null
+  badge_image_url: string | null
+  certificate_image_url: string | null
+  status: QuestStatus 
+  materials_needed: string
+  general_instructions: string
+  levels: Array<{
+    title: string
+    description: string
+    /** When true, participant must get a facilitator code before completing this level */
+    requiresVerification?: boolean
+  }>
+  xp_reward: number
+  skill_id: string | null
+  created_by: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
 }
 
 /**

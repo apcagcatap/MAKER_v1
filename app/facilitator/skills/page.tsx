@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { FacilitatorNav } from "@/components/layout/facilitator-nav"
-import { Button } from "@/components/ui/button"
-import { Plus, Edit, Trash2 } from "lucide-react"
+import { SkillCard } from "@/components/facilitator/skill-card"
+import { CreateSkillButton } from "@/components/facilitator/create-skill-button"
 
 export default async function FacilitatorSkillsPage() {
   const supabase = await createClient()
@@ -19,49 +19,48 @@ export default async function FacilitatorSkillsPage() {
 
   return (
     <div className="min-h-screen bg-blue-900">
-      <FacilitatorNav />
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-white rounded-lg shadow-lg">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Skills</h1>
-            <p className="text-gray-600">Manage available skills for participants</p>
-          </div>
-          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Skill
-          </Button>
+      <div
+        className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden"
+        style={{ borderBottomLeftRadius: "2rem", borderBottomRightRadius: "2rem" }}
+      >
+        <div className="absolute inset-0 z-0">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url('/navbarBg.png')`,
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              borderBottomLeftRadius: "2rem",
+              borderBottomRightRadius: "2rem",
+            }}
+          />
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {skills?.map((skill) => (
-            <div
-              key={skill.id}
-              className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
-            >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="text-4xl">{skill.icon || "🎯"}</div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">{skill.name}</h3>
-                  <p className="text-sm text-gray-600">{skill.description}</p>
-                </div>
+        <div className="relative z-10">
+          <FacilitatorNav />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 md:pt-8 pb-6 sm:pb-8 md:pb-12">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
+              <div>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1 sm:mb-2">Skills</h1>
+                <p className="text-xs sm:text-sm md:text-base text-gray-200">Manage available skills for participants</p>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" className="flex-1 bg-transparent">
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit
-                </Button>
-                <Button variant="outline" className="text-red-600 hover:text-red-700 hover:bg-red-50 bg-transparent">
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
+              {/* Replaced static button with functional component */}
+              <CreateSkillButton />
             </div>
+          </div>
+        </div>
+      </div>
+
+      <main className="relative -mt-8 sm:-mt-12 md:-mt-16 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 bg-white rounded-lg shadow-lg mb-6 sm:mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+          {skills?.map((skill) => (
+            <SkillCard key={skill.id} skill={skill} />
           ))}
         </div>
 
         {skills?.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No skills yet. Add your first skill to get started!</p>
+          <div className="text-center py-8 sm:py-12">
+            <p className="text-gray-500 text-sm sm:text-base">No skills yet. Add your first skill to get started!</p>
           </div>
         )}
       </main>

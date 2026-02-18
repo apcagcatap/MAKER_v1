@@ -1,95 +1,47 @@
-import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
-import { AdminNav } from "@/components/layout/admin-nav"
-import { MessageSquare, Clock, Plus, Edit, Trash2 } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import "@/app/admin/admin.css"
+import { Suspense } from "react"
+import { getForums } from "@/lib/actions/admin-forums"
+import { ForumTable } from "@/components/admin/forums/forum-table"
+import { ForumToolbar } from "@/components/admin/forums/forum-toolbar"
+import { CreateForumDialog } from "@/components/admin/forums/create-forum-dialog"
 
-export default async function AdminForumsPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+interface PageProps {
+  searchParams: Promise<{
+    q?: string
+    sort?: string
+    archived?: string
+  }>
+}
 
-  if (!user) {
-    redirect("/auth/login")
-  }
+export default async function AdminForumsPage({ searchParams }: PageProps) {
+  const params = await searchParams
+  const query = typeof params.q === "string" ? params.q : ""
+  const sort = typeof params.sort === "string" ? params.sort : "newest"
+  const archived = typeof params.archived === "string" ? params.archived : "active"
 
-  // Fetch all forums with post counts
-  const { data: forums } = await supabase
-    .from("forums")
-    .select(`
-      *,
-      posts:forum_posts(count)
-    `)
-    .order("created_at", { ascending: false })
+  const forums = await getForums(query, sort, archived)
 
   return (
-    <div className="min-h-screen">
-      <AdminNav />
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Forums Management</h1>
-            <p className="text-gray-600">Manage all community forums</p>
-          </div>
-          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-            <Plus className="w-4 h-4 mr-2" />
-            Create Forum
-          </Button>
+    <div className="admin-wrapper p-6 md:p-8 max-w-7xl mx-auto">
+      <div className="admin-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="admin-title">Forum Management</h1>
+          <p className="admin-subtitle">
+            Manage discussion forums and categories for the community.
+          </p>
         </div>
+        <CreateForumDialog />
+      </div>
 
-        <div className="space-y-4">
-          {forums?.map((forum) => (
-            <div
-              key={forum.id}
-              className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <Link href={`/admin/forums/${forum.id}`} className="block mb-2">
-                    <h3 className="text-xl font-bold text-gray-900 hover:text-purple-600 transition-colors">
-                      {forum.title}
-                    </h3>
-                  </Link>
-                  <p className="text-gray-600 mb-4">{forum.description}</p>
+      <div className="space-y-6">
+        <Suspense fallback={null}>
+          <ForumToolbar />
+        </Suspense>
 
-                  <div className="flex items-center gap-6 text-sm text-gray-500">
-                    <div className="flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4" />
-                      <span>{forum.posts?.[0]?.count || 0} posts</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      <span>Created: {new Date(forum.created_at).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="bg-transparent">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 bg-transparent"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {forums?.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No forums yet. Create your first forum to get started!</p>
-          </div>
-        )}
-      </main>
+        <Suspense fallback={<div className="text-center py-10 text-gray-500">Loading forums...</div>}>
+          <ForumTable forums={forums || []} sortOrder={sort} />
+        </Suspense>
+      </div>
     </div>
   )
 }

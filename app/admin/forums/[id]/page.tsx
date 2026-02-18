@@ -1,89 +1,101 @@
+import "@/app/admin/admin.css"
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
-import { AdminNav } from "@/components/layout/admin-nav"
-import { ArrowLeft, Trash2 } from "lucide-react"
+
+export const dynamic = "force-dynamic"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { ArrowLeft, MessageSquare, Archive } from "lucide-react"
+import {
+  getAdminForumDetail,
+  getAdminForumPosts,
+} from "@/lib/actions/admin-forums"
+import { AdminPostCard } from "@/components/admin/forums/admin-post-card"
+import { AdminForumDetailToolbar } from "@/components/admin/forums/admin-forum-detail-toolbar"
 
-export default async function AdminForumDetailPage({ params }: { params: { id: string } }) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+interface PageProps {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{
+    archived?: string
+  }>
+}
 
-  if (!user) {
-    redirect("/auth/login")
-  }
-
+export default async function AdminForumDetailPage({ params, searchParams }: PageProps) {
   const { id } = await params
+  const sp = await searchParams
+  const archived = typeof sp.archived === "string" ? sp.archived : "active"
 
-  // Fetch forum details
-  const { data: forum } = await supabase.from("forums").select("*").eq("id", id).single()
-
-  // Fetch forum posts with user profiles
-  const { data: posts } = await supabase
-    .from("forum_posts")
-    .select(`
-      *,
-      profile:profiles(*)
-    `)
-    .eq("forum_id", id)
-    .order("created_at", { ascending: false })
+  const forum = await getAdminForumDetail(id)
 
   if (!forum) {
     redirect("/admin/forums")
   }
 
-  return (
-    <div className="min-h-screen">
-      <AdminNav />
+  const posts = await getAdminForumPosts(id, archived)
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  return (
+    <div className="admin-wrapper p-6 md:p-8 max-w-7xl mx-auto">
+      <div className="admin-header">
         <Link
           href="/admin/forums"
-          className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-6"
+          className="inline-flex items-center text-white/80 hover:text-white mb-4 text-sm transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Forums
         </Link>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-8 mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{forum.title}</h1>
-          <p className="text-gray-600">{forum.description}</p>
-        </div>
-
-        <div className="space-y-4">
-          {posts?.map((post) => (
-            <div key={post.id} className="bg-white rounded-xl border border-gray-200 p-6">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-                  {post.profile?.display_name?.[0] || "U"}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-gray-900">
-                        {post.profile?.display_name || "Unknown User"}
-                      </span>
-                      <span className="text-sm text-gray-500">{new Date(post.created_at).toLocaleDateString()}</span>
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <p className="text-gray-700">{post.content}</p>
-                </div>
-              </div>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="admin-title">{forum.title}</h1>
+              {forum.archived && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                  <Archive className="w-3 h-3" />
+                  Archived
+                </span>
+              )}
             </div>
-          ))}
-        </div>
-
-        {posts?.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
-            <p className="text-gray-500">No posts yet in this forum.</p>
+            <p className="admin-subtitle">
+              {forum.description || "No description"}
+            </p>
+            <div className="flex items-center gap-2 mt-2 text-sm text-white/60">
+              <MessageSquare className="w-4 h-4" />
+              <span>{posts.length} post{posts.length !== 1 ? "s" : ""}</span>
+            </div>
           </div>
-        )}
-      </main>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        <Suspense fallback={null}>
+          <AdminForumDetailToolbar />
+        </Suspense>
+
+        <Suspense
+          fallback={
+            <div className="text-center py-10 text-white/60">
+              Loading posts...
+            </div>
+          }
+        >
+          {posts.length === 0 ? (
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center">
+              <MessageSquare className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500">No posts found.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {posts.map((post: any) => (
+                <AdminPostCard
+                  key={post.id}
+                  post={post}
+                  forumId={id}
+                  showArchived={archived}
+                />
+              ))}
+            </div>
+          )}
+        </Suspense>
+      </div>
     </div>
   )
 }
