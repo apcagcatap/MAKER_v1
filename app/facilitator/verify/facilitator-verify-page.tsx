@@ -36,13 +36,15 @@ export default async function FacilitatorVerifyPage() {
           </div>
           <p className="text-gray-500 ml-14">
             Enter the 6-character code shown on a participant&apos;s screen to
-            confirm they&apos;ve completed a level.
+            confirm they&apos;ve completed a level. Codes are generated when you
+            click "Generate Code" on a participant&apos;s profile (or they can
+            request one from their level page).
           </p>
         </div>
 
-        {/* Verification card */}
         <div className="flex justify-center">
-          <FacilitatorVerification />
+          {/* Pass facilitatorId so the component can create/update rows */}
+          <FacilitatorVerification facilitatorId={user.id} />
         </div>
 
         {/* How it works */}
@@ -51,19 +53,21 @@ export default async function FacilitatorVerifyPage() {
           <ol className="space-y-3 text-sm text-gray-600">
             <li className="flex gap-3">
               <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs">1</span>
-              The participant reaches a level that requires manual verification.
+              Participant reaches a level that requires manual verification.
             </li>
             <li className="flex gap-3">
               <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs">2</span>
-              They click <strong>Get Verification Code</strong> and show you the displayed code.
+              You (the facilitator) go to a participant&apos;s profile and click
+              <strong> Generate Code</strong> — or the participant can request a code
+              from their level page and show you the pending code.
             </li>
             <li className="flex gap-3">
               <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs">3</span>
-              You type the code above and click <strong>Verify</strong>.
+              Type the code above and click <strong>Verify</strong>.
             </li>
             <li className="flex gap-3">
               <span className="flex-shrink-0 w-6 h-6 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold text-xs">✓</span>
-              The participant&apos;s screen instantly unlocks the <strong>Complete Level</strong> button.
+              The participant&apos;s screen instantly unlocks <strong>Complete Level</strong>.
             </li>
           </ol>
         </div>

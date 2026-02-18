@@ -489,6 +489,10 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
     const isVerified = verifiedLevels.has(currentLevelIndex)
     const canComplete = !needsVerification || isVerified
 
+    // DEBUG: show whether the level is marked for verification
+    console.log("currentLevel", currentLevel)
+    console.log("needsVerification", needsVerification)
+
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-0">
         <div className="mb-4 sm:mb-6 bg-white rounded-lg shadow p-3 sm:p-4">
@@ -597,6 +601,7 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
           {needsVerification && !isVerified && (
             <div className="mb-4 sm:mb-6">
               <ParticipantVerification
+                participantId={userProgress?.user_id ?? ''}
                 questId={quest.id}
                 levelIndex={currentLevelIndex}
                 onVerified={() =>
@@ -649,7 +654,9 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
           {/* Helper text when blocked by verification */}
           {needsVerification && !isVerified && (
             <p className="text-center text-xs text-gray-400 mt-2">
-              Get your code verified by a facilitator to continue
+              Get your code verified by a facilitator to continue. You can tap
+              the button above to request a code or ask them to generate one from
+              your profile.
             </p>
           )}
         </div>
