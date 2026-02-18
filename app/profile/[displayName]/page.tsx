@@ -4,7 +4,6 @@ import { ProfileView } from "@/components/profile/profile-view"
 import { UserSearchSidebar } from "@/components/profile/user-search-sidebar"
 import { ParticipantNav } from "@/components/layout/participant-nav"
 import { FacilitatorNav } from "@/components/layout/facilitator-nav"
-import { AdminNav } from "@/components/layout/admin-nav"
 
 interface ProfilePageProps {
   params: Promise<{ displayName: string }>
@@ -93,7 +92,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       <div className="bg-[#004A98]">
         {currentProfile.role === "participant" && <ParticipantNav />}
         {currentProfile.role === "facilitator" && <FacilitatorNav />}
-        {currentProfile.role === "admin" && <AdminNav />}
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

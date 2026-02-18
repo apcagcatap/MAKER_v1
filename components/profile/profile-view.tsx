@@ -63,7 +63,6 @@ export function ProfileView({ profile, isOwnProfile, completedQuests, userSkills
     .join(", ")
 
   const roleColors: Record<string, string> = {
-    admin: "bg-[#ED262A] text-white",
     facilitator: "bg-[#004A98] text-white",
     participant: "bg-emerald-600 text-white",
   }
