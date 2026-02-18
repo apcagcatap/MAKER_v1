@@ -33,7 +33,7 @@ export default async function AdminForumDetailPage({ params, searchParams }: Pag
   const posts = await getAdminForumPosts(id, archived)
 
   return (
-    <div className="admin-wrapper p-6 md:p-8 max-w-7xl mx-auto">
+    <div className="admin-wrapper p-4 md:p-6">
       <div className="admin-header">
         <Link
           href="/admin/forums"
@@ -65,7 +65,7 @@ export default async function AdminForumDetailPage({ params, searchParams }: Pag
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         <Suspense fallback={null}>
           <AdminForumDetailToolbar />
         </Suspense>

@@ -5,10 +5,7 @@ import {
   LayoutDashboard,
   Users,
   Shield,
-  Settings,
-  FileText,
   LogOut,
-  BookOpen,
   Trophy,
   BarChart3,
   MessageSquare
@@ -24,10 +21,19 @@ import {
   SidebarRail,
   SidebarGroup,
   SidebarGroupLabel,
+  SidebarSeparator,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter, usePathname } from "next/navigation"
+
+const navItems = [
+  { href: "/admin", icon: LayoutDashboard, label: "Dashboard", match: (p: string) => p === "/admin" },
+  { href: "/admin/users", icon: Users, label: "User Management", match: (p: string) => p.startsWith("/admin/users") },
+  { href: "/admin/analytics", icon: BarChart3, label: "Analytics & Reports", match: (p: string) => p.startsWith("/admin/analytics") },
+  { href: "/admin/quests", icon: Trophy, label: "Quest Management", match: (p: string) => p.startsWith("/admin/quests") },
+  { href: "/admin/forums", icon: MessageSquare, label: "Forums", match: (p: string) => p.startsWith("/admin/forums") },
+]
 
 export function AdminSidebar() {
   const router = useRouter()
@@ -42,90 +48,52 @@ export function AdminSidebar() {
   return (
     <Sidebar collapsible="icon" className="admin-sidebar-theme border-r-0">
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-2">
+        <div className="flex items-center gap-3 px-3 py-4">
           <SidebarTrigger className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
-          <div className="flex items-center gap-2 group-data-[collapsible=icon]:hidden">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#ED262A] text-white">
-              <Shield className="size-4" />
+          <div className="flex items-center gap-3 group-data-[collapsible=icon]:hidden">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#ED262A] text-white">
+              <Shield className="size-5" />
             </div>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">MAKER Admin</span>
-              <span className="truncate text-xs text-sidebar-foreground/80">System Administration</span>
+            <div className="grid flex-1 text-left leading-tight">
+              <span className="truncate text-base font-bold">MAKER</span>
+              <span className="truncate text-xs text-sidebar-foreground/60">Admin Panel</span>
             </div>
           </div>
         </div>
       </SidebarHeader>
+
+      <SidebarSeparator />
+
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Platform</SidebarGroupLabel>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                asChild 
-                isActive={pathname === "/admin"}
-                tooltip="Dashboard"
-              >
-                <a href="/admin">
-                  <LayoutDashboard />
-                  <span>Dashboard</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                asChild 
-                isActive={pathname?.startsWith("/admin/users")}
-                tooltip="Users"
-              >
-                <a href="/admin/users">
-                  <Users />
-                  <span>User Management</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                asChild 
-                isActive={pathname?.startsWith("/admin/analytics")}
-                tooltip="Analytics"
-              >
-                <a href="/admin/analytics">
-                  <BarChart3 />
-                  <span>Analytics</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                asChild 
-                isActive={pathname?.startsWith("/admin/quests")}
-                tooltip="Quests"
-              >
-                <a href="/admin/quests">
-                  <Trophy />
-                  <span>Quests</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                asChild 
-                isActive={pathname?.startsWith("/admin/forums")}
-                tooltip="Forums"
-              >
-                <a href="/admin/forums">
-                  <MessageSquare />
-                  <span>Forums</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+        <SidebarGroup className="py-4">
+          <SidebarGroupLabel className="text-xs uppercase tracking-wider mb-2">
+            Platform
+          </SidebarGroupLabel>
+          <SidebarMenu className="gap-2">
+            {navItems.map((item) => (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  asChild
+                  size="lg"
+                  isActive={pathname ? item.match(pathname) : false}
+                  tooltip={item.label}
+                >
+                  <a href={item.href}>
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+
+      <SidebarFooter className="pb-4">
+        <SidebarSeparator className="mb-2" />
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleSignOut} tooltip="Sign Out">
+            <SidebarMenuButton size="lg" onClick={handleSignOut} tooltip="Sign Out">
               <LogOut />
               <span>Sign Out</span>
             </SidebarMenuButton>

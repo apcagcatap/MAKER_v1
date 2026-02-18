@@ -90,8 +90,8 @@ export default function AnalyticsPage() {
   const displayDate = date || new Date()
 
   return (
-    <div className="admin-wrapper p-6 md:p-8 max-w-7xl mx-auto">
-      <div className="admin-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+    <div className="admin-wrapper p-4 md:p-6">
+      <div className="admin-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         <div>
           <h1 className="admin-title">Analytics & Reports</h1>
           <p className="admin-subtitle">
@@ -102,7 +102,7 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      <div id="analytics-dashboard-content" className="space-y-6">
+      <div id="analytics-dashboard-content" className="space-y-4">
         <div className="space-y-6 bg-white p-4 rounded-lg relative min-h-[400px]">
            {loading && (
             <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center">
