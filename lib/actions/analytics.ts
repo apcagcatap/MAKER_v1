@@ -30,6 +30,7 @@ export async function getAnalyticsData(targetDate?: Date) {
     .from('quests')
     .select(`
       title,
+      status,
       is_active,
       user_quests (
         started_at,
@@ -96,6 +97,7 @@ export async function getAnalyticsData(targetDate?: Date) {
 
     return {
       quest: q.title,
+      status: q.status || "Draft", // Default to Draft if null
       completion: rate,
       // We return these stats in case you want to show them in tooltips later
       starts: startsInMonth,

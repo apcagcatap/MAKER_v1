@@ -70,11 +70,15 @@ export async function getQuestParticipants(questId: string) {
 
 /**
  * Get only published quests (for participant view)
+ * UPDATED: Now filters out quests scheduled for the future
  */
 export async function getPublishedQuests() {
   try {
     const supabase = await createClient()
     
+    // Get current ISO timestamp for comparison
+    const now = new Date().toISOString()
+
     const { data: quests, error } = await supabase
       .from("quests")
       .select(`
@@ -83,6 +87,8 @@ export async function getPublishedQuests() {
       `)
       .eq("status", "Published")
       .eq("is_active", true)
+      // Logic: Show if scheduled_date is NULL OR scheduled_date is in the past/present
+      .or(`scheduled_date.is.null,scheduled_date.lte.${now}`)
       .order("created_at", { ascending: false })
 
     if (error) {
@@ -516,9 +522,15 @@ export async function archiveQuest(questId: string) {
   }
 }
 
+/**
+ * Get the latest active quest (for featured section)
+ * UPDATED: Also respects scheduled_date
+ */
 export async function getLatestQuest() {
   try {
     const supabase = await createClient()
+    const now = new Date().toISOString()
+
     const { data, error } = await supabase
       .from("quests")
       .select(`
@@ -526,6 +538,8 @@ export async function getLatestQuest() {
         skill:skills(*)
       `)
       .eq("is_active", true)
+      .eq("status", "Published") // Ensure it's published
+      .or(`scheduled_date.is.null,scheduled_date.lte.${now}`) // Respect date
       .order("created_at", { ascending: false })
       .limit(1)
       .single()
