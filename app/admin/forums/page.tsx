@@ -22,7 +22,7 @@ export default async function AdminForumsPage({ searchParams }: PageProps) {
   const forums = await getForums(query, sort, archived)
 
   return (
-    <div className="admin-wrapper p-6 md:p-8 max-w-7xl mx-auto">
+    <div className="admin-wrapper p-4 md:p-6">
       <div className="admin-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="admin-title">Forum Management</h1>
@@ -33,7 +33,7 @@ export default async function AdminForumsPage({ searchParams }: PageProps) {
         <CreateForumDialog />
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         <Suspense fallback={null}>
           <ForumToolbar />
         </Suspense>
