@@ -484,14 +484,10 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
     const currentLevel = quest.levels[currentLevelIndex]
     const levelNumber = currentLevelIndex + 1
     const progressPercentage = Math.round((currentLevelIndex / quest.levels.length) * 100)
-    // Gate: if this level has requiresVerification, the participant must be verified first
-    const needsVerification = currentLevel.requiresVerification === true
+    // Show verification on every level — facilitator must verify each one
+    const needsVerification = true
     const isVerified = verifiedLevels.has(currentLevelIndex)
     const canComplete = !needsVerification || isVerified
-
-    // DEBUG: show whether the level is marked for verification
-    console.log("currentLevel", currentLevel)
-    console.log("needsVerification", needsVerification)
 
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-0">
