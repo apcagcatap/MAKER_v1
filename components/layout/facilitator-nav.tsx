@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Target, Users, Award, MessageSquare, LogOut, Menu, X, User, Settings, Info, ChevronDown } from "lucide-react"
+import { Home, Target, Users, Award, MessageSquare, LogOut, Menu, X, User, Settings, Info, ChevronDown, ShieldCheck } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { createPortal } from "react-dom"
@@ -56,6 +56,7 @@ export function FacilitatorNav() {
     { href: "/facilitator/participants", icon: Users, label: "Participants" },
     { href: "/facilitator/skills", icon: Award, label: "Skills" },
     { href: "/facilitator/forums", icon: MessageSquare, label: "Forums" },
+    { href: "/facilitator/verify", icon: ShieldCheck, label: "Verify" },
   ]
 
   return (

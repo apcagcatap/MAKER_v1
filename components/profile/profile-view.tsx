@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { FacilitatorGenerateVerification } from "@/components/facilitator/generate-verification"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -28,9 +29,11 @@ interface ProfileViewProps {
   isOwnProfile: boolean
   completedQuests: any[]
   userSkills: any[]
+  viewerRole: string
+  activeQuests: any[]
 }
 
-export function ProfileView({ profile, isOwnProfile, completedQuests, userSkills }: ProfileViewProps) {
+export function ProfileView({ profile, isOwnProfile, completedQuests, userSkills, viewerRole, activeQuests }: ProfileViewProps) {
   const [isEditingBio, setIsEditingBio] = useState(false)
   const [bio, setBio] = useState(profile.bio || "")
   const [saving, setSaving] = useState(false)
@@ -67,6 +70,15 @@ export function ProfileView({ profile, isOwnProfile, completedQuests, userSkills
 
   return (
     <div className="space-y-6">
+      {/* facilitator-only manual verification helper */}
+      {viewerRole === "facilitator" && !isOwnProfile && profile.role === "participant" && (
+        <div>
+          <FacilitatorGenerateVerification
+            participantId={profile.id}
+            activeQuests={activeQuests}
+          />
+        </div>
+      )}
       {/* Profile Header Card */}
       <Card className="bg-white border-gray-200 shadow-lg rounded-2xl overflow-hidden">
         {/* Banner */}

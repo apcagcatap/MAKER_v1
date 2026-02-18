@@ -59,6 +59,18 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     .eq("user_id", viewedProfile.id)
     .eq("status", "completed")
 
+  // fetch active / in-progress quests so facilitators can generate verification codes
+  const { data: activeQuests } = await supabase
+    .from("user_quests")
+    .select(`
+      id,
+      current_level,
+      status,
+      quest:quests(id, title, levels)
+    `)
+    .eq("user_id", viewedProfile.id)
+    .eq("status", "in_progress")
+
   // Get user's skills
   const { data: userSkills } = await supabase
     .from("user_skills")
@@ -93,6 +105,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               isOwnProfile={isOwnProfile}
               completedQuests={userQuests || []}
               userSkills={userSkills || []}
+              viewerRole={currentProfile.role}
+              activeQuests={activeQuests || []}
             />
           </div>
 
