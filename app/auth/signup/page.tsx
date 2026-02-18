@@ -165,7 +165,7 @@ export default function SignupPage() {
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={handleSignup} required className="space-y-6">
+            <form onSubmit={handleSignup} className="space-y-6">
               {/* Account Credentials */}
               <fieldset className="space-y-4">
                 <legend className="text-base font-semibold text-[#004A98] border-b border-gray-200 pb-2 mb-3 w-full">
