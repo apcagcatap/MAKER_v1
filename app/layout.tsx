@@ -15,9 +15,11 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+ title: {
+    template: '%s | MAKER',
+    default: 'MAKER - Welcome',  
+  },
+  description: "The official Maker website application.",
 }
 
 export default function RootLayout({
