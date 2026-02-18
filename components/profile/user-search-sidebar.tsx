@@ -20,7 +20,6 @@ interface UserSearchSidebarProps {
 }
 
 const roleColors: Record<string, string> = {
-  admin: "bg-[#ED262A] text-white",
   facilitator: "bg-[#004A98] text-white",
   participant: "bg-emerald-600 text-white",
 }
@@ -28,13 +27,17 @@ const roleColors: Record<string, string> = {
 export function UserSearchSidebar({ users, currentProfileId }: UserSearchSidebarProps) {
   const [search, setSearch] = useState("")
 
+  const visibleUsers = useMemo(() => {
+    return users.filter((u) => u.role === "facilitator" || u.role === "participant")
+  }, [users])
+
   const filtered = useMemo(() => {
-    if (!search.trim()) return users
+    if (!search.trim()) return visibleUsers
     const q = search.toLowerCase()
-    return users.filter(
+    return visibleUsers.filter(
       (u) => u.display_name?.toLowerCase().includes(q) || u.role.toLowerCase().includes(q)
     )
-  }, [search, users])
+  }, [search, visibleUsers])
 
   return (
     <Card className="bg-white border-gray-200 shadow-lg rounded-2xl sticky top-8">
@@ -91,7 +94,7 @@ export function UserSearchSidebar({ users, currentProfileId }: UserSearchSidebar
           )}
         </div>
         <p className="text-xs text-gray-400 text-center mt-3 pt-3 border-t border-gray-100">
-          {filtered.length} of {users.length} users
+          {filtered.length} of {visibleUsers.length} users
         </p>
       </CardContent>
     </Card>

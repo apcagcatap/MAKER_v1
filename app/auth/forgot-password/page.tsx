@@ -24,7 +24,8 @@ export default function ForgotPasswordPage() {
 
     const supabase = createClient()
 
-    const redirectUrl = new URL("/auth/callback", window.location.origin)
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+    const redirectUrl = new URL("/auth/callback", siteUrl)
     redirectUrl.searchParams.set("next", "/auth/update-password")
 
     try {
