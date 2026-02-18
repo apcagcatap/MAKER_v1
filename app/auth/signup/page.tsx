@@ -48,7 +48,13 @@ function SignupContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const role = (searchParams.get("role") as "participant" | "facilitator" | "admin") || "participant"
+  const role = (searchParams.get("role") as "participant" | "facilitator") || "participant"
+
+  const today = new Date()
+  const maxYear = today.getFullYear() - 12
+  const month = String(today.getMonth() + 1).padStart(2, "0")
+  const day = String(today.getDate()).padStart(2, "0")
+  const maxDate = `${maxYear}-${month}-${day}`
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -158,8 +164,7 @@ function SignupContent() {
 
       <Card className="bg-white border-gray-200 shadow-2xl rounded-2xl">
         <CardHeader className="pb-4">
-          <CardTitle className="text-2xl font-bold text-[#1E1E1E] text-center">Registration Form</CardTitle>
-          <p className="text-sm text-gray-500 text-center mt-1">Fields marked with * are required</p>
+          <CardTitle className="text-4xl font-bold text-[#1E1E1E] text-center">Registration Form</CardTitle>
         </CardHeader>
 
         <CardContent>
@@ -170,16 +175,16 @@ function SignupContent() {
                 Account Credentials
               </legend>
               <div className="space-y-2">
-                <Label htmlFor="email" className={labelClass}>Email *</Label>
-                <Input id="email" type="email" placeholder="you@email.com" value={formData.email} onChange={(e) => updateField("email", e.target.value)} required className={inputClass} />
+                <Label htmlFor="email" className={labelClass}>Email</Label>
+                <Input id="email" type="email" placeholder="you@email.com" value={formData.email} onChange={(e) => updateField("email", e.target.value)} className={inputClass} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="password" className={labelClass}>Password *</Label>
+                  <Label htmlFor="password" className={labelClass}>Password</Label>
                   <Input id="password" type="password" placeholder="Min 6 characters" value={formData.password} onChange={(e) => updateField("password", e.target.value)} required minLength={6} className={inputClass} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className={labelClass}>Confirm Password *</Label>
+                  <Label htmlFor="confirmPassword" className={labelClass}>Confirm Password</Label>
                   <Input id="confirmPassword" type="password" placeholder="Re-enter password" value={formData.confirmPassword} onChange={(e) => updateField("confirmPassword", e.target.value)} required minLength={6} className={inputClass} />
                 </div>
               </div>
@@ -192,7 +197,7 @@ function SignupContent() {
               </legend>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" className={labelClass}>First Name *</Label>
+                  <Label htmlFor="firstName" className={labelClass}>First Name</Label>
                   <Input id="firstName" type="text" placeholder="Juan" value={formData.firstName} onChange={(e) => updateField("firstName", e.target.value)} required className={inputClass} />
                 </div>
                 <div className="space-y-2">
@@ -202,7 +207,7 @@ function SignupContent() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="lastName" className={labelClass}>Last Name *</Label>
+                  <Label htmlFor="lastName" className={labelClass}>Last Name</Label>
                   <Input id="lastName" type="text" placeholder="Dela Cruz" value={formData.lastName} onChange={(e) => updateField("lastName", e.target.value)} required className={inputClass} />
                 </div>
                 <div className="space-y-2">
@@ -217,7 +222,7 @@ function SignupContent() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="sex" className={labelClass}>Sex *</Label>
+                  <Label htmlFor="sex" className={labelClass}>Sex</Label>
                   <select id="sex" value={formData.sex} onChange={(e) => updateField("sex", e.target.value)} required className={selectClass}>
                     <option value="" disabled>Select</option>
                     {SEX_OPTIONS.map((s) => (
@@ -226,12 +231,12 @@ function SignupContent() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="birthdate" className={labelClass}>Birthdate *</Label>
-                  <Input id="birthdate" type="date" value={formData.birthdate} onChange={(e) => updateField("birthdate", e.target.value)} required className={inputClass} />
+                  <Label htmlFor="birthdate" className={labelClass}>Birthdate</Label>
+                  <Input id="birthdate" type="date" value={formData.birthdate} onChange={(e) => updateField("birthdate", e.target.value)} required max={maxDate} className={inputClass} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone" className={labelClass}>Phone</Label>
-                  <Input id="phone" type="tel" placeholder="+639XXXXXXXXX" value={formData.phone} onChange={(e) => updateField("phone", e.target.value)} className={inputClass} />
+                  <Input id="phone" type="tel" placeholder="+639XXXXXXXXX" value={formData.phone} onChange={(e) => updateField("phone", e.target.value)} required className={inputClass} />
                 </div>
               </div>
             </fieldset>
@@ -244,21 +249,21 @@ function SignupContent() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="region" className={labelClass}>Region</Label>
-                  <Input id="region" type="text" placeholder="e.g., NCR, Region IV-A" value={formData.region} onChange={(e) => updateField("region", e.target.value)} className={inputClass} />
+                  <Input id="region" type="text" placeholder="e.g., NCR, Region IV-A" value={formData.region} onChange={(e) => updateField("region", e.target.value)} required className={inputClass} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="province" className={labelClass}>Province</Label>
-                  <Input id="province" type="text" placeholder="e.g., Laguna" value={formData.province} onChange={(e) => updateField("province", e.target.value)} className={inputClass} />
+                  <Input id="province" type="text" placeholder="e.g., Laguna" value={formData.province} onChange={(e) => updateField("province", e.target.value)} required className={inputClass} />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="cityMunicipality" className={labelClass}>City / Municipality</Label>
-                  <Input id="cityMunicipality" type="text" placeholder="e.g., Los Baños" value={formData.cityMunicipality} onChange={(e) => updateField("cityMunicipality", e.target.value)} className={inputClass} />
+                  <Input id="cityMunicipality" type="text" placeholder="e.g., Los Baños" value={formData.cityMunicipality} onChange={(e) => updateField("cityMunicipality", e.target.value)} required className={inputClass} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="barangay" className={labelClass}>Barangay</Label>
-                  <Input id="barangay" type="text" placeholder="e.g., Brgy. Batong Malake" value={formData.barangay} onChange={(e) => updateField("barangay", e.target.value)} className={inputClass} />
+                  <Input id="barangay" type="text" placeholder="e.g., Brgy. Batong Malake" value={formData.barangay} onChange={(e) => updateField("barangay", e.target.value)} required className={inputClass} />
                 </div>
               </div>
             </fieldset>
@@ -271,16 +276,16 @@ function SignupContent() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="occupation" className={labelClass}>Occupation</Label>
-                  <Input id="occupation" type="text" placeholder="e.g., Engineer, Student" value={formData.occupation} onChange={(e) => updateField("occupation", e.target.value)} className={inputClass} />
+                  <Input id="occupation" type="text" placeholder="e.g., Engineer, Student" value={formData.occupation} onChange={(e) => updateField("occupation", e.target.value)} required className={inputClass} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="organization" className={labelClass}>Organization / School</Label>
-                  <Input id="organization" type="text" placeholder="e.g., DOST-STII" value={formData.organization} onChange={(e) => updateField("organization", e.target.value)} className={inputClass} />
+                  <Input id="organization" type="text" placeholder="e.g., DOST-STII" value={formData.organization} onChange={(e) => updateField("organization", e.target.value)} required className={inputClass} />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="highestEducation" className={labelClass}>Highest Educational Attainment</Label>
-                <select id="highestEducation" value={formData.highestEducation} onChange={(e) => updateField("highestEducation", e.target.value)} className={selectClass}>
+                <select id="highestEducation" value={formData.highestEducation} onChange={(e) => updateField("highestEducation", e.target.value)} required className={selectClass}>
                   <option value="">Select</option>
                   {EDUCATION_OPTIONS.map((ed) => (
                     <option key={ed} value={ed}>{ed}</option>
