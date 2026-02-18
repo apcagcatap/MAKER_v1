@@ -219,7 +219,7 @@ export default function SignupPage() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="sex" className={labelClass}>Sex *</Label>
+                    <Label htmlFor="sex" className={labelClass}>Sex</Label>
                     <select id="sex" value={formData.sex} onChange={(e) => updateField("sex", e.target.value)} required className={selectClass}>
                       <option value="" disabled>Select</option>
                       {SEX_OPTIONS.map((s) => (
@@ -228,7 +228,7 @@ export default function SignupPage() {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="birthdate" className={labelClass}>Birthdate *</Label>
+                    <Label htmlFor="birthdate" className={labelClass}>Birthdate</Label>
                     <Input id="birthdate" type="date" value={formData.birthdate} onChange={(e) => updateField("birthdate", e.target.value)} required className={inputClass} />
                   </div>
                   <div className="space-y-2">
