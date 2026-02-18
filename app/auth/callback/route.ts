@@ -15,7 +15,8 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
-      return NextResponse.redirect(new URL(next, request.url))
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin
+      return NextResponse.redirect(new URL(next, siteUrl))
     }
   }
 
@@ -29,10 +30,12 @@ export async function GET(request: NextRequest) {
 
     if (!error) {
       // redirect user to specified redirect URL or root of app
-      return NextResponse.redirect(new URL(next, request.url))
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin
+      return NextResponse.redirect(new URL(next, siteUrl))
     }
   }
 
   // return the user to an error page with some instructions
-  return NextResponse.redirect(new URL("/auth/auth-code-error", request.url))
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin
+  return NextResponse.redirect(new URL("/auth/auth-code-error", siteUrl))
 }

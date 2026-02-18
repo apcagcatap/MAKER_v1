@@ -3,6 +3,7 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
+import { AuthStateListener } from '@/components/auth/auth-state-listener'
 import './globals.css'
 
 // Import Poppins font from Google Fonts
@@ -30,6 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} ${poppins.variable}`}>
       <body className="font-sans" style={{ fontFamily: 'Poppins, sans-serif' }}>
+        <AuthStateListener />
         {children}
         <Toaster position="bottom-right" />
         <Analytics />
