@@ -3,7 +3,18 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { getAdminClient } from "@/lib/supabase/admin"
+import { calculateLevel } from "@/lib/utils"
 import type { Skill } from "@/lib/types"
+
+// HELPER: Get XP based on difficulty
+const getXpForDifficulty = (difficulty: string) => {
+  switch (difficulty?.toLowerCase()) {
+    case 'beginner': return 100
+    case 'intermediate': return 250
+    case 'advanced': return 400
+    default: return 100
+  }
+}
 
 /**
  * Get all quests (for facilitator/admin view)
@@ -70,13 +81,11 @@ export async function getQuestParticipants(questId: string) {
 
 /**
  * Get only published quests (for participant view)
- * UPDATED: Now filters out quests scheduled for the future
  */
 export async function getPublishedQuests() {
   try {
     const supabase = await createClient()
     
-    // Get current ISO timestamp for comparison
     const now = new Date().toISOString()
 
     const { data: quests, error } = await supabase
@@ -87,7 +96,6 @@ export async function getPublishedQuests() {
       `)
       .eq("status", "Published")
       .eq("is_active", true)
-      // Logic: Show if scheduled_date is NULL OR scheduled_date is in the past/present
       .or(`scheduled_date.is.null,scheduled_date.lte.${now}`)
       .order("created_at", { ascending: false })
 
@@ -219,6 +227,85 @@ export async function completeStory(questId: string) {
   }
 }
 
+/**
+ * Marks a quest as completed, awards XP, and updates User Level
+ */
+export async function finishQuest(questId: string) {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) throw new Error("User not authenticated")
+
+    // 1. Fetch Quest Details
+    const { data: quest, error: questError } = await supabase
+      .from("quests")
+      .select("xp_reward")
+      .eq("id", questId)
+      .single()
+
+    if (questError || !quest) throw new Error("Quest not found")
+
+    // 2. Fetch User Quest Status
+    const { data: userQuest, error: uqError } = await supabase
+      .from("user_quests")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("quest_id", questId)
+      .single()
+
+    if (uqError) throw new Error("User has not started this quest")
+
+    if (userQuest.status === "completed") {
+      return { message: "Quest already completed", earnedXp: 0 }
+    }
+
+    // 3. Update User Quest
+    const { error: updateError } = await supabase
+      .from("user_quests")
+      .update({ 
+        status: "completed",
+        completed_at: new Date().toISOString(),
+        progress: 100 
+      })
+      .eq("id", userQuest.id)
+
+    if (updateError) throw new Error("Failed to complete quest")
+
+    // 4. Update User Profile
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("xp")
+      .eq("id", user.id)
+      .single()
+    
+    const currentXp = profile?.xp || 0
+    const newTotalXp = currentXp + (quest.xp_reward || 0)
+    
+    // Calculate new level
+    const { level: newLevel } = calculateLevel(newTotalXp)
+
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({ 
+        xp: newTotalXp,
+        level: newLevel,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", user.id)
+
+    if (profileError) throw new Error("Failed to update user XP")
+
+    revalidatePath("/participant/quests")
+    revalidatePath("/participant/skills")
+    
+    return { success: true, earnedXp: quest.xp_reward, newLevel }
+  } catch (error) {
+    console.error("Error in finishQuest:", error)
+    throw error
+  }
+}
+
 export async function getSkills(): Promise<Skill[]> {
   const supabase = await createClient()
   const { data: skills, error } = await supabase
@@ -230,15 +317,11 @@ export async function getSkills(): Promise<Skill[]> {
   return skills || []
 }
 
-/**
- * Create a new skill directly from the quest creation modal
- */
 export async function createNewSkill(name: string, icon: string = "🎯", description?: string) {
   try {
     const supabase = await createClient()
     const adminClient = getAdminClient()
 
-    // Check if exists first (case insensitive)
     const { data: existing } = await supabase
       .from("skills")
       .select("*")
@@ -259,7 +342,6 @@ export async function createNewSkill(name: string, icon: string = "🎯", descri
 
     if (error) throw new Error(error.message)
     
-    // Refresh the skills page so the new skill appears there immediately
     revalidatePath("/facilitator/skills")
     return data
   } catch (error) {
@@ -275,7 +357,7 @@ export async function updateSkill(skillId: string, name: string, description: st
 
     const { data, error } = await adminClient
       .from("skills")
-      .update({ name, description, icon }) // Updating icon as well
+      .update({ name, description, icon })
       .eq("id", skillId)
       .select()
       .single()
@@ -312,7 +394,9 @@ export async function deleteSkill(skillId: string) {
 export async function uploadImage(file: Blob, type: "badge" | "certificate") {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const userId = user?.id || "dev-user-" + Math.random().toString(36).substring(7)
+
+  if (!user) throw new Error("User not authenticated")
+  const userId = user.id
 
   if (!file || file.size === 0) throw new Error("No file selected")
   
@@ -324,14 +408,14 @@ export async function uploadImage(file: Blob, type: "badge" | "certificate") {
   const random = Math.random().toString(36).substring(7)
   const filename = `${type}/${userId}/${timestamp}-${random}.png`
 
-  const adminClient = getAdminClient()
-  const { data, error } = await adminClient.storage
+  // Use user client (supabase) not adminClient
+  const { data, error } = await supabase.storage
     .from("quest-images")
     .upload(filename, file, { cacheControl: "3600", upsert: false })
 
   if (error) throw new Error(`Failed to upload image: ${error.message}`)
 
-  const { data: urlData } = adminClient.storage
+  const { data: urlData } = supabase.storage
     .from("quest-images")
     .getPublicUrl(data.path)
 
@@ -347,14 +431,16 @@ export async function createQuest(formData: any) {
     const userId = user?.id || "dev-user-admin"
     const adminClient = getAdminClient()
 
-    // Separate nested arrays (stories, learning_resources) from the main quest data
     const { stories, learning_resources, ...questData } = formData
+
+    // AUTO-CALCULATE XP
+    const xpReward = questData.xp_reward || getXpForDifficulty(questData.difficulty)
 
     const { data: quest, error } = await adminClient
       .from("quests")
       .insert({
         ...questData,
-        xp_reward: questData.xp_reward || 0,
+        xp_reward: xpReward,
         skill_id: questData.skill_id || null,
         created_by: userId,
         is_active: true,
@@ -364,14 +450,12 @@ export async function createQuest(formData: any) {
 
     if (error) throw new Error(error.message)
 
-    // Insert stories into their own table
     if (stories?.length > 0) {
       await adminClient.from("stories").insert(
         stories.map((s: any) => ({ ...s, quest_id: quest.id }))
       )
     }
 
-    // Insert learning resources into their own table
     if (learning_resources?.length > 0) {
       await adminClient.from("learning_resources").insert(
         learning_resources.map((r: any) => ({ ...r, quest_id: quest.id }))
@@ -391,7 +475,6 @@ export async function updateQuest(questId: string, formData: any) {
   try {
     const supabase = await createClient()
     
-    // SAFETY CHECK: Verify no active participants
     const { count, error: countError } = await supabase
       .from("user_quests")
       .select("*", { count: 'exact', head: true })
@@ -405,15 +488,16 @@ export async function updateQuest(questId: string, formData: any) {
     }
 
     const adminClient = getAdminClient()
-
-    // Separate nested arrays from main quest data
     const { stories, learning_resources, ...questData } = formData
+
+    // AUTO-CALCULATE XP
+    const xpReward = questData.xp_reward || getXpForDifficulty(questData.difficulty)
 
     const { data: quest, error } = await adminClient
       .from("quests")
       .update({
         ...questData,
-        xp_reward: questData.xp_reward || 0,
+        xp_reward: xpReward,
         skill_id: questData.skill_id || null,
       })
       .eq("id", questId)
@@ -422,7 +506,6 @@ export async function updateQuest(questId: string, formData: any) {
 
     if (error) throw new Error(error.message)
 
-    // Update stories: delete old ones and insert new ones
     await adminClient.from("stories").delete().eq("quest_id", questId)
     if (stories?.length > 0) {
       await adminClient.from("stories").insert(
@@ -430,7 +513,6 @@ export async function updateQuest(questId: string, formData: any) {
       )
     }
 
-    // Update learning resources
     await adminClient.from("learning_resources").delete().eq("quest_id", questId)
     if (learning_resources?.length > 0) {
       await adminClient.from("learning_resources").insert(
@@ -453,7 +535,7 @@ export async function deleteQuest(questId: string) {
     const { error } = await supabase
       .from("quests")
       .delete()
-      .eq("id", questId) // Hard delete for now, or update to archived based on preference
+      .eq("id", questId)
 
     if (error) throw new Error(error.message)
 
@@ -489,8 +571,6 @@ export async function publishQuest(questId: string) {
 export async function archiveQuest(questId: string) {
   try {
     const supabase = await createClient()
-
-    // SAFETY CHECK: Verify no active participants
     const { count, error: countError } = await supabase
       .from("user_quests")
       .select("*", { count: 'exact', head: true })
@@ -522,10 +602,6 @@ export async function archiveQuest(questId: string) {
   }
 }
 
-/**
- * Get the latest active quest (for featured section)
- * UPDATED: Also respects scheduled_date
- */
 export async function getLatestQuest() {
   try {
     const supabase = await createClient()
@@ -538,8 +614,8 @@ export async function getLatestQuest() {
         skill:skills(*)
       `)
       .eq("is_active", true)
-      .eq("status", "Published") // Ensure it's published
-      .or(`scheduled_date.is.null,scheduled_date.lte.${now}`) // Respect date
+      .eq("status", "Published")
+      .or(`scheduled_date.is.null,scheduled_date.lte.${now}`)
       .order("created_at", { ascending: false })
       .limit(1)
       .single()

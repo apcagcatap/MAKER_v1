@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { ParticipantNav } from "@/components/layout/participant-nav"
 import { SkillCard } from "@/components/participant/skill-card"
 import { Progress } from "@/components/ui/progress"
+import { calculateLevel } from "@/lib/utils"
 
 export default async function SkillsPage() {
   const supabase = await createClient()
@@ -14,27 +15,35 @@ export default async function SkillsPage() {
     redirect("/auth/login")
   }
 
-  // Fetch user profile
+  // Fetch user profile for XP
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+
+  // Calculate Level Progress
+  const currentXp = profile?.xp || 0
+  const { level, currentLevelProgressXp, xpForNextLevel, progressPercent } = calculateLevel(currentXp)
 
   // Fetch all skills
   const { data: allSkills } = await supabase.from("skills").select("*").order("name")
 
-  // Fetch user's skill progress
-  const { data: userSkills } = await supabase
-    .from("user_skills")
+  // Fetch COMPLETED quests to determine earned skills
+  // We check which skills are associated with quests the user has completed
+  const { data: completedQuests } = await supabase
+    .from("user_quests")
     .select(`
-      *,
-      skill:skills(*)
+      quest:quests(skill_id)
     `)
     .eq("user_id", user.id)
+    .eq("status", "completed")
 
-  const userSkillsMap = new Map(userSkills?.map((us) => [us.skill_id, us]) || [])
+  // Create a Set of earned skill IDs
+  const earnedSkillIds = new Set<string>()
+  completedQuests?.forEach((uq: any) => {
+    if (uq.quest?.skill_id) {
+      earnedSkillIds.add(uq.quest.skill_id)
+    }
+  })
 
-  // Calculate overall progress
-  const totalSkills = allSkills?.length || 0
-  const learnedSkills = userSkills?.length || 0
-  const overallProgress = totalSkills > 0 ? (learnedSkills / totalSkills) * 100 : 0
+  const earnedSkillsCount = earnedSkillIds.size
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
@@ -77,17 +86,20 @@ export default async function SkillsPage() {
             <div className="w-full md:flex-1 bg-gradient-to-br from-[#80BEFF] to-blue-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 text-white shadow-lg order-1 md:order-2">
               <div className="flex items-center justify-between mb-4 sm:mb-6 flex-wrap gap-2 sm:gap-4">
                 <div>
-                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2">Level {profile?.level || 1}</h2>
-                  <p className="text-white/90 text-xs sm:text-sm md:text-base">Total XP: {profile?.xp || 0}</p>
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2">Level {level}</h2>
+                  <p className="text-white/90 text-xs sm:text-sm md:text-base">
+                    XP: {currentLevelProgressXp} / {xpForNextLevel}
+                  </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-white/90 text-xs sm:text-sm mb-0.5 sm:mb-1">Skills Progress</p>
+                  <p className="text-white/90 text-xs sm:text-sm mb-0.5 sm:mb-1">Skills Earned</p>
                   <p className="text-lg sm:text-xl md:text-2xl font-bold">
-                    {learnedSkills} / {totalSkills}
+                    {earnedSkillsCount} Skills
                   </p>
                 </div>
               </div>
-              <Progress value={overallProgress} className="h-2 sm:h-3 bg-white/20" />
+              {/* Progress bar now reflects XP Level, not skills count */}
+              <Progress value={progressPercent} className="h-2 sm:h-3 bg-white/20" />
             </div>
           </div>
         </div>
@@ -102,7 +114,11 @@ export default async function SkillsPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
           {allSkills?.map((skill) => (
-            <SkillCard key={skill.id} skill={skill} userSkill={userSkillsMap.get(skill.id)} />
+            <SkillCard 
+              key={skill.id} 
+              skill={skill} 
+              status={earnedSkillIds.has(skill.id) ? "completed" : "locked"} 
+            />
           ))}
         </div>
       </main>
