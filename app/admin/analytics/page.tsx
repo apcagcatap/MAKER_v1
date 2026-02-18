@@ -113,10 +113,8 @@ export default function AnalyticsPage() {
   const displayDate = date || new Date()
 
   return (
-    // UPDATED: Adjusted padding for mobile (p-4) vs desktop (p-8)
-    <div className="admin-wrapper w-full max-w-7xl mx-auto p-4 sm:p-6 md:p-8">
-      {/* UPDATED: Header alignment for mobile */}
-      <div className="admin-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
+    <div className="admin-wrapper p-4 md:p-6">
+      <div className="admin-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         <div>
           <h1 className="admin-title text-2xl sm:text-3xl font-bold">Analytics & Reports</h1>
           <p className="admin-subtitle text-sm sm:text-base text-gray-500 mt-1">
@@ -127,8 +125,8 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      <div id="analytics-dashboard-content" className="space-y-6">
-        <div className="space-y-6 bg-white p-4 rounded-lg relative min-h-[300px] sm:min-h-[400px] shadow-sm">
+      <div id="analytics-dashboard-content" className="space-y-4">
+        <div className="space-y-6 bg-white p-4 rounded-lg relative min-h-[400px]">
            {loading && (
             <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center rounded-lg">
               <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
