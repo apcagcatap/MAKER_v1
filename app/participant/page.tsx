@@ -16,14 +16,12 @@ export default async function ParticipantDashboard() {
     redirect("/auth/login")
   }
 
-  // Fetch user profile
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
 
   if (!profile || profile.role !== "participant") {
     redirect("/auth/login")
   }
 
-  // Fetch user quests with quest details - ONLY PUBLISHED QUESTS
   const { data: userQuests } = await supabase
     .from("user_quests")
     .select(`
@@ -38,7 +36,6 @@ export default async function ParticipantDashboard() {
     .eq("quest.is_active", true)
     .order("created_at", { ascending: false })
 
-  // Fetch upcoming scheduled quests
   const currentDate = new Date().toISOString()
   const { data: upcomingQuests } = await supabase
     .from("quests")
@@ -53,7 +50,6 @@ export default async function ParticipantDashboard() {
     .order("scheduled_date", { ascending: true })
     .limit(3)
 
-  // Filter out any quests that might have slipped through if the query didn't work perfectly
   const publishedUserQuests = userQuests?.filter(
     (uq) => uq.quest && uq.quest.status === "Published" && uq.quest.is_active === true
   ) || []
@@ -61,19 +57,15 @@ export default async function ParticipantDashboard() {
   const inProgressQuests = publishedUserQuests.filter((uq) => uq.status === "in_progress")
   const completedQuests = publishedUserQuests.filter((uq) => uq.status === "completed")
 
-  // Get featured quest - prioritize the most recently accessed quest
-  // Sort by started_at (which updates when you open a quest) to get the most recent
   const sortedInProgressQuests = [...inProgressQuests].sort((a, b) => {
     const dateA = new Date(a.started_at).getTime()
     const dateB = new Date(b.started_at).getTime()
-    return dateB - dateA // Most recent first
+    return dateB - dateA
   })
-  
-  // Use most recently accessed in-progress quest, or most recent quest overall
+
   const featuredUserQuest = sortedInProgressQuests[0] || publishedUserQuests[0]
   const featuredQuest = featuredUserQuest?.quest
 
-  // Calculate featured quest progress
   const featuredQuestProgress = (() => {
     if (!featuredUserQuest || !featuredQuest?.levels) return 0
     const currentLevel = featuredUserQuest.current_level || 0
@@ -81,18 +73,20 @@ export default async function ParticipantDashboard() {
     return Math.round((currentLevel / totalLevels) * 100)
   })()
 
-  // Helper function to check if quest is accessible
+  // Check if the featured quest is completed
+  const isFeaturedQuestCompleted =
+    featuredUserQuest?.status === "completed" || featuredQuestProgress >= 100
+
   const isQuestAccessible = (scheduledDate: string | null) => {
     if (!scheduledDate) return true
     return new Date(scheduledDate) <= new Date()
   }
 
-  // Helper function to format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { 
-      month: 'long', 
-      day: 'numeric', 
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
@@ -123,9 +117,7 @@ export default async function ParticipantDashboard() {
           <div className="mb-8 sm:mb-12 text-center">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mb-6 sm:mb-8">
               <div className="relative flex-shrink-0">
-                <div>
-                  <img src="hismarty.png" alt="Owl" className="w-32 h-32 sm:w-48 sm:h-48 md:w-60 md:h-60 object-contain" />
-                </div>
+                <img src="hismarty.png" alt="Owl" className="w-32 h-32 sm:w-48 sm:h-48 md:w-60 md:h-60 object-contain" />
               </div>
               <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white drop-shadow-lg text-center sm:text-left break-words max-w-full px-2 sm:px-0">
                 Hi there, {profile.display_name || "Maker"}!
@@ -147,12 +139,7 @@ export default async function ParticipantDashboard() {
                 className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 w-full sm:w-auto text-sm sm:text-base"
               >
                 <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                 </svg>
                 View My Skills
               </Link>
@@ -193,34 +180,32 @@ export default async function ParticipantDashboard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-stretch">
                 {/* Left Card - Quest Info with Marty */}
                 <div className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-3xl p-6 sm:p-8 text-white shadow-2xl overflow-hidden">
-                  {/* Decorative background elements */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-16 -mt-16"></div>
                   <div className="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-5 rounded-full -ml-12 -mb-12"></div>
-                  
+
                   <div className="relative z-10">
                     {/* Marty Image */}
                     <div className="flex items-center justify-center mb-6">
-                      <div className="relative">
-                        <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-blue-500 p-1 shadow-xl">
-                          <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
-                            <img 
-                              src="/standsmarty.png" 
-                              alt="Marty" 
-                              className="w-20 h-20 sm:w-28 sm:h-28 object-cover"
-                            />
-                          </div>
+                      <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-blue-500 p-1 shadow-xl">
+                        <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
+                          <img
+                            src="/standsmarty.png"
+                            alt="Marty"
+                            className="w-20 h-20 sm:w-28 sm:h-28 object-cover"
+                          />
                         </div>
                       </div>
                     </div>
-                    
-                    <h3 className="text-xl sm:text-2xl font-bold mb-3 text-center leading-tight">{featuredQuest.title}</h3>
-                    <p className="text-center text-xs sm:text-sm mb-6 text-blue-100 font-medium">
-                      Will you be a keeper of the Tower Flame?
-                    </p>
-                    
+
+                    {/* Quest Title */}
+                    <h3 className="text-2xl sm:text-3xl font-bold mb-6 text-center leading-tight">
+                      {featuredQuest.title}
+                    </h3>
+
+                    {/* Difficulty + Progress */}
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 flex-wrap">
                       <span className="px-4 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-bold rounded-full shadow-lg">
                         {featuredQuest.difficulty || "Beginner"}
@@ -231,9 +216,9 @@ export default async function ParticipantDashboard() {
                           <span className="font-bold">{featuredQuestProgress}%</span>
                         </div>
                         <div className="h-3 bg-blue-400 bg-opacity-30 rounded-full overflow-hidden shadow-inner">
-                          <div 
-                            className="h-full bg-gradient-to-r from-white to-blue-100 rounded-full shadow-sm transition-all duration-300" 
-                            style={{ width: `${featuredQuestProgress}%` }} 
+                          <div
+                            className="h-full bg-gradient-to-r from-white to-blue-100 rounded-full shadow-sm transition-all duration-300"
+                            style={{ width: `${featuredQuestProgress}%` }}
                           />
                         </div>
                       </div>
@@ -241,26 +226,42 @@ export default async function ParticipantDashboard() {
                   </div>
                 </div>
 
-                {/* Right Section - Goal */}
-                <div className="pt-4">
-                  <h4 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-                    Goal Of This Quest
-                  </h4>
-                  <p className="text-gray-700 leading-relaxed text-sm sm:text-base mb-6">
-                    {featuredQuest.description ||
-                      "Design and build a functional sensor array using an Arduino that can detect motion or environmental changes, triggering a signal to light up a watchtower. This quest introduces the basics of physical computing, wiring, and sensor integration your mission is to bring the tower to life and guard the realm!"}
-                  </p>
-                  
-                  {/* Continue Button */}
-                  <Link
-                    href={`/participant/quests/${featuredQuest.id}`}
-                    className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 w-full sm:w-auto"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                    Continue Quest
-                  </Link>
+                {/* Right Section - Goal with button pinned to bottom-right */}
+                <div className="flex flex-col pt-4">
+                  <div className="flex-1">
+                    <h4 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+                      Goal Of This Quest
+                    </h4>
+                    <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+                      {featuredQuest.description ||
+                        "Design and build a functional sensor array using an Arduino that can detect motion or environmental changes, triggering a signal to light up a watchtower. This quest introduces the basics of physical computing, wiring, and sensor integration — your mission is to bring the tower to life and guard the realm!"}
+                    </p>
+                  </div>
+
+                  {/* Dynamic button based on completion status */}
+                  <div className="flex justify-end mt-6">
+                    {isFeaturedQuestCompleted ? (
+                      <Link
+                        href={`/participant/quests/${featuredQuest.id}`}
+                        className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                        </svg>
+                        View Results
+                      </Link>
+                    ) : (
+                      <Link
+                        href={`/participant/quests/${featuredQuest.id}`}
+                        className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                        Continue Quest
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -311,7 +312,6 @@ export default async function ParticipantDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {upcomingQuests.map((quest) => {
                 const isAccessible = isQuestAccessible(quest.scheduled_date)
-                
                 return (
                   <div key={quest.id} className="relative">
                     <QuestCard quest={quest} isLocked={!isAccessible} />
