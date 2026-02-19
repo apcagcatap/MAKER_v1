@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { Home, Target, Award, MessageSquare, User, Menu, X, LogOut, Settings, Info, ChevronDown } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
+import { NotificationBell } from '@/components/participant/notification-bell'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -89,6 +90,11 @@ export function ParticipantNav() {
               </div>
               
               <div className="flex items-center gap-4">
+                {/* Desktop Notification Bell */}
+                <div className="text-white hover:text-blue-200 transition-colors bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center">
+                  <NotificationBell />
+                </div>
+
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center gap-2 px-4 py-2 text-blue-100 hover:text-white transition-colors outline-none cursor-pointer">
                     <span className="font-medium">Account</span>
@@ -126,14 +132,20 @@ export function ParticipantNav() {
               </div>
             </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-white relative z-50"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+            {/* Mobile Controls (Bell + Hamburger Menu) */}
+            <div className="flex items-center gap-2 lg:hidden relative z-50">
+              <div className="text-white hover:text-blue-200 transition-colors bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center">
+                <NotificationBell />
+              </div>
+              
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 text-white"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
         </div>
       </nav>

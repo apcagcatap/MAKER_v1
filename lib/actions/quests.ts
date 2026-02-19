@@ -76,7 +76,6 @@ export async function getPublishedQuests() {
   try {
     const supabase = await createClient()
     
-    // Get current ISO timestamp for comparison
     const now = new Date().toISOString()
 
     const { data: quests, error } = await supabase
@@ -87,7 +86,6 @@ export async function getPublishedQuests() {
       `)
       .eq("status", "Published")
       .eq("is_active", true)
-      // Logic: Show if scheduled_date is NULL OR scheduled_date is in the past/present
       .or(`scheduled_date.is.null,scheduled_date.lte.${now}`)
       .order("created_at", { ascending: false })
 
@@ -230,15 +228,11 @@ export async function getSkills(): Promise<Skill[]> {
   return skills || []
 }
 
-/**
- * Create a new skill directly from the quest creation modal
- */
 export async function createNewSkill(name: string, icon: string = "🎯", description?: string) {
   try {
     const supabase = await createClient()
     const adminClient = getAdminClient()
 
-    // Check if exists first (case insensitive)
     const { data: existing } = await supabase
       .from("skills")
       .select("*")
@@ -259,7 +253,6 @@ export async function createNewSkill(name: string, icon: string = "🎯", descri
 
     if (error) throw new Error(error.message)
     
-    // Refresh the skills page so the new skill appears there immediately
     revalidatePath("/facilitator/skills")
     return data
   } catch (error) {
@@ -275,7 +268,7 @@ export async function updateSkill(skillId: string, name: string, description: st
 
     const { data, error } = await adminClient
       .from("skills")
-      .update({ name, description, icon }) // Updating icon as well
+      .update({ name, description, icon })
       .eq("id", skillId)
       .select()
       .single()
@@ -347,7 +340,6 @@ export async function createQuest(formData: any) {
     const userId = user?.id || "dev-user-admin"
     const adminClient = getAdminClient()
 
-    // Separate nested arrays (stories, learning_resources) from the main quest data
     const { stories, learning_resources, ...questData } = formData
 
     const { data: quest, error } = await adminClient
@@ -364,19 +356,43 @@ export async function createQuest(formData: any) {
 
     if (error) throw new Error(error.message)
 
-    // Insert stories into their own table
     if (stories?.length > 0) {
       await adminClient.from("stories").insert(
         stories.map((s: any) => ({ ...s, quest_id: quest.id }))
       )
     }
 
-    // Insert learning resources into their own table
     if (learning_resources?.length > 0) {
       await adminClient.from("learning_resources").insert(
         learning_resources.map((r: any) => ({ ...r, quest_id: quest.id }))
       )
     }
+
+    // --- ONLY NOTIFY IF IT'S CREATED AS PUBLISHED ---
+    if (quest.status === 'Published') {
+      try {
+        const { data: participants } = await adminClient
+          .from('profiles')
+          .select('id')
+          .eq('role', 'participant')
+        
+        if (participants && participants.length > 0) {
+          const notificationsToInsert = participants.map((participant: any) => ({
+            user_id: participant.id,
+            type: 'new_quest',
+            title: 'New Quest Available! 🎯',
+            message: `A new quest "${quest.title}" has just been published. Give it a try!`,
+            link_url: `/participant/quests/${quest.id}`,
+            is_read: false
+          }))
+
+          await adminClient.from('notifications').insert(notificationsToInsert)
+        }
+      } catch (notifError) {
+        console.error("Failed to send notifications for new quest:", notifError)
+      }
+    }
+    // ------------------------------------------------
 
     revalidatePath("/facilitator/quests")
     revalidatePath("/participant/quests")
@@ -390,8 +406,9 @@ export async function createQuest(formData: any) {
 export async function updateQuest(questId: string, formData: any) {
   try {
     const supabase = await createClient()
+    const adminClient = getAdminClient()
     
-    // SAFETY CHECK: Verify no active participants
+    // Safety check for active participants
     const { count, error: countError } = await supabase
       .from("user_quests")
       .select("*", { count: 'exact', head: true })
@@ -399,14 +416,17 @@ export async function updateQuest(questId: string, formData: any) {
       .eq("status", "in_progress")
 
     if (countError) throw new Error(countError.message)
-    
     if (count && count > 0) {
       throw new Error("Cannot edit quest: There are participants currently working on this quest.")
     }
 
-    const adminClient = getAdminClient()
+    // 1. Fetch previous status to see if we're moving from Draft -> Published
+    const { data: oldQuest } = await adminClient
+      .from("quests")
+      .select("status")
+      .eq("id", questId)
+      .single()
 
-    // Separate nested arrays from main quest data
     const { stories, learning_resources, ...questData } = formData
 
     const { data: quest, error } = await adminClient
@@ -422,7 +442,6 @@ export async function updateQuest(questId: string, formData: any) {
 
     if (error) throw new Error(error.message)
 
-    // Update stories: delete old ones and insert new ones
     await adminClient.from("stories").delete().eq("quest_id", questId)
     if (stories?.length > 0) {
       await adminClient.from("stories").insert(
@@ -430,13 +449,37 @@ export async function updateQuest(questId: string, formData: any) {
       )
     }
 
-    // Update learning resources
     await adminClient.from("learning_resources").delete().eq("quest_id", questId)
     if (learning_resources?.length > 0) {
       await adminClient.from("learning_resources").insert(
         learning_resources.map((r: any) => ({ ...r, quest_id: questId }))
       )
     }
+
+    // --- ONLY NOTIFY IF IT WAS JUST PUBLISHED DURING THIS EDIT ---
+    if (oldQuest?.status !== "Published" && quest.status === "Published") {
+      try {
+        const { data: participants } = await adminClient
+          .from('profiles')
+          .select('id')
+          .eq('role', 'participant')
+        
+        if (participants && participants.length > 0) {
+          const notificationsToInsert = participants.map((participant: any) => ({
+            user_id: participant.id,
+            type: 'new_quest',
+            title: 'New Quest Available! 🎯',
+            message: `A new quest "${quest.title}" has just been published. Give it a try!`,
+            link_url: `/participant/quests/${quest.id}`,
+            is_read: false
+          }))
+          await adminClient.from('notifications').insert(notificationsToInsert)
+        }
+      } catch (notifError) {
+        console.error("Failed to send notifications for updated quest:", notifError)
+      }
+    }
+    // -----------------------------------------------------------
 
     revalidatePath("/facilitator/quests")
     revalidatePath("/participant/quests")
@@ -453,7 +496,7 @@ export async function deleteQuest(questId: string) {
     const { error } = await supabase
       .from("quests")
       .delete()
-      .eq("id", questId) // Hard delete for now, or update to archived based on preference
+      .eq("id", questId)
 
     if (error) throw new Error(error.message)
 
@@ -468,7 +511,7 @@ export async function deleteQuest(questId: string) {
 export async function publishQuest(questId: string) {
   try {
     const adminClient = getAdminClient()
-    const { data, error } = await adminClient
+    const { data: quest, error } = await adminClient
       .from("quests")
       .update({ status: "Published" })
       .eq("id", questId)
@@ -477,9 +520,32 @@ export async function publishQuest(questId: string) {
 
     if (error) throw new Error(error.message)
 
+    // --- NOTIFY WHEN PUBLISHED VIA THE PUBLISH ACTION ---
+    try {
+      const { data: participants } = await adminClient
+        .from('profiles')
+        .select('id')
+        .eq('role', 'participant')
+      
+      if (participants && participants.length > 0) {
+        const notificationsToInsert = participants.map((participant: any) => ({
+          user_id: participant.id,
+          type: 'new_quest',
+          title: 'New Quest Available! 🎯',
+          message: `A new quest "${quest.title}" has just been published. Give it a try!`,
+          link_url: `/participant/quests/${quest.id}`,
+          is_read: false
+        }))
+        await adminClient.from('notifications').insert(notificationsToInsert)
+      }
+    } catch (notifError) {
+      console.error("Failed to send notifications for published quest:", notifError)
+    }
+    // ----------------------------------------------------
+
     revalidatePath("/facilitator/quests")
     revalidatePath("/participant/quests")
-    return data
+    return quest
   } catch (error) {
     console.error("Error in publishQuest:", error)
     throw error
@@ -490,7 +556,6 @@ export async function archiveQuest(questId: string) {
   try {
     const supabase = await createClient()
 
-    // SAFETY CHECK: Verify no active participants
     const { count, error: countError } = await supabase
       .from("user_quests")
       .select("*", { count: 'exact', head: true })
@@ -522,10 +587,6 @@ export async function archiveQuest(questId: string) {
   }
 }
 
-/**
- * Get the latest active quest (for featured section)
- * UPDATED: Also respects scheduled_date
- */
 export async function getLatestQuest() {
   try {
     const supabase = await createClient()
@@ -538,8 +599,8 @@ export async function getLatestQuest() {
         skill:skills(*)
       `)
       .eq("is_active", true)
-      .eq("status", "Published") // Ensure it's published
-      .or(`scheduled_date.is.null,scheduled_date.lte.${now}`) // Respect date
+      .eq("status", "Published")
+      .or(`scheduled_date.is.null,scheduled_date.lte.${now}`)
       .order("created_at", { ascending: false })
       .limit(1)
       .single()
