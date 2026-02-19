@@ -8,7 +8,9 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TermsAgreement } from "@/components/auth/terms-agreement"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useState, Suspense } from "react"
+import { useState, Suspense, useEffect } from "react"
+// @ts-ignore
+import { regions, provinces, city_mun, barangays } from "phil-reg-prov-mun-brgy"
 
 const SUFFIX_OPTIONS = ["Jr.", "Sr.", "II", "III", "IV", "V"]
 const SEX_OPTIONS = ["Male", "Female"] as const
@@ -43,6 +45,10 @@ function SignupContent() {
     highestEducation: "",
   })
   const [termsAccepted, setTermsAccepted] = useState(false)
+  const [regionList, setRegionList] = useState<any[]>([])
+  const [provinceList, setProvinceList] = useState<any[]>([])
+  const [cityList, setCityList] = useState<any[]>([])
+  const [barangayList, setBarangayList] = useState<any[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -58,6 +64,55 @@ function SignupContent() {
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  useEffect(() => {
+    setRegionList(regions)
+  }, [])
+
+  const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const name = e.target.value
+    updateField("region", name)
+    updateField("province", "")
+    updateField("cityMunicipality", "")
+    updateField("barangay", "")
+    setProvinceList([])
+    setCityList([])
+    setBarangayList([])
+
+    const region = regionList.find((r) => r.name === name)
+    if (region) {
+      const filteredProvinces = provinces.filter((p: any) => String(p.reg_code) === String(region.reg_code))
+      setProvinceList(filteredProvinces)
+    }
+  }
+
+  const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const name = e.target.value
+    updateField("province", name)
+    updateField("cityMunicipality", "")
+    updateField("barangay", "")
+    setCityList([])
+    setBarangayList([])
+
+    const province = provinceList.find((p) => p.name === name)
+    if (province) {
+      const filteredCities = city_mun.filter((c: any) => String(c.prov_code) === String(province.prov_code))
+      setCityList(filteredCities)
+    }
+  }
+
+  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const name = e.target.value
+    updateField("cityMunicipality", name)
+    updateField("barangay", "")
+    setBarangayList([])
+
+    const city = cityList.find((c) => c.name === name)
+    if (city) {
+      const filteredBarangays = barangays.filter((b: any) => String(b.mun_code) === String(city.mun_code))
+      setBarangayList(filteredBarangays)
+    }
   }
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -249,21 +304,41 @@ function SignupContent() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="region" className={labelClass}>Region</Label>
-                  <Input id="region" type="text" placeholder="e.g., NCR, Region IV-A" value={formData.region} onChange={(e) => updateField("region", e.target.value)} required className={inputClass} />
+                  <select id="region" value={formData.region} onChange={handleRegionChange} required className={selectClass}>
+                    <option value="" disabled>Select Region</option>
+                    {regionList.map((r) => (
+                      <option key={r.reg_code} value={r.name}>{r.name}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="province" className={labelClass}>Province</Label>
-                  <Input id="province" type="text" placeholder="e.g., Laguna" value={formData.province} onChange={(e) => updateField("province", e.target.value)} required className={inputClass} />
+                  <select id="province" value={formData.province} onChange={handleProvinceChange} required className={selectClass} disabled={!formData.region}>
+                    <option value="" disabled>Select Province</option>
+                    {provinceList.map((p) => (
+                      <option key={p.prov_code} value={p.name}>{p.name}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="cityMunicipality" className={labelClass}>City / Municipality</Label>
-                  <Input id="cityMunicipality" type="text" placeholder="e.g., Los Baños" value={formData.cityMunicipality} onChange={(e) => updateField("cityMunicipality", e.target.value)} required className={inputClass} />
+                  <select id="cityMunicipality" value={formData.cityMunicipality} onChange={handleCityChange} required className={selectClass} disabled={!formData.province}>
+                    <option value="" disabled>Select City/Municipality</option>
+                    {cityList.map((c) => (
+                      <option key={c.mun_code} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="barangay" className={labelClass}>Barangay</Label>
-                  <Input id="barangay" type="text" placeholder="e.g., Brgy. Batong Malake" value={formData.barangay} onChange={(e) => updateField("barangay", e.target.value)} required className={inputClass} />
+                  <select id="barangay" value={formData.barangay} onChange={(e) => updateField("barangay", e.target.value)} required className={selectClass} disabled={!formData.cityMunicipality}>
+                    <option value="" disabled>Select Barangay</option>
+                    {barangayList.map((b) => (
+                      <option key={b.brgy_code} value={b.name}>{b.name}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </fieldset>

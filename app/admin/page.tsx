@@ -14,11 +14,11 @@ export default async function AdminDashboard() {
   const data = await getDashboardData()
 
   const kpis = [
-    { kpi: data.kpis.totalUsers, icon: Users, iconColor: "text-blue-600", iconBg: "bg-blue-100" },
-    { kpi: data.kpis.activeQuests, icon: Trophy, iconColor: "text-amber-600", iconBg: "bg-amber-100" },
-    { kpi: data.kpis.questCompletions, icon: CheckCircle2, iconColor: "text-emerald-600", iconBg: "bg-emerald-100" },
-    { kpi: data.kpis.forumPosts, icon: MessageSquare, iconColor: "text-purple-600", iconBg: "bg-purple-100" },
-  ] as const
+    { label: "Total Users", data: data.kpis.totalUsers, icon: Users, iconColor: "text-blue-600", iconBg: "bg-blue-100" },
+    { label: "Active Quests", data: data.kpis.activeQuests, icon: Trophy, iconColor: "text-amber-600", iconBg: "bg-amber-100" },
+    { label: "Quest Completions", data: data.kpis.questCompletions, icon: CheckCircle2, iconColor: "text-emerald-600", iconBg: "bg-emerald-100" },
+    { label: "Forum Posts", data: data.kpis.forumPosts, icon: MessageSquare, iconColor: "text-purple-600", iconBg: "bg-purple-100" },
+  ]
 
   return (
     <div className="admin-wrapper p-4 md:p-6">
@@ -30,12 +30,18 @@ export default async function AdminDashboard() {
       </div>
 
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-4">
-        {kpis.map((props) => (
-          <KpiCard key={props.kpi.label} {...props} />
+        {kpis.map((item) => (
+          <KpiCard
+            key={item.label}
+            kpi={{ ...item.data, label: item.label }}
+            icon={item.icon}
+            iconColor={item.iconColor}
+            iconBg={item.iconBg}
+          />
         ))}
       </div>
 
-      <div className="grid gap-3 grid-cols-1 md:grid-cols-2 xl:grid-cols-6 mb-4">
+      <div className="grid gap-3 grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mb-4">
         <div className="xl:col-span-2">
           <CompletionTrend data={data.completionTrend} />
         </div>
