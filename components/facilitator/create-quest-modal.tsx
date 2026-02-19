@@ -412,23 +412,33 @@ export function CreateQuestModal({ open, onOpenChange, onQuestSaved, editingQues
       }
 
       if (editingQuest) {
-        await updateQuest(editingQuest.id, questData)
-        toast.success("Quest updated successfully")
+        const result = await updateQuest(editingQuest.id, questData)
+        if (result.success) {
+          toast.success("Quest updated successfully")
+          resetForm()
+          onOpenChange(false)
+          if (onQuestSaved) {
+            onQuestSaved()
+          } else {
+            setTimeout(() => router.refresh(), 300)
+          }
+        } else {
+          toast.error(result.message || "Failed to update quest")
+        }
       } else {
         await createQuest(questData)
         toast.success("Quest created successfully")
+        resetForm()
+        onOpenChange(false)
+        if (onQuestSaved) {
+          onQuestSaved()
+        } else {
+          setTimeout(() => router.refresh(), 300)
+        }
       }
 
-      resetForm()
-      onOpenChange(false)
-
-      if (onQuestSaved) {
-        onQuestSaved()
-      } else {
-        setTimeout(() => router.refresh(), 300)
-      }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to save quest")
+      toast.error("An unexpected error occurred")
     } finally {
       setIsLoading(false)
     }
