@@ -348,9 +348,9 @@ export function QuestsTable({
                             onClick={() => handleOpenCompletions(quest)}
                             variant="ghost"
                             size="sm"
-                            className="h-auto py-2 px-6 bg-yellow-50 hover:bg-yellow-100 text-yellow-600 rounded-lg text-sm font-medium gap-2 min-w-[120px] justify-center transition-all"
+                            className="h-auto py-2 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium gap-2 min-w-[120px] justify-center shadow-md transition-all"
                           >
-                            <Trophy className="w-4 h-4" />
+                            <Trophy className="w-4 h-4 text-white" />
                             <span>Fastest</span>
                           </Button>
                         </div>
@@ -527,8 +527,7 @@ export function QuestsTable({
                   </Button>
                   <Button
                     onClick={() => handleOpenCompletions(quest)}
-                    className="w-full bg-yellow-50 hover:bg-yellow-100 text-yellow-600 border border-yellow-200 rounded-xl shadow-sm h-12 text-sm font-medium"
-                    variant="ghost"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm h-12 text-sm font-medium"
                   >
                     <Trophy className="w-4 h-4 mr-2" />
                     Fastest

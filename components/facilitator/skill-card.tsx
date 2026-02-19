@@ -24,19 +24,14 @@ interface SkillCardProps {
 export function SkillCard({ skill }: SkillCardProps) {
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  
-  // Edit Form State
   const [name, setName] = useState(skill.name)
   const [description, setDescription] = useState(skill.description || "")
-  // Initialize icon with existing skill icon or default
   const [icon, setIcon] = useState(skill.icon || "🎯")
 
   const handleUpdate = async () => {
     if (!name.trim()) return toast.error("Name is required")
-    
     setIsLoading(true)
     try {
-      // FIX: Now passing 4 arguments: id, name, description, icon
       await updateSkill(skill.id, name, description, icon)
       toast.success("Skill updated successfully")
       setIsEditOpen(false)
@@ -49,7 +44,6 @@ export function SkillCard({ skill }: SkillCardProps) {
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this skill?")) return
-
     setIsLoading(true)
     try {
       await deleteSkill(skill.id)
@@ -76,28 +70,26 @@ export function SkillCard({ skill }: SkillCardProps) {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+          <Button
             onClick={() => setIsEditOpen(true)}
-            className="flex-1 bg-transparent text-xs sm:text-sm md:text-base h-8 sm:h-9 md:h-10"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm md:text-base h-8 sm:h-9 md:h-10"
           >
             <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
             Edit
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
             onClick={handleDelete}
             disabled={isLoading}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50 bg-transparent h-8 sm:h-9 md:h-10 px-2 sm:px-3"
+            className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 h-8 sm:h-9 md:h-10 px-2 sm:px-3"
+            variant="ghost"
           >
             {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Archive className="w-3 h-3 sm:w-4 sm:h-4" />}
           </Button>
         </div>
       </div>
 
-      {/* Edit Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] bg-white">
           <DialogHeader>
             <DialogTitle>Edit Skill</DialogTitle>
           </DialogHeader>
@@ -105,11 +97,7 @@ export function SkillCard({ skill }: SkillCardProps) {
             <div className="flex gap-4">
               <div className="grid gap-2 flex-1">
                 <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
+                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
               </div>
               <div className="grid gap-2 w-20">
                 <Label htmlFor="icon">Icon</Label>
@@ -122,7 +110,6 @@ export function SkillCard({ skill }: SkillCardProps) {
                 />
               </div>
             </div>
-            
             <div className="grid gap-2">
               <Label htmlFor="description">Description</Label>
               <Textarea
@@ -135,7 +122,11 @@ export function SkillCard({ skill }: SkillCardProps) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
-            <Button onClick={handleUpdate} disabled={isLoading}>
+            <Button 
+              onClick={handleUpdate} 
+              disabled={isLoading} 
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
               {isLoading ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>
