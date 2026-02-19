@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { StoryView } from '@/components/participant/story-view'
 import { ResourceCard } from '@/components/participant/resource-card'
 import { ParticipantVerification } from '@/components/participant/participant-verification'
-import { startQuest, completeStory } from '@/lib/actions/quests'
+import { startQuest, completeStory, finishQuest } from '@/lib/actions/quests'
 import { CheckCircle2, Book, ListChecks, Trophy, ArrowRight, ArrowLeft, Clock, Download, X, ChevronDown, ChevronUp, FileText, Package } from 'lucide-react'
 
 interface QuestContentViewProps {
@@ -291,17 +291,20 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
               total_minutes: totalMinutes
             })
 
+            // 1. First, save the completion times (Let the frontend handle the stopwatch)
             await supabase
               .from('user_quests')
               .update({
-                status: 'completed',
-                completed_at: completionTime.toISOString(),
                 current_level: quest.levels.length,
                 completion_time: totalMinutes,
                 completion_time_seconds: totalSeconds
               })
               .eq('quest_id', quest.id)
               .eq('user_id', user.id)
+
+            // 2. NOW, call our secure server action to officially complete the quest and grant the XP!
+            console.log("Calling secure backend to calculate XP...")
+            await finishQuest(quest.id)
 
             setCurrentStep('completed')
             router.refresh()

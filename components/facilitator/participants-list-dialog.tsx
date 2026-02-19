@@ -104,20 +104,25 @@ export function ParticipantsListDialog({
       )
     }
     
-    // Calculate current level info
+    // Calculate current level info AND Dynamic Progress
     let currentTitle = "Loading..."
-    let stepText = `Step ${participant.current_level + 1}`
+    const levelIndex = participant.current_level || 0
+    let stepText = `Step ${levelIndex + 1}`
+    let calculatedProgress = 0
 
     if (questLevels && questLevels.length > 0) {
-      const levelIndex = participant.current_level || 0
       if (levelIndex < questLevels.length) {
         currentTitle = questLevels[levelIndex].title
       } else {
         currentTitle = "Finalizing..."
       }
+      
+      // Calculate dynamic progress percentage: (Current Level Index / Total Levels) * 100
+      calculatedProgress = Math.round((levelIndex / questLevels.length) * 100)
     } else {
        currentTitle = "General Progress"
        stepText = "In Progress"
+       calculatedProgress = participant.progress || 0
     }
 
     return (
@@ -130,10 +135,10 @@ export function ParticipantsListDialog({
              </span>
            </div>
            <span className="text-sm font-bold text-blue-600 tabular-nums">
-             {participant.progress}%
+             {calculatedProgress}%
            </span>
         </div>
-        <Progress value={participant.progress} className="h-2.5 bg-gray-100 rounded-full" />
+        <Progress value={calculatedProgress} className="h-2.5 bg-gray-100 rounded-full" />
       </div>
     )
   }
