@@ -147,17 +147,24 @@ export function QuestsTable({
     
     setIsLoading(true)
     try {
-      await archiveQuest(questId)
-      setQuests(prevQuests =>
-        prevQuests.map((q) =>
-          q.id === questId ? { ...q, status: "Archived" } : q
+      // Use the updated result object pattern
+      const result = await archiveQuest(questId)
+      
+      if (result.success) {
+        setQuests(prevQuests =>
+          prevQuests.map((q) =>
+            q.id === questId ? { ...q, status: "Archived" } : q
+          )
         )
-      )
-      toast.success("Quest archived successfully")
-      router.refresh()
+        toast.success("Quest archived successfully")
+        router.refresh()
+      } else {
+        // Show specific error message like "Cannot archive quest: There are participants..."
+        toast.error(result.message || "Failed to archive quest")
+      }
     } catch (error) {
       console.error("Archive quest error:", error)
-      toast.error(error instanceof Error ? error.message : "Failed to archive quest")
+      toast.error("An unexpected error occurred")
       router.refresh()
     } finally {
       setIsLoading(false)

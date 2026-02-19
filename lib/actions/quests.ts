@@ -16,6 +16,13 @@ const getXpForDifficulty = (difficulty: string) => {
   }
 }
 
+// Define standard return type for actions that might be blocked
+type ActionResponse = {
+  success: boolean
+  message?: string
+  data?: any
+}
+
 /**
  * Get all quests (for facilitator/admin view)
  */
@@ -230,9 +237,6 @@ export async function completeStory(questId: string) {
 /**
  * Marks a quest as completed and awards XP using admin permissions
  */
-/**
- * Marks a quest as completed and awards XP using admin permissions
- */
 export async function finishQuest(questId: string) {
   try {
     const supabase = await createClient()
@@ -242,8 +246,10 @@ export async function finishQuest(questId: string) {
 
     console.log(`\n[XP System] 🚀 Starting completion for quest ${questId} by user ${user.id}`)
 
+    // 1. Initialize adminClient to bypass RLS for granting XP
     const adminClient = getAdminClient()
 
+    // 2. Fetch Quest Details (We grab difficulty too, just in case xp_reward is missing!)
     const { data: quest, error: questError } = await supabase
       .from("quests")
       .select("xp_reward, difficulty")
@@ -252,10 +258,12 @@ export async function finishQuest(questId: string) {
 
     if (questError || !quest) throw new Error("Quest not found")
 
+    // FALLBACK: If xp_reward is missing, calculate it using your difficulty helper
     // 🛠️ FIX 1: Force xpToAward to be a strict Math Number
     const xpToAward = Number(quest.xp_reward || getXpForDifficulty(quest.difficulty))
     console.log(`[XP System] 🎯 Quest is worth ${xpToAward} XP.`)
 
+    // 3. Fetch User Quest Status
     const { data: userQuest, error: uqError } = await supabase
       .from("user_quests")
       .select("*")
@@ -265,11 +273,13 @@ export async function finishQuest(questId: string) {
 
     if (uqError) throw new Error("User has not started this quest")
 
+    // THE TRAP: If they already completed it, don't give them points twice!
     if (userQuest.status === "completed") {
       console.log("[XP System] ⚠️ Quest was ALREADY completed previously! XP will not be granted again.")
       return { message: "Quest already completed", earnedXp: 0 }
     }
 
+    // 4. Update User Quest to 'completed' (Using adminClient so it doesn't get blocked)
     const { error: updateError } = await adminClient
       .from("user_quests")
       .update({ 
@@ -281,6 +291,7 @@ export async function finishQuest(questId: string) {
 
     if (updateError) throw new Error("Failed to complete quest")
 
+    // 5. Fetch their current XP
     const { data: profile } = await supabase
       .from("profiles")
       .select("xp")
@@ -289,11 +300,10 @@ export async function finishQuest(questId: string) {
     
     // 🛠️ FIX 2: Force currentXp to be a strict Math Number
     const currentXp = Number(profile?.xp || 0)
-    
-    // Now they will safely add together mathematically! (e.g., 1100 + 100 = 1200)
     const newTotalXp = currentXp + xpToAward
     console.log(`[XP System] 📈 Upgrading XP: ${currentXp} + ${xpToAward} = ${newTotalXp}`)
 
+    // 6. Save the new XP to the database (MUST use adminClient to bypass RLS)
     const { error: profileError } = await adminClient
       .from("profiles")
       .update({ 
@@ -309,8 +319,10 @@ export async function finishQuest(questId: string) {
 
     console.log(`[XP System] ✅ SUCCESS! Saved ${newTotalXp} Total XP to the database.`)
 
+    // Force Next.js to immediately clear cache for the entire participant portal layout
     revalidatePath("/participant", "layout")
     
+    // Calculate their level to send back to the frontend UI
     const { level: newLevel } = calculateLevel(newTotalXp)
     return { success: true, earnedXp: xpToAward, newLevel }
   } catch (error) {
@@ -484,7 +496,8 @@ export async function createQuest(formData: any) {
   }
 }
 
-export async function updateQuest(questId: string, formData: any) {
+// UPDATED: Returns an object instead of throwing on blocking conditions
+export async function updateQuest(questId: string, formData: any): Promise<ActionResponse> {
   try {
     const supabase = await createClient()
     
@@ -496,8 +509,12 @@ export async function updateQuest(questId: string, formData: any) {
 
     if (countError) throw new Error(countError.message)
     
+    // 🟢 CHANGE: Return failure object instead of throwing
     if (count && count > 0) {
-      throw new Error("Cannot edit quest: There are participants currently working on this quest.")
+      return { 
+        success: false, 
+        message: "Cannot edit quest: There are participants currently working on this quest." 
+      }
     }
 
     const adminClient = getAdminClient()
@@ -535,10 +552,12 @@ export async function updateQuest(questId: string, formData: any) {
 
     revalidatePath("/facilitator/quests")
     revalidatePath("/participant/quests")
-    return quest
-  } catch (error) {
+    // 🟢 CHANGE: Return success object
+    return { success: true, data: quest }
+  } catch (error: any) {
     console.error("Error in updateQuest:", error)
-    throw error
+    // Catch unexpected errors and return as failure message
+    return { success: false, message: error.message || "Failed to update quest" }
   }
 }
 
@@ -581,7 +600,8 @@ export async function publishQuest(questId: string) {
   }
 }
 
-export async function archiveQuest(questId: string) {
+// UPDATED: Returns an object instead of throwing on blocking conditions
+export async function archiveQuest(questId: string): Promise<ActionResponse> {
   try {
     const supabase = await createClient()
     const { count, error: countError } = await supabase
@@ -592,8 +612,12 @@ export async function archiveQuest(questId: string) {
 
     if (countError) throw new Error(countError.message)
     
+    // 🟢 CHANGE: Return failure object instead of throwing
     if (count && count > 0) {
-      throw new Error("Cannot archive quest: There are participants currently working on this quest.")
+      return { 
+        success: false, 
+        message: "Cannot archive quest: There are participants currently working on this quest." 
+      }
     }
 
     const adminClient = getAdminClient()
@@ -608,10 +632,12 @@ export async function archiveQuest(questId: string) {
 
     revalidatePath("/facilitator/quests")
     revalidatePath("/participant/quests")
-    return data
-  } catch (error) {
+    // 🟢 CHANGE: Return success object
+    return { success: true, data }
+  } catch (error: any) {
     console.error("Error in archiveQuest:", error)
-    throw error
+    // Catch unexpected errors and return as failure message
+    return { success: false, message: error.message || "Failed to archive quest" }
   }
 }
 
