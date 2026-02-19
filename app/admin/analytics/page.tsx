@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils"
 
 const chartConfig = {
   users: { label: "New Users", color: "#2563eb" },
-  completion: { label: "Monthly Close Rate %", color: "#0ea5e9" },
+  completion: { label: "Daily Close Rate %", color: "#0ea5e9" },
 } satisfies ChartConfig
 
 export default function AnalyticsPage() {
@@ -90,16 +90,16 @@ export default function AnalyticsPage() {
       const imgHeight = (imgProps.height * pdfWidth) / imgProps.width
       
       pdf.setFontSize(18)
-      pdf.text("Maker Monthly Report", 14, 20)
+      pdf.text("Maker Daily Report", 14, 20)
       
       pdf.setFontSize(12)
-      const reportDate = date ? format(date, "MMMM yyyy") : format(new Date(), "MMMM yyyy")
-      pdf.text(`Reporting Period: ${reportDate}`, 14, 30)
+      const reportDate = date ? format(date, "MMMM d, yyyy") : format(new Date(), "MMMM d, yyyy")
+      pdf.text(`Reporting Date: ${reportDate}`, 14, 30)
 
       const topMargin = 40
       pdf.addImage(imgData, "PNG", 0, topMargin, pdfWidth, imgHeight)
 
-      pdf.save(`maker_report_${format(date || new Date(), "yyyy-MM")}.pdf`)
+      pdf.save(`maker_report_${format(date || new Date(), "yyyy-MM-dd")}.pdf`)
     } catch (error) {
       console.error("Error generating PDF:", error)
       alert("Failed to generate PDF report.")
@@ -119,8 +119,8 @@ export default function AnalyticsPage() {
           <h1 className="admin-title text-2xl sm:text-3xl font-bold">Analytics & Reports</h1>
           <p className="admin-subtitle text-sm sm:text-base text-gray-500 mt-1">
             {date 
-              ? `Viewing data for ${format(date, "MMMM yyyy")}` 
-              : `Current Month Overview (${format(new Date(), "MMMM")})`}
+              ? `Viewing data for ${format(date, "MMMM d, yyyy")}` 
+              : `Today's Overview (${format(new Date(), "MMMM d, yyyy")})`}
           </p>
         </div>
       </div>
@@ -133,7 +133,7 @@ export default function AnalyticsPage() {
             </div>
           )}
 
-          {/* Chart 1: Engagement (Daily) */}
+          {/* Chart 1: Engagement (Daily Trend for the Month) */}
           <Card className="border-none shadow-none p-0">
             <CardHeader className="px-0 pt-0">
               <CardTitle className="text-lg sm:text-xl">Daily Signups</CardTitle>
@@ -142,7 +142,6 @@ export default function AnalyticsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="px-0">
-              {/* UPDATED: Responsive height (250px mobile / 300px desktop) */}
               <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px] w-full">
                 <LineChart data={engagementData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
@@ -171,14 +170,13 @@ export default function AnalyticsPage() {
             </CardContent>
           </Card>
 
-          {/* Chart 2: Quest Completion (Monthly) with Filter & Zoom */}
+          {/* Chart 2: Quest Completion (For the Specific Day) */}
           <Card className="border-none shadow-none p-0">
-            {/* UPDATED: Header flex-col on mobile to prevent squashing */}
             <CardHeader className="px-0 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4">
               <div className="space-y-1">
                 <CardTitle className="text-lg sm:text-xl">Quest Performance</CardTitle>
                 <CardDescription>
-                  Completion rate (Completions / Starts)
+                  Completion rate on {format(displayDate, "MMMM d, yyyy")} (Completions / Starts)
                 </CardDescription>
               </div>
               <div className="flex items-center gap-2 self-start sm:self-auto">
@@ -197,7 +195,6 @@ export default function AnalyticsPage() {
               </div>
             </CardHeader>
             <CardContent className="px-0">
-              {/* UPDATED: Responsive height */}
               <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px] w-full">
                 <BarChart data={filteredQuestData} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
@@ -260,12 +257,11 @@ export default function AnalyticsPage() {
       <Card className="mt-6 border shadow-sm">
         <CardHeader>
           <CardTitle className="text-lg sm:text-xl">Report Controls</CardTitle>
-          <CardDescription>Select a month to view its specific performance data.</CardDescription>
+          <CardDescription>Select a specific date to view its performance data.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-4 md:flex-row md:items-end w-full">
             <div className="flex gap-2 w-full md:w-auto">
-              {/* UPDATED: w-full for mobile date picker */}
               <div className="grid w-full md:w-[250px] gap-2">
                 <Popover>
                   <PopoverTrigger asChild>
@@ -276,7 +272,7 @@ export default function AnalyticsPage() {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "MMMM yyyy") : <span>Pick a Month</span>}
+                      {date ? format(date, "MMMM d, yyyy") : <span>Pick a Date</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -291,13 +287,12 @@ export default function AnalyticsPage() {
                 </Popover>
               </div>
               {date && (
-                <Button variant="ghost" size="icon" onClick={resetDate} title="Reset to Current Month">
+                <Button variant="ghost" size="icon" onClick={resetDate} title="Reset to Today">
                   <RefreshCw className="h-4 w-4" />
                 </Button>
               )}
             </div>
 
-            {/* UPDATED: w-full for mobile download button */}
             <Button 
               className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 min-w-[140px]"
               onClick={handleDownloadPDF}
