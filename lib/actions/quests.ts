@@ -228,7 +228,10 @@ export async function completeStory(questId: string) {
 }
 
 /**
- * Marks a quest as completed, awards XP, and updates User Level
+ * Marks a quest as completed and awards XP using admin permissions
+ */
+/**
+ * Marks a quest as completed and awards XP using admin permissions
  */
 export async function finishQuest(questId: string) {
   try {
@@ -237,16 +240,22 @@ export async function finishQuest(questId: string) {
 
     if (!user) throw new Error("User not authenticated")
 
-    // 1. Fetch Quest Details
+    console.log(`\n[XP System] 🚀 Starting completion for quest ${questId} by user ${user.id}`)
+
+    const adminClient = getAdminClient()
+
     const { data: quest, error: questError } = await supabase
       .from("quests")
-      .select("xp_reward")
+      .select("xp_reward, difficulty")
       .eq("id", questId)
       .single()
 
     if (questError || !quest) throw new Error("Quest not found")
 
-    // 2. Fetch User Quest Status
+    // 🛠️ FIX 1: Force xpToAward to be a strict Math Number
+    const xpToAward = Number(quest.xp_reward || getXpForDifficulty(quest.difficulty))
+    console.log(`[XP System] 🎯 Quest is worth ${xpToAward} XP.`)
+
     const { data: userQuest, error: uqError } = await supabase
       .from("user_quests")
       .select("*")
@@ -257,11 +266,11 @@ export async function finishQuest(questId: string) {
     if (uqError) throw new Error("User has not started this quest")
 
     if (userQuest.status === "completed") {
+      console.log("[XP System] ⚠️ Quest was ALREADY completed previously! XP will not be granted again.")
       return { message: "Quest already completed", earnedXp: 0 }
     }
 
-    // 3. Update User Quest
-    const { error: updateError } = await supabase
+    const { error: updateError } = await adminClient
       .from("user_quests")
       .update({ 
         status: "completed",
@@ -272,34 +281,38 @@ export async function finishQuest(questId: string) {
 
     if (updateError) throw new Error("Failed to complete quest")
 
-    // 4. Update User Profile
     const { data: profile } = await supabase
       .from("profiles")
       .select("xp")
       .eq("id", user.id)
       .single()
     
-    const currentXp = profile?.xp || 0
-    const newTotalXp = currentXp + (quest.xp_reward || 0)
+    // 🛠️ FIX 2: Force currentXp to be a strict Math Number
+    const currentXp = Number(profile?.xp || 0)
     
-    // Calculate new level
-    const { level: newLevel } = calculateLevel(newTotalXp)
+    // Now they will safely add together mathematically! (e.g., 1100 + 100 = 1200)
+    const newTotalXp = currentXp + xpToAward
+    console.log(`[XP System] 📈 Upgrading XP: ${currentXp} + ${xpToAward} = ${newTotalXp}`)
 
-    const { error: profileError } = await supabase
+    const { error: profileError } = await adminClient
       .from("profiles")
       .update({ 
         xp: newTotalXp,
-        level: newLevel,
         updated_at: new Date().toISOString()
       })
       .eq("id", user.id)
 
-    if (profileError) throw new Error("Failed to update user XP")
+    if (profileError) {
+      console.error("[XP System] ❌ Failed to save XP to database:", profileError)
+      throw new Error("Failed to update user XP")
+    }
 
-    revalidatePath("/participant/quests")
-    revalidatePath("/participant/skills")
+    console.log(`[XP System] ✅ SUCCESS! Saved ${newTotalXp} Total XP to the database.`)
+
+    revalidatePath("/participant", "layout")
     
-    return { success: true, earnedXp: quest.xp_reward, newLevel }
+    const { level: newLevel } = calculateLevel(newTotalXp)
+    return { success: true, earnedXp: xpToAward, newLevel }
   } catch (error) {
     console.error("Error in finishQuest:", error)
     throw error

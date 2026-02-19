@@ -4,6 +4,8 @@ import { ParticipantNav } from "@/components/layout/participant-nav"
 import { SkillCard } from "@/components/participant/skill-card"
 import { Progress } from "@/components/ui/progress"
 import { calculateLevel } from "@/lib/utils"
+  
+export const dynamic = "force-dynamic";
 
 export default async function SkillsPage() {
   const supabase = await createClient()

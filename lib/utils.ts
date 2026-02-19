@@ -10,6 +10,9 @@ export function cn(...inputs: ClassValue[]) {
  * Formula: Base 1000 XP for level 1, increasing by 500 XP for each subsequent level.
  */
 export function calculateLevel(totalXp: number) {
+  // Added a log so you can see exactly what totalXp is being passed in!
+  console.log(`[Level Math] Calculating for totalXp: ${totalXp}`)
+
   let level = 1
   let xpForNextLevel = 1000 // XP needed to go from Level 1 -> 2
   let xpAccumulated = 0
@@ -31,6 +34,9 @@ export function calculateLevel(totalXp: number) {
   
   // Percentage progress (0-100)
   const progressPercent = Math.min(100, Math.max(0, (currentLevelProgressXp / xpForNextLevel) * 100))
+
+  // Added a log to show the final result
+  console.log(`[Level Math] Result - Level: ${level}, Progress: ${currentLevelProgressXp}/${xpForNextLevel} (${progressPercent}%)`)
 
   return {
     level,
