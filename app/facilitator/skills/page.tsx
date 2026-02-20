@@ -44,13 +44,13 @@ export default async function FacilitatorSkillsPage() {
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1 sm:mb-2">Skills</h1>
                 <p className="text-xs sm:text-sm md:text-base text-gray-200">Manage available skills for participants</p>
               </div>
-              {/* Replaced static button with functional component */}
               <CreateSkillButton />
             </div>
           </div>
         </div>
       </div>
 
+      {/* Changed only the background color to white */}
       <main className="relative -mt-8 sm:-mt-12 md:-mt-16 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 bg-white rounded-lg shadow-lg mb-6 sm:mb-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
           {skills?.map((skill) => (

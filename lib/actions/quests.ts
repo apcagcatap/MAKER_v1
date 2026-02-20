@@ -487,6 +487,32 @@ export async function createQuest(formData: any) {
       )
     }
 
+    // --- ONLY NOTIFY IF IT'S CREATED AS PUBLISHED ---
+    if (quest.status === 'Published') {
+      try {
+        const { data: participants } = await adminClient
+          .from('profiles')
+          .select('id')
+          .eq('role', 'participant')
+        
+        if (participants && participants.length > 0) {
+          const notificationsToInsert = participants.map((participant: any) => ({
+            user_id: participant.id,
+            type: 'new_quest',
+            title: 'New Quest Available! 🎯',
+            message: `A new quest "${quest.title}" has just been published. Give it a try!`,
+            link_url: `/participant/quests/${quest.id}`,
+            is_read: false
+          }))
+
+          await adminClient.from('notifications').insert(notificationsToInsert)
+        }
+      } catch (notifError) {
+        console.error("Failed to send notifications for new quest:", notifError)
+      }
+    }
+    // ------------------------------------------------
+
     revalidatePath("/facilitator/quests")
     revalidatePath("/participant/quests")
     return quest
@@ -500,6 +526,7 @@ export async function createQuest(formData: any) {
 export async function updateQuest(questId: string, formData: any): Promise<ActionResponse> {
   try {
     const supabase = await createClient()
+    const adminClient = getAdminClient()
     
     const { count, error: countError } = await supabase
       .from("user_quests")
@@ -550,6 +577,31 @@ export async function updateQuest(questId: string, formData: any): Promise<Actio
       )
     }
 
+    // --- ONLY NOTIFY IF IT WAS JUST PUBLISHED DURING THIS EDIT ---
+    if (oldQuest?.status !== "Published" && quest.status === "Published") {
+      try {
+        const { data: participants } = await adminClient
+          .from('profiles')
+          .select('id')
+          .eq('role', 'participant')
+        
+        if (participants && participants.length > 0) {
+          const notificationsToInsert = participants.map((participant: any) => ({
+            user_id: participant.id,
+            type: 'new_quest',
+            title: 'New Quest Available! 🎯',
+            message: `A new quest "${quest.title}" has just been published. Give it a try!`,
+            link_url: `/participant/quests/${quest.id}`,
+            is_read: false
+          }))
+          await adminClient.from('notifications').insert(notificationsToInsert)
+        }
+      } catch (notifError) {
+        console.error("Failed to send notifications for updated quest:", notifError)
+      }
+    }
+    // -----------------------------------------------------------
+
     revalidatePath("/facilitator/quests")
     revalidatePath("/participant/quests")
     // 🟢 CHANGE: Return success object
@@ -582,7 +634,7 @@ export async function deleteQuest(questId: string) {
 export async function publishQuest(questId: string) {
   try {
     const adminClient = getAdminClient()
-    const { data, error } = await adminClient
+    const { data: quest, error } = await adminClient
       .from("quests")
       .update({ status: "Published" })
       .eq("id", questId)
@@ -591,9 +643,32 @@ export async function publishQuest(questId: string) {
 
     if (error) throw new Error(error.message)
 
+    // --- NOTIFY WHEN PUBLISHED VIA THE PUBLISH ACTION ---
+    try {
+      const { data: participants } = await adminClient
+        .from('profiles')
+        .select('id')
+        .eq('role', 'participant')
+      
+      if (participants && participants.length > 0) {
+        const notificationsToInsert = participants.map((participant: any) => ({
+          user_id: participant.id,
+          type: 'new_quest',
+          title: 'New Quest Available! 🎯',
+          message: `A new quest "${quest.title}" has just been published. Give it a try!`,
+          link_url: `/participant/quests/${quest.id}`,
+          is_read: false
+        }))
+        await adminClient.from('notifications').insert(notificationsToInsert)
+      }
+    } catch (notifError) {
+      console.error("Failed to send notifications for published quest:", notifError)
+    }
+    // ----------------------------------------------------
+
     revalidatePath("/facilitator/quests")
     revalidatePath("/participant/quests")
-    return data
+    return quest
   } catch (error) {
     console.error("Error in publishQuest:", error)
     throw error

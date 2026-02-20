@@ -44,13 +44,11 @@ export async function getQuests(search?: string, status?: string, sort?: string,
   try {
     let query = supabaseAdmin.from("quests").select("*")
 
-    // Filter by archive status
     if (showArchived === "archived") {
       query = query.eq("archived", true)
     } else if (showArchived === "all") {
       // Show everything
     } else {
-      // Default: only show non-archived
       query = query.eq("archived", false)
     }
 
@@ -107,11 +105,9 @@ export async function createQuest(formData: FormData) {
     }
   }
   
-  // Default to active upon creation
   const isActive = formData.get("is_active") === "on"
 
   try {
-    // Handle Image Uploads
     const badgeFile = formData.get("badge_image") as File
     const certificateFile = formData.get("certificate_image") as File
     
@@ -124,7 +120,7 @@ export async function createQuest(formData: FormData) {
     const uploadedCertUrl = await uploadStorageImage(certificateFile, "certificates")
     if (uploadedCertUrl) certificate_image_url = uploadedCertUrl
 
-    const { error } = await supabaseAdmin
+    const { data: quest, error } = await supabaseAdmin
       .from("quests")
       .insert({
         title,
@@ -141,17 +137,47 @@ export async function createQuest(formData: FormData) {
         levels,
         is_active: isActive,
       })
+      .select()
+      .single()
 
     if (error) {
       console.error("Error creating quest:", error)
       return { error: error.message }
     }
+
+    // --- ONLY NOTIFY IF IT'S CREATED AS PUBLISHED ---
+    if (quest.status === 'Published') {
+      try {
+        const { data: participants } = await supabaseAdmin
+          .from('profiles')
+          .select('id')
+          .eq('role', 'participant')
+        
+        if (participants && participants.length > 0) {
+          const notificationsToInsert = participants.map((participant: any) => ({
+            user_id: participant.id,
+            type: 'new_quest',
+            title: 'New Quest Available! 🎯',
+            message: `A new quest "${title}" has just been published. Give it a try!`,
+            link_url: `/participant/quests/${quest.id}`,
+            is_read: false
+          }))
+
+          await supabaseAdmin.from('notifications').insert(notificationsToInsert)
+        }
+      } catch (notifError) {
+        console.error("Failed to send notifications for new quest from admin:", notifError)
+      }
+    }
+    // ------------------------------------------------
+
   } catch (error) {
     console.error("Unexpected error creating quest:", error)
     return { error: "Failed to create quest due to a network or server error." }
   }
 
   revalidatePath("/admin/quests")
+  revalidatePath("/participant/quests") 
   return { success: true }
 }
 
@@ -181,15 +207,19 @@ export async function updateQuest(formData: FormData) {
     }
   }
 
-  // Checkbox returns "on" if checked, null otherwise
   const isActive = formData.get("is_active") === "on"
 
   try {
-    // Handle Image Uploads
+    // 1. Fetch previous status to check for Draft -> Published transition
+    const { data: oldQuest } = await supabaseAdmin
+      .from("quests")
+      .select("status")
+      .eq("id", id)
+      .single()
+
     const badgeFile = formData.get("badge_image") as File
     const certificateFile = formData.get("certificate_image") as File
     
-    // Default to existing URLs if no new file is uploaded
     let badge_image_url = formData.get("existing_badge_image_url") as string
     let certificate_image_url = formData.get("existing_certificate_image_url") as string
 
@@ -199,7 +229,7 @@ export async function updateQuest(formData: FormData) {
     const uploadedCertUrl = await uploadStorageImage(certificateFile, "certificates")
     if (uploadedCertUrl) certificate_image_url = uploadedCertUrl
 
-    const { error } = await supabaseAdmin
+    const { data: quest, error } = await supabaseAdmin
       .from("quests")
       .update({
         title,
@@ -218,17 +248,47 @@ export async function updateQuest(formData: FormData) {
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)
+      .select()
+      .single()
 
     if (error) {
       console.error("Error updating quest:", error)
       return { error: error.message }
     }
+
+    // --- ONLY NOTIFY IF IT WAS JUST PUBLISHED DURING THIS EDIT ---
+    if (oldQuest?.status !== "Published" && quest.status === "Published") {
+      try {
+        const { data: participants } = await supabaseAdmin
+          .from('profiles')
+          .select('id')
+          .eq('role', 'participant')
+        
+        if (participants && participants.length > 0) {
+          const notificationsToInsert = participants.map((participant: any) => ({
+            user_id: participant.id,
+            type: 'new_quest',
+            title: 'New Quest Available! 🎯',
+            message: `A new quest "${quest.title}" has just been published. Give it a try!`,
+            link_url: `/participant/quests/${quest.id}`,
+            is_read: false
+          }))
+
+          await supabaseAdmin.from('notifications').insert(notificationsToInsert)
+        }
+      } catch (notifError) {
+        console.error("Failed to send notifications for updated quest from admin:", notifError)
+      }
+    }
+    // -----------------------------------------------------------
+
   } catch (error) {
     console.error("Unexpected error updating quest:", error)
     return { error: "Failed to update quest due to a network or server error." }
   }
 
   revalidatePath("/admin/quests")
+  revalidatePath("/participant/quests") 
   return { success: true }
 }
 

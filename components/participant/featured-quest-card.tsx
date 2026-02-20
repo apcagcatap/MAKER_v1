@@ -24,24 +24,23 @@ interface FeaturedQuestCardProps {
     started_at?: string
     completed_at?: string
   } | undefined
+  isCompleted?: boolean
 }
 
-export function FeaturedQuestCard({ quest, userQuest }: FeaturedQuestCardProps) {
+export function FeaturedQuestCard({ quest, userQuest, isCompleted }: FeaturedQuestCardProps) {
   const router = useRouter()
+
+  const completed = isCompleted || userQuest?.status === "completed"
 
   const getButtonText = () => {
     if (!userQuest) return "Start this Quest"
-    if (userQuest.status === "completed") return "Complete"
+    if (completed) return "View Results"
     return "Continue Quest"
   }
 
   const getButtonStyle = () => {
-    if (userQuest?.status === "completed") {
-      return "bg-green-600 hover:bg-green-700"
-    }
-    if (userQuest?.status === "in_progress") {
-      return "bg-yellow-600 hover:bg-yellow-700"
-    }
+    if (completed) return "bg-green-600 hover:bg-green-700"
+    if (userQuest?.status === "in_progress") return "bg-yellow-600 hover:bg-yellow-700"
     return "bg-blue-600 hover:bg-blue-700"
   }
 
@@ -68,7 +67,7 @@ export function FeaturedQuestCard({ quest, userQuest }: FeaturedQuestCardProps) 
             </div>
           </div>
         </div>
-        
+
         <button
           onClick={handleClick}
           className={`${getButtonStyle()} text-white px-4 sm:px-6 py-2 rounded-md font-medium transition-colors text-sm sm:text-base w-full sm:w-auto whitespace-nowrap`}

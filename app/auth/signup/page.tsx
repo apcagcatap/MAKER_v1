@@ -281,6 +281,14 @@ function SignupContent() {
                     ))}
                   </select>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="birthdate" className={labelClass}>Birthdate</Label>
+                  <Input id="birthdate" type="date" value={formData.birthdate} onChange={(e) => updateField("birthdate", e.target.value)} required max={maxDate} className={inputClass} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className={labelClass}>Phone</Label>
+                  <Input id="phone" type="tel" placeholder="+639XXXXXXXXX" value={formData.phone} onChange={(e) => updateField("phone", e.target.value)} required className={inputClass} />
+                </div>
               </div>
             </fieldset>
 
@@ -292,32 +300,21 @@ function SignupContent() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="region" className={labelClass}>Region</Label>
-                  <select id="region" value={formData.region} onChange={handleRegionChange} required className={selectClass}>
-                    <option value="" disabled>Select Region</option>
-                    {regionList.map((r) => (
-                      <option key={r.reg_code} value={r.name}>{r.name}</option>
-                    ))}
-                  </select>
+                  <Input id="region" type="text" placeholder="e.g., NCR, Region IV-A" value={formData.region} onChange={(e) => updateField("region", e.target.value)} required className={inputClass} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="province" className={labelClass}>Province</Label>
-                  <select id="province" value={formData.province} onChange={handleProvinceChange} required className={selectClass} disabled={!formData.region}>
-                    <option value="" disabled>Select Province</option>
-                    {provinceList.map((p) => (
-                      <option key={p.prov_code} value={p.name}>{p.name}</option>
-                    ))}
-                  </select>
+                  <Input id="province" type="text" placeholder="e.g., Laguna" value={formData.province} onChange={(e) => updateField("province", e.target.value)} required className={inputClass} />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="cityMunicipality" className={labelClass}>City / Municipality</Label>
-                  <select id="cityMunicipality" value={formData.cityMunicipality} onChange={handleCityChange} required className={selectClass} disabled={!formData.province}>
-                    <option value="" disabled>Select City/Municipality</option>
-                    {cityList.map((c) => (
-                      <option key={c.mun_code} value={c.name}>{c.name}</option>
-                    ))}
-                  </select>
+                  <Input id="cityMunicipality" type="text" placeholder="e.g., Los Baños" value={formData.cityMunicipality} onChange={(e) => updateField("cityMunicipality", e.target.value)} required className={inputClass} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="barangay" className={labelClass}>Barangay</Label>
+                  <Input id="barangay" type="text" placeholder="e.g., Brgy. Batong Malake" value={formData.barangay} onChange={(e) => updateField("barangay", e.target.value)} required className={inputClass} />
                 </div>
               </div>
             </fieldset>
@@ -336,6 +333,15 @@ function SignupContent() {
                   <Label htmlFor="organization" className={labelClass}>Organization / School</Label>
                   <Input id="organization" type="text" placeholder="e.g., DOST-STII" value={formData.organization} onChange={(e) => updateField("organization", e.target.value)} required className={inputClass} />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="highestEducation" className={labelClass}>Highest Educational Attainment</Label>
+                <select id="highestEducation" value={formData.highestEducation} onChange={(e) => updateField("highestEducation", e.target.value)} required className={selectClass}>
+                  <option value="">Select</option>
+                  {EDUCATION_OPTIONS.map((ed) => (
+                    <option key={ed} value={ed}>{ed}</option>
+                  ))}
+                </select>
               </div>
             </fieldset>
 

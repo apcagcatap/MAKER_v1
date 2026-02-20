@@ -26,6 +26,12 @@ export default async function QuestDetailPage({ params }: { params: Promise<{ id
   // Get user's progress on this quest
   const userProgress = await getUserQuestProgress(id, user.id)
 
+  // SECURITY CHECK: Prevent access to Draft or Archived quests
+  // We allow access ONLY if it's Published, OR if the user already completed it (to view their certificate)
+  if (quest.status !== "Published" && userProgress?.status !== "completed") {
+    redirect("/participant/quests")
+  }
+
   // Update the last_accessed timestamp to track when this quest was last opened
   if (userProgress) {
     try {
