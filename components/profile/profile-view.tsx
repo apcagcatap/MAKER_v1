@@ -166,6 +166,45 @@ export function ProfileView({ profile, isOwnProfile, completedQuests, userSkills
         </CardContent>
       </Card>
 
+            {/* Personal Information Card */}
+      <Card className="bg-white border-gray-200 shadow-lg rounded-2xl">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold text-[#1E1E1E]">Personal Information</CardTitle>
+        </CardHeader>
+        
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {profile.email && (
+              <InfoItem icon={Mail} label="Email" value={profile.email} />
+            )}
+            {profile.phone && (
+              <InfoItem icon={Phone} label="Phone" value={profile.phone} />
+            )}
+            {profile.sex && (
+              <InfoItem icon={User} label="Sex" value={profile.sex} />
+            )}
+            {profile.birthdate && (
+              <InfoItem icon={Calendar} label="Birthdate" value={new Date(profile.birthdate).toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" })} />
+            )}
+            {location && (
+              <InfoItem icon={MapPin} label="Location" value={location} />
+            )}
+            {profile.occupation && (
+              <InfoItem icon={Briefcase} label="Occupation" value={profile.occupation} />
+            )}
+            {profile.organization && (
+              <InfoItem icon={Briefcase} label="Organization" value={profile.organization} />
+            )}
+            {profile.highest_education && (
+              <InfoItem icon={GraduationCap} label="Education" value={profile.highest_education} />
+            )}
+          </div>
+          {!profile.email && !profile.phone && !profile.sex && !profile.birthdate && !location && !profile.occupation && !profile.organization && !profile.highest_education && (
+            <p className="text-gray-400 text-sm text-center py-4">No personal information available.</p>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Achievements / Completed Quests */}
       <Card className="bg-white border-gray-200 shadow-lg rounded-2xl">
         <CardHeader className="pb-3">

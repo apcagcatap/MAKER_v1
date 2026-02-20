@@ -277,8 +277,8 @@ function SignupContent() {
                   <Label htmlFor="region" className={labelClass}>Region</Label>
                   <select id="region" value={formData.region} onChange={handleRegionChange} required className={selectClass}>
                     <option value="" disabled>Select Region</option>
-                    {regionList.map((r) => (
-                      <option key={r.reg_code} value={r.name}>{r.name}</option>
+                    {regionList.map((r, index) => (
+                      <option key={`${r.reg_code}-${index}`} value={r.name}>{r.name}</option>
                     ))}
                   </select>
                 </div>
@@ -286,8 +286,8 @@ function SignupContent() {
                   <Label htmlFor="province" className={labelClass}>Province</Label>
                   <select id="province" value={formData.province} onChange={handleProvinceChange} required className={selectClass} disabled={!formData.region}>
                     <option value="" disabled>Select Province</option>
-                    {provinceList.map((p) => (
-                      <option key={p.prov_code} value={p.name}>{p.name}</option>
+                    {provinceList.map((p, index) => (
+                      <option key={`${p.prov_code}-${index}`} value={p.name}>{p.name}</option>
                     ))}
                   </select>
                 </div>
@@ -297,8 +297,8 @@ function SignupContent() {
                   <Label htmlFor="cityMunicipality" className={labelClass}>City / Municipality</Label>
                   <select id="cityMunicipality" value={formData.cityMunicipality} onChange={handleCityChange} required className={selectClass} disabled={!formData.province}>
                     <option value="" disabled>Select City/Municipality</option>
-                    {cityList.map((c) => (
-                      <option key={c.mun_code} value={c.name}>{c.name}</option>
+                    {cityList.map((c, index) => (
+                      <option key={`${c.mun_code}-${index}`} value={c.name}>{c.name}</option>
                     ))}
                   </select>
                 </div>
@@ -306,8 +306,8 @@ function SignupContent() {
                   <Label htmlFor="barangay" className={labelClass}>Barangay</Label>
                   <select id="barangay" value={formData.barangay} onChange={(e) => updateField("barangay", e.target.value)} required className={selectClass} disabled={!formData.cityMunicipality}>
                     <option value="" disabled>Select Barangay</option>
-                    {barangayList.map((b) => (
-                      <option key={b.brgy_code} value={b.name}>{b.name}</option>
+                    {barangayList.map((b, index) => (
+                      <option key={`${b.brgy_code || b.name}-${index}`} value={b.name}>{b.name}</option>
                     ))}
                   </select>
                 </div>
