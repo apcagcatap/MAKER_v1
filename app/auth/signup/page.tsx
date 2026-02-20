@@ -14,15 +14,6 @@ import { regions, provinces, city_mun, barangays } from "phil-reg-prov-mun-brgy"
 
 const SUFFIX_OPTIONS = ["Jr.", "Sr.", "II", "III", "IV", "V"]
 const SEX_OPTIONS = ["Male", "Female"] as const
-const EDUCATION_OPTIONS = [
-  "Elementary",
-  "High School",
-  "Senior High School",
-  "Vocational/Technical",
-  "College/Bachelor's Degree",
-  "Master's Degree",
-  "Doctorate/PhD",
-]
 
 function SignupContent() {
   const [formData, setFormData] = useState({
@@ -34,15 +25,12 @@ function SignupContent() {
     lastName: "",
     suffix: "",
     sex: "" as "" | "Male" | "Female",
-    birthdate: "",
-    phone: "",
     region: "",
     province: "",
     cityMunicipality: "",
     barangay: "",
-    occupation: "",
+    clientType: "",
     organization: "",
-    highestEducation: "",
   })
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [regionList, setRegionList] = useState<any[]>([])
@@ -55,12 +43,6 @@ function SignupContent() {
   const searchParams = useSearchParams()
 
   const role = (searchParams.get("role") as "participant" | "facilitator") || "participant"
-
-  const today = new Date()
-  const maxYear = today.getFullYear() - 12
-  const month = String(today.getMonth() + 1).padStart(2, "0")
-  const day = String(today.getDate()).padStart(2, "0")
-  const maxDate = `${maxYear}-${month}-${day}`
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -171,15 +153,12 @@ function SignupContent() {
             last_name: formData.lastName || null,
             suffix: formData.suffix || null,
             sex: formData.sex || null,
-            birthdate: formData.birthdate || null,
-            phone: formData.phone || null,
             region: formData.region || null,
             province: formData.province || null,
             city_municipality: formData.cityMunicipality || null,
             barangay: formData.barangay || null,
-            occupation: formData.occupation || null,
+            client_type: formData.clientType || null,
             organization: formData.organization || null,
-            highest_education: formData.highestEducation || null,
           })
           .eq("id", data.user.id)
 
@@ -275,7 +254,7 @@ function SignupContent() {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="sex" className={labelClass}>Sex</Label>
                   <select id="sex" value={formData.sex} onChange={(e) => updateField("sex", e.target.value)} required className={selectClass}>
@@ -284,14 +263,6 @@ function SignupContent() {
                       <option key={s} value={s}>{s}</option>
                     ))}
                   </select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="birthdate" className={labelClass}>Birthdate</Label>
-                  <Input id="birthdate" type="date" value={formData.birthdate} onChange={(e) => updateField("birthdate", e.target.value)} required max={maxDate} className={inputClass} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className={labelClass}>Phone</Label>
-                  <Input id="phone" type="tel" placeholder="+639XXXXXXXXX" value={formData.phone} onChange={(e) => updateField("phone", e.target.value)} required className={inputClass} />
                 </div>
               </div>
             </fieldset>
@@ -343,29 +314,20 @@ function SignupContent() {
               </div>
             </fieldset>
 
-            {/* Professional / Educational */}
+            {/* Professional Background */}
             <fieldset className="space-y-4">
               <legend className="text-base font-semibold text-[#004A98] border-b border-gray-200 pb-2 mb-3 w-full">
-                Professional / Educational Background
+                Professional Background
               </legend>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="occupation" className={labelClass}>Occupation</Label>
-                  <Input id="occupation" type="text" placeholder="e.g., Engineer, Student" value={formData.occupation} onChange={(e) => updateField("occupation", e.target.value)} required className={inputClass} />
+                  <Label htmlFor="clientType" className={labelClass}>Client Type</Label>
+                  <Input id="clientType" type="text" placeholder="e.g., Student, Startup" value={formData.clientType} onChange={(e) => updateField("clientType", e.target.value)} required className={inputClass} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="organization" className={labelClass}>Organization / School</Label>
                   <Input id="organization" type="text" placeholder="e.g., DOST-STII" value={formData.organization} onChange={(e) => updateField("organization", e.target.value)} required className={inputClass} />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="highestEducation" className={labelClass}>Highest Educational Attainment</Label>
-                <select id="highestEducation" value={formData.highestEducation} onChange={(e) => updateField("highestEducation", e.target.value)} required className={selectClass}>
-                  <option value="">Select</option>
-                  {EDUCATION_OPTIONS.map((ed) => (
-                    <option key={ed} value={ed}>{ed}</option>
-                  ))}
-                </select>
               </div>
             </fieldset>
 
