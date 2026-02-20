@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { MessageSquare, ChevronDown, ChevronUp, Loader2, Archive, Pencil } from "lucide-react"
+import { MessageSquare, ChevronDown, ChevronUp, Loader2, Archive, Pencil, Trash} from "lucide-react"
 import { createReply, deleteReply, deletePost, updateReply } from "@/lib/actions/forums"
 import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
@@ -78,7 +78,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
   }
 
   const handleDeletePost = async () => {
-    if (!confirm("Are you sure you want to archive this post? All replies will also be archived.")) return
+    if (!confirm("Are you sure you want to delete this post? All replies will also be delete.")) return
 
     setIsDeletingPost(true)
     const result = await deletePost(post.id, forumId)
@@ -93,7 +93,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
     } else {
       toast({
         title: "Success",
-        description: "Post archived successfully",
+        description: "Post delete successfully",
         variant: "delete",
       })
       setIsPostHidden(true)
@@ -123,13 +123,13 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
   }
 
   const handleDeleteReply = async (replyId: string) => {
-    if (!confirm("Archive this reply?")) return
+    if (!confirm("Delete this reply?")) return
 
     const result = await deleteReply(replyId, forumId)
     if (result.error) {
       toast({ title: "Error", description: result.error, variant: "destructive" })
     } else {
-      toast({ title: "Success", description: "Reply archived", variant: "delete" })
+      toast({ title: "Success", description: "Reply Delete", variant: "delete" })
       setReplies(prev => prev.filter(r => r.id !== replyId))
       setLocalReplyCount(prev => Math.max(0, prev - 1))
     }
@@ -193,12 +193,12 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                   
                   <Button
                     variant="ghost"
-                    size="icon"
+                    size="sm"
                     onClick={handleDeletePost}
                     disabled={isDeletingPost}
                     className="text-gray-400 hover:text-red-600 hover:bg-red-50"
                   >
-                    {isDeletingPost ? <Loader2 className="w-4 h-4 animate-spin" /> : <Archive className="w-4 h-4" />}
+                    {isDeletingPost ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Trash className="w-4 h-4 mr-1" /></>}
                   </Button>
                 </div>
               )}
@@ -286,8 +286,8 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                             onClick={() => handleDeleteReply(reply.id)} 
                             className="text-red-600 h-6 px-2 hover:bg-red-50"
                           >
-                            <Archive className="w-3 h-3 mr-1" />
-                            Archive
+                            <Trash className="w-3 h-3 mr-1" />
+                            Delete
                           </Button>
                         </div>
                       )}
