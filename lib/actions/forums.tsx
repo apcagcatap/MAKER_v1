@@ -86,6 +86,43 @@ export async function createPost(forumId: string, content: string) {
     return { error: error.message }
   }
 
+  // ==========================================
+  // 🔔 NOTIFICATION LOGIC: NEW POST / THREAD
+  // ==========================================
+  try {
+    const adminClient = getAdminClient()
+    
+    // Get the forum title for context
+    const { data: forum } = await adminClient
+      .from("forums")
+      .select("title")
+      .eq("id", forumId)
+      .single()
+    
+    // Get all participants EXCEPT the person who just posted
+    const { data: participants } = await adminClient
+      .from('profiles')
+      .select('id')
+      .eq('role', 'participant')
+      .neq('id', user.id)
+    
+    if (participants && participants.length > 0) {
+      const notificationsToInsert = participants.map((participant: any) => ({
+        user_id: participant.id,
+        type: 'new_forum_post',
+        title: 'New Forum Discussion 💬',
+        message: `A new discussion was started in "${forum?.title || 'the forums'}".`,
+        link_url: `/participant/forums/${forumId}`,
+        is_read: false
+      }))
+
+      await adminClient.from('notifications').insert(notificationsToInsert)
+    }
+  } catch (notifError) {
+    console.error("Failed to send notifications for new forum post:", notifError)
+  }
+  // ==========================================
+
   revalidatePath(`/admin/forums/${forumId}`)
   revalidatePath(`/facilitator/forums/${forumId}`)
   revalidatePath(`/participant/forums/${forumId}`)
@@ -146,6 +183,40 @@ export async function createReply(postId: string, content: string, forumId: stri
 
   if (error) {
     return { error: error.message }
+  }
+
+  try {
+    const adminClient = getAdminClient()
+    
+    // Get the original post to find out who the author is
+    const { data: post } = await adminClient
+      .from("forum_posts")
+      .select("user_id")
+      .eq("id", postId)
+      .single()
+      
+    // Only notify if the person replying is NOT the original author
+    if (post && post.user_id !== user.id) {
+      // Get the replier's name for a friendly message
+      const { data: replier } = await adminClient
+        .from("profiles")
+        .select("display_name")
+        .eq("id", user.id)
+        .single()
+        
+      const replierName = replier?.display_name || "Someone"
+      
+      await adminClient.from('notifications').insert({
+        user_id: post.user_id, // Send ONLY to the post author
+        type: 'new_forum_reply',
+        title: 'New Reply to Your Post 📬',
+        message: `${replierName} replied to your forum post.`,
+        link_url: `/participant/forums/${forumId}`, 
+        is_read: false
+      })
+    }
+  } catch (notifError) {
+    console.error("Failed to send notification for forum reply:", notifError)
   }
 
   revalidatePath(`/admin/forums/${forumId}`)

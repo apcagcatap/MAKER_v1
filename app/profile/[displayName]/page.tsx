@@ -1,7 +1,6 @@
 import { redirect, notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { ProfileView } from "@/components/profile/profile-view"
-import { UserSearchSidebar } from "@/components/profile/user-search-sidebar"
 import { ParticipantNav } from "@/components/layout/participant-nav"
 import { FacilitatorNav } from "@/components/layout/facilitator-nav"
 import { AdminNav } from "@/components/layout/admin-nav"
@@ -110,13 +109,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             />
           </div>
 
-          {/* User Search Sidebar */}
-          <div className="w-full lg:w-80 flex-shrink-0">
-            <UserSearchSidebar
-              users={allUsers || []}
-              currentProfileId={viewedProfile.id}
-            />
-          </div>
         </div>
       </div>
     </div>

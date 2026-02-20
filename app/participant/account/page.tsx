@@ -32,47 +32,20 @@ export default async function AccountPage() {
         {/* Page Header */}
         <div className="mb-4 sm:mb-6 md:mb-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1 sm:mb-2">Account Settings</h1>
-          <p className="text-xs sm:text-sm md:text-base text-white/80">Manage your profile and account preferences</p>
+          <p className="text-xs sm:text-sm md:text-base text-white/80">Manage your account settings</p>
         </div>
 
         {/* Account Information Card */}
         <Card className="mb-4 sm:mb-6">
           <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
             <CardTitle className="text-base sm:text-lg md:text-xl">Profile Information</CardTitle>
-            <CardDescription className="text-xs sm:text-sm md:text-base">Update your account details and personal information</CardDescription>
+            <CardDescription className="text-xs sm:text-sm md:text-base">Update your account settings</CardDescription>
           </CardHeader>
           <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
             <AccountForm user={user} profile={profile} />
           </CardContent>
         </Card>
 
-        {/* Stats Summary Card */}
-        <Card>
-          <CardHeader className="px-4 sm:px-6 py-4 sm:py-5">
-            <CardTitle className="text-base sm:text-lg md:text-xl">Your Progress</CardTitle>
-            <CardDescription className="text-xs sm:text-sm md:text-base">Overview of your learning journey</CardDescription>
-          </CardHeader>
-          <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4">
-              <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-600">{profile.level}</div>
-                <div className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1">Level</div>
-              </div>
-              <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-600">{profile.xp}</div>
-                <div className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1">Total XP</div>
-              </div>
-              <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-green-600">0</div>
-                <div className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1">Quests</div>
-              </div>
-              <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-600">0</div>
-                <div className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1">Skills</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </main>
     </div>
   )

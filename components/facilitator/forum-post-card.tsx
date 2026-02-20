@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { MessageSquare, ChevronDown, ChevronUp, Loader2, Archive, Pencil } from "lucide-react"
+import { MessageSquare, ChevronDown, ChevronUp, Loader2, Archive, Pencil, Trash} from "lucide-react"
 import { createReply, deletePost, deleteReply, updateReply } from "@/lib/actions/forums"
 import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
@@ -126,7 +126,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
   }
 
   const handleDeletePost = async () => {
-    if (!confirm("Are you sure you want to archive this post? This will also archive all replies.")) return
+    if (!confirm("Are you sure you want to delete this post? This will also delete all replies.")) return
 
     const result = await deletePost(post.id, forumId)
 
@@ -139,7 +139,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
     } else {
       toast({
         title: "Success",
-        description: "Post archived",
+        description: "Post Deleted successfully",
         variant: "delete",
       })
       setIsPostHidden(true)
@@ -147,7 +147,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
   }
 
   const handleDeleteReply = async (replyId: string) => {
-    if (!confirm("Are you sure you want to archive this reply?")) return
+    if (!confirm("Are you sure you want to delete this reply?")) return
 
     const result = await deleteReply(replyId, forumId)
 
@@ -160,7 +160,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
     } else {
       toast({
         title: "Success",
-        description: "Reply archived",
+        description: "Reply deleted",
         variant: "delete",
       })
       setReplies(prev => prev.filter(r => r.id !== replyId))
@@ -255,7 +255,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                     onClick={handleDeletePost}
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
-                    <Archive className="w-4 h-4" />
+                    <Trash className="w-4 h-4" />
                   </Button>
                 </div>
               )}
@@ -376,7 +376,7 @@ export function ForumPostCard({ post, forumId }: ForumPostCardProps) {
                             onClick={() => handleDeleteReply(reply.id)}
                             className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 px-2"
                           >
-                            <Archive className="w-3 h-3 mr-1" />
+                            <Trash className="w-3 h-3 mr-1" />
                           </Button>
                         )}
                       </div>
