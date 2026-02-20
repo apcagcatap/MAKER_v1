@@ -6,7 +6,7 @@ import { StoryView } from '@/components/participant/story-view'
 import { ResourceCard } from '@/components/participant/resource-card'
 import { ParticipantVerification } from '@/components/participant/participant-verification'
 import { startQuest, completeStory, finishQuest } from '@/lib/actions/quests'
-import { CheckCircle2, Book, ListChecks, Trophy, ArrowRight, ArrowLeft, Clock, Download, X, ChevronDown, ChevronUp, FileText, Package } from 'lucide-react'
+import { CheckCircle2, Book, ListChecks, Trophy, ArrowRight, ArrowLeft, Clock, Download, X, ChevronDown, ChevronUp, FileText, Package, ClipboardList } from 'lucide-react'
 
 interface QuestContentViewProps {
   quest: any
