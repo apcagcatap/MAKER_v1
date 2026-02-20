@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const token_hash = searchParams.get("token_hash")
   const type = searchParams.get("type") as EmailOtpType | null
   const code = searchParams.get("code")
-  const next = searchParams.get("next") ?? "/"
+  const next = searchParams.get("next") ?? (type === "recovery" ? "/update-password" : "/")
 
   // Handle Authorization Code (PKCE Flow) - Standard for password resets
   if (code) {
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
     if (!error) {
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin
-      return NextResponse.redirect(new URL(next, siteUrl))
+      return NextResponse.redirect(new URL('/auth/update-password', siteUrl))
     }
   }
 
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     if (!error) {
       // redirect user to specified redirect URL or root of app
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin
-      return NextResponse.redirect(new URL(next, siteUrl))
+      return NextResponse.redirect(new URL('/auth/update-password', siteUrl))
     }
   }
 

@@ -10,6 +10,13 @@ function Progress({
   value,
   ...props
 }: React.ComponentProps<typeof ProgressPrimitive.Root>) {
+  
+  // Ensure value is a safe number between 0 and 100
+  const safeValue = Math.min(100, Math.max(0, value || 0))
+  
+  // Map the value (0-100) to a Hue color degree (0 = Red, 120 = Green)
+  const hue = (safeValue / 100) * 120
+
   return (
     <ProgressPrimitive.Root
       data-slot="progress"
@@ -21,8 +28,12 @@ function Progress({
     >
       <ProgressPrimitive.Indicator
         data-slot="progress-indicator"
-        className="bg-primary h-full w-full flex-1 transition-all"
-        style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
+        // Removed "bg-primary" so our dynamic inline style takes over
+        className="h-full w-full flex-1 transition-all duration-500 ease-out"
+        style={{ 
+          transform: `translateX(-${100 - safeValue}%)`,
+          backgroundColor: `hsl(${hue}, 85%, 45%)` 
+        }}
       />
     </ProgressPrimitive.Root>
   )

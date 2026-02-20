@@ -1,16 +1,14 @@
-import type { Skill, UserSkill } from "@/lib/types"
-import { Progress } from "@/components/ui/progress"
+import type { Skill } from "@/lib/types"
+import { Badge } from "@/components/ui/badge"
+import { CheckCircle2 } from "lucide-react"
 
 interface SkillCardProps {
   skill: Skill
-  userSkill?: UserSkill
+  status?: "locked" | "completed"
 }
 
-export function SkillCard({ skill, userSkill }: SkillCardProps) {
-  const level = userSkill?.level || 0
-  const xp = userSkill?.xp || 0
-  const xpForNextLevel = level * 100
-  const progress = xpForNextLevel > 0 ? (xp / xpForNextLevel) * 100 : 0
+export function SkillCard({ skill, status = "locked" }: SkillCardProps) {
+  const isCompleted = status === "completed"
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 hover:shadow-lg transition-shadow">
@@ -20,19 +18,17 @@ export function SkillCard({ skill, userSkill }: SkillCardProps) {
           <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 break-words">{skill.name}</h3>
           <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 line-clamp-2">{skill.description}</p>
 
-          {userSkill ? (
-            <div>
-              <div className="flex items-center justify-between text-xs sm:text-sm mb-2">
-                <span className="text-gray-600">Level {level}</span>
-                <span className="font-semibold text-purple-600">
-                  {xp} / {xpForNextLevel} XP
-                </span>
-              </div>
-              <Progress value={progress} className="h-2" />
-            </div>
-          ) : (
-            <p className="text-xs sm:text-sm text-gray-500 italic">Not started yet</p>
-          )}
+          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+            <span className="text-xs font-medium text-gray-400">Status</span>
+            {isCompleted ? (
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" />
+                Completed
+              </Badge>
+            ) : (
+              <span className="text-xs text-gray-400 italic">Not Started Yet</span>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -97,7 +97,7 @@ export function ParticipantNav() {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center gap-2 px-4 py-2 text-blue-100 hover:text-white transition-colors outline-none cursor-pointer">
-                    <span className="font-medium">Account</span>
+                    <span className="font-medium">{displayName || "Account"}</span>
                     <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
                       <User className="w-5 h-5" />
                     </div>

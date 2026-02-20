@@ -5,6 +5,10 @@ import { StatsCard } from "@/components/participant/stats-card"
 import { QuestCard } from "@/components/participant/quest-card"
 import { Trophy, Target, Award, TrendingUp, Lock } from "lucide-react"
 import Link from "next/link"
+import { calculateLevel } from "@/lib/utils" // 👈 1. Import the calculator
+
+// 👈 2. Force Next.js to always fetch fresh XP data
+export const dynamic = "force-dynamic";
 
 export default async function ParticipantDashboard() {
   const supabase = await createClient()
@@ -16,12 +20,18 @@ export default async function ParticipantDashboard() {
     redirect("/auth/login")
   }
 
+  // Fetch user profile (We only need XP now, no level column needed)
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
 
   if (!profile || profile.role !== "participant") {
     redirect("/auth/login")
   }
 
+  // 👈 3. Dynamically calculate the level based purely on XP!
+  const currentXp = profile.xp || 0
+  const { level: calculatedLevel } = calculateLevel(currentXp)
+
+  // Fetch user quests with quest details - ONLY PUBLISHED QUESTS
   const { data: userQuests } = await supabase
     .from("user_quests")
     .select(`
@@ -275,9 +285,10 @@ export default async function ParticipantDashboard() {
             icon={<Trophy className="w-6 h-6" />}
             gradient="bg-gradient-to-br from-yellow-400 to-orange-500"
           />
+
           <StatsCard
             title="Level"
-            value={profile.level}
+            value={calculatedLevel} 
             icon={<TrendingUp className="w-6 h-6" />}
             gradient="bg-gradient-to-br from-purple-500 to-pink-500"
           />

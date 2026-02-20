@@ -9,6 +9,18 @@ interface ParticipantProgressCardProps {
 }
 
 export function ParticipantProgressCard({ userQuest, onClick }: ParticipantProgressCardProps) {
+  
+  // 1. Calculate the dynamic progress based on the current level vs total levels
+  let calculatedProgress = userQuest.progress || 0
+  const totalLevels = userQuest.quest?.levels?.length || 0
+  const currentLevel = userQuest.current_level || 0
+
+  if (userQuest.status === "completed") {
+    calculatedProgress = 100
+  } else if (userQuest.status === "in_progress" && totalLevels > 0) {
+    calculatedProgress = Math.round((currentLevel / totalLevels) * 100)
+  }
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "completed":
@@ -33,13 +45,6 @@ export function ParticipantProgressCard({ userQuest, onClick }: ParticipantProgr
     }
   }
 
-  const getProgressColor = (progress: number) => {
-    if (progress === 100) return "bg-green-500"
-    if (progress >= 50) return "bg-blue-500"
-    if (progress >= 25) return "bg-yellow-500"
-    return "bg-red-500"
-  }
-
   return (
     <div
       onClick={onClick}
@@ -61,17 +66,15 @@ export function ParticipantProgressCard({ userQuest, onClick }: ParticipantProgr
         <div>
           <div className="flex items-center justify-between text-sm mb-2">
             <span className="text-gray-600">Progress</span>
-            <span className="font-semibold text-gray-900">{userQuest.progress}%</span>
+            <span className="font-semibold text-gray-900">{calculatedProgress}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className={`h-2 rounded-full transition-all ${getProgressColor(userQuest.progress)}`}
-              style={{ width: `${userQuest.progress}%` }}
-            />
-          </div>
+          
+          {/* 2. Using your shiny new upgraded Progress component! */}
+          <Progress value={calculatedProgress} className="mb-2" />
+          
           {userQuest.current_level !== null && (
             <p className="text-xs text-gray-500 mt-2">
-              Level {userQuest.current_level + 1} of {userQuest.quest.levels?.length || 0}
+              Level {currentLevel + 1} of {totalLevels}
             </p>
           )}
         </div>

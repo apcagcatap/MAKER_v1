@@ -1,17 +1,3 @@
-/**
- * Account Form Component
- *
- * A client-side form component that allows users to update their account information.
- * Handles form submission, validation, and displays success/error messages.
- *
- * Features:
- * - Update display name
- * - View email (read-only)
- * - Change password
- * - Real-time form validation
- * - Success/error feedback
- */
-
 "use client"
 
 import type React from "react"
@@ -55,7 +41,12 @@ export function AccountForm({ user, profile }: AccountFormProps) {
         .update({ display_name: displayName })
         .eq("id", user.id)
 
-      if (profileError) throw profileError
+      if (profileError) {
+        if (profileError.code === "23505" && profileError.message.includes("profiles_display_name_unique")) {
+          throw new Error("That username is already taken. Please choose a different one.")
+        }
+        throw profileError
+      }
 
       // Update password if provided
       if (newPassword) {
@@ -90,7 +81,7 @@ export function AccountForm({ user, profile }: AccountFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Display Name Field */}
       <div className="space-y-2">
-        <Label htmlFor="displayName">Display Name</Label>
+        <Label htmlFor="displayName">Username</Label>
         <Input
           id="displayName"
           type="text"

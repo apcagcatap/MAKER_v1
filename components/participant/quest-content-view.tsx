@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { StoryView } from '@/components/participant/story-view'
 import { ResourceCard } from '@/components/participant/resource-card'
 import { ParticipantVerification } from '@/components/participant/participant-verification'
-import { startQuest, completeStory } from '@/lib/actions/quests'
-import { CheckCircle2, Book, ListChecks, Trophy, ArrowRight, ArrowLeft, Clock, Download, X, ChevronDown, ChevronUp, FileText, Package, ClipboardList } from 'lucide-react'
+import { startQuest, completeStory, finishQuest } from '@/lib/actions/quests'
+import { CheckCircle2, Book, ListChecks, Trophy, ArrowRight, ArrowLeft, Clock, Download, X, ChevronDown, ChevronUp, FileText, Package } from 'lucide-react'
 
 interface QuestContentViewProps {
   quest: any
@@ -37,6 +37,28 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
   const [showNoSurveyToast, setShowNoSurveyToast] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
 
+  // Download helper function for cross-origin images
+  const handleDownload = async (e: React.MouseEvent<HTMLAnchorElement>, url: string, filename: string) => {
+    e.preventDefault() // Stop normal link navigation
+    try {
+      const response = await fetch(url)
+      const blob = await response.blob()
+      const blobUrl = window.URL.createObjectURL(blob)
+      
+      const link = document.createElement('a')
+      link.href = blobUrl
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(blobUrl)
+    } catch (error) {
+      console.error('Download failed, opening in new tab instead', error)
+      window.open(url, '_blank') // Fallback if blocked by CORS
+    }
+  }
+
+  // Load existing level completions from database
   useEffect(() => {
     const loadLevelCompletions = async () => {
       if (!userProgress) {
@@ -225,13 +247,27 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
             const totalSeconds = Math.max(0, Math.round((lastLevelTime - firstLevelTime) / 1000))
             const totalMinutes = Math.round(totalSeconds / 60)
 
-            await supabase.from('user_quests').update({
-              status: 'completed',
-              completed_at: completionTime.toISOString(),
-              current_level: quest.levels.length,
-              completion_time: totalMinutes,
-              completion_time_seconds: totalSeconds
-            }).eq('quest_id', quest.id).eq('user_id', user.id)
+            console.log('🏆 Quest Complete! Total time:', {
+              first_level_started: new Date(firstLevelTime).toISOString(),
+              last_level_completed: completionTime.toISOString(),
+              total_seconds: totalSeconds,
+              total_minutes: totalMinutes
+            })
+
+            // 1. First, save the completion times (Let the frontend handle the stopwatch)
+            await supabase
+              .from('user_quests')
+              .update({
+                current_level: quest.levels.length,
+                completion_time: totalMinutes,
+                completion_time_seconds: totalSeconds
+              })
+              .eq('quest_id', quest.id)
+              .eq('user_id', user.id)
+
+            // 2. NOW, call our secure server action to officially complete the quest and grant the XP!
+            console.log("Calling secure backend to calculate XP...")
+            await finishQuest(quest.id)
 
             setCurrentStep('completed')
             router.refresh()
@@ -682,9 +718,7 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
                     <img src={quest.badge_image_url} alt="Badge" onClick={() => setSelectedImage(quest.badge_image_url)} className="w-32 h-32 sm:w-48 sm:h-48 mx-auto object-contain cursor-zoom-in hover:scale-105 transition-transform" />
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 mb-2">Achievement Badge</h3>
-                  <a href={quest.badge_image_url} download={`${quest.title}-badge.png`} className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm sm:text-base">
-                    <Download className="w-4 h-4" /> <span>Download Badge</span>
-                  </a>
+                  <a href={quest.badge_image_url} onClick={(e) => handleDownload(e, quest.badge_image_url, `${quest.title}-badge.png`)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm sm:text-base"><Download className="w-4 h-4" /> <span>Download Badge</span></a>
                 </div>
               )}
               {quest.certificate_image_url && (
@@ -693,9 +727,7 @@ export function QuestContentView({ quest, userProgress }: QuestContentViewProps)
                     <img src={quest.certificate_image_url} alt="Cert" onClick={() => setSelectedImage(quest.certificate_image_url)} className="w-full h-32 sm:h-48 mx-auto object-contain cursor-zoom-in hover:scale-105 transition-transform" />
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 mb-2">Certificate of Completion</h3>
-                  <a href={quest.certificate_image_url} download={`${quest.title}-cert.png`} className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm sm:text-base">
-                    <Download className="w-4 h-4" /> <span>Download Certificate</span>
-                  </a>
+                  <a href={quest.certificate_image_url} onClick={(e) => handleDownload(e, quest.certificate_image_url, `${quest.title}-cert.png`)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm sm:text-base"><Download className="w-4 h-4" /> <span>Download Certificate</span></a>
                 </div>
               )}
             </div>
