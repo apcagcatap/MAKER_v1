@@ -34,8 +34,6 @@ function SignupContent() {
     lastName: "",
     suffix: "",
     sex: "" as "" | "Male" | "Female",
-    birthdate: "",
-    phone: "",
     region: "",
     province: "",
     cityMunicipality: "",
@@ -171,8 +169,6 @@ function SignupContent() {
             last_name: formData.lastName || null,
             suffix: formData.suffix || null,
             sex: formData.sex || null,
-            birthdate: formData.birthdate || null,
-            phone: formData.phone || null,
             region: formData.region || null,
             province: formData.province || null,
             city_municipality: formData.cityMunicipality || null,
@@ -285,14 +281,6 @@ function SignupContent() {
                     ))}
                   </select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="birthdate" className={labelClass}>Birthdate</Label>
-                  <Input id="birthdate" type="date" value={formData.birthdate} onChange={(e) => updateField("birthdate", e.target.value)} required max={maxDate} className={inputClass} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className={labelClass}>Phone</Label>
-                  <Input id="phone" type="tel" placeholder="+639XXXXXXXXX" value={formData.phone} onChange={(e) => updateField("phone", e.target.value)} required className={inputClass} />
-                </div>
               </div>
             </fieldset>
 
@@ -331,15 +319,6 @@ function SignupContent() {
                     ))}
                   </select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="barangay" className={labelClass}>Barangay</Label>
-                  <select id="barangay" value={formData.barangay} onChange={(e) => updateField("barangay", e.target.value)} required className={selectClass} disabled={!formData.cityMunicipality}>
-                    <option value="" disabled>Select Barangay</option>
-                    {barangayList.map((b) => (
-                      <option key={b.brgy_code} value={b.name}>{b.name}</option>
-                    ))}
-                  </select>
-                </div>
               </div>
             </fieldset>
 
@@ -357,15 +336,6 @@ function SignupContent() {
                   <Label htmlFor="organization" className={labelClass}>Organization / School</Label>
                   <Input id="organization" type="text" placeholder="e.g., DOST-STII" value={formData.organization} onChange={(e) => updateField("organization", e.target.value)} required className={inputClass} />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="highestEducation" className={labelClass}>Highest Educational Attainment</Label>
-                <select id="highestEducation" value={formData.highestEducation} onChange={(e) => updateField("highestEducation", e.target.value)} required className={selectClass}>
-                  <option value="">Select</option>
-                  {EDUCATION_OPTIONS.map((ed) => (
-                    <option key={ed} value={ed}>{ed}</option>
-                  ))}
-                </select>
               </div>
             </fieldset>
 
